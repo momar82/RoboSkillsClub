@@ -1,0 +1,167 @@
+# ==============================================================================
+# RoboSkillsClub - WorldSkills Autonomous Mobile Robotics (Skill 20)
+# Studica Robotics Kit: VMX-pi Controller & Titan Quad Motor Driver
+# ROS 2 Control Server Configuration (params.yaml)
+# File Path: ~/ros2_ws/src/studica_control/config/params.yaml
+# Author: @Mohammed Salameh (Published Nov 22, 2026)
+# ==============================================================================
+
+control_server:
+  ros__parameters:
+    # --------------------------------------------------------------------------
+    # 1. Titan Quad DC Motor Controller (CAN ID 42)
+    # --------------------------------------------------------------------------
+    titan:
+      enabled: true
+      sensors: ["drive_base", "arm_aux"]
+      
+      drive_base:
+        can_id: 42
+        motor_freq: 15600       # PWM switching frequency in Hz (15.6 kHz)
+        m_0:
+          name: "left_wheel"
+          encoder_mode: "quadrature"
+          dist_per_tick: 0.0006830601  # Meters per tick: (pi * 0.100m) / 1464 ticks = ~0.683 mm
+          inverted: false
+        m_1:
+          name: "right_wheel"
+          encoder_mode: "quadrature"
+          dist_per_tick: 0.0006830601
+          inverted: true
+        m_2:
+          name: "aux_motor_left"
+          encoder_mode: "quadrature"
+          dist_per_tick: 0.0006830601
+          inverted: false
+        m_3:
+          name: "aux_motor_right"
+          encoder_mode: "quadrature"
+          dist_per_tick: 0.0006830601
+          inverted: false
+
+      arm_aux:
+        can_id: 43             # Optional secondary Titan controller
+        motor_freq: 15600
+        m_0:
+          name: "arm_lift"
+          encoder_mode: "quadrature"
+          dist_per_tick: 0.0002500000
+        m_1:
+          name: "wrist_pitch"
+          encoder_mode: "absolute"
+
+    # --------------------------------------------------------------------------
+    # 2. VMX Built-in navX IMU (9-DOF Inertial Measurement Unit)
+    # --------------------------------------------------------------------------
+    imu:
+      enabled: true
+      name: "navx_imu"
+      topic: "/vmx/imu/data"
+      frame_id: "imu_link"
+      update_rate_hz: 50
+      calibrate_on_startup: true
+
+    # --------------------------------------------------------------------------
+    # 3. Multi-Mode Smart Servos (High-Current DIO 12-21)
+    # --------------------------------------------------------------------------
+    servo:
+      enabled: true
+      sensors: ["gripper", "wrist"]
+      gripper:
+        port: 14                # High-Current DIO 14
+        type: "standard"        # Standard positional servo (±150° / 0° to 300°)
+        min_pulse_us: 500
+        max_pulse_us: 2500
+        default_angle: 45.0     # Default open pose
+      wrist:
+        port: 15                # High-Current DIO 15
+        type: "continuous"      # Continuous rotation velocity control
+        neutral_pulse_us: 1500
+
+    # --------------------------------------------------------------------------
+    # 4. Digital Inputs & Outputs (VMX Flex & High-Current DIO)
+    # --------------------------------------------------------------------------
+    dio:
+      enabled: true
+      # Digital Inputs (Pull-up configured)
+      inputs:
+        estop_monitor:
+          port: 11              # Flex DIO 11 (Safety E-stop auxiliary contact)
+          active_low: true
+        push_button_start:
+          port: 10              # Flex DIO 10 (Autonomous mission trigger)
+          active_low: true
+        limit_switch_min:
+          port: 8               # Limit switch for homing
+          active_low: true
+
+      # Digital Outputs (High-Current DIO 12-21)
+      outputs:
+        led_red_fault:
+          port: 18              # High-Current DIO 18 (System fault / E-stop)
+          initial_state: false
+        led_green_ready:
+          port: 19              # High-Current DIO 19 (Robot ready / Autonomy active)
+          initial_state: true
+
+    # --------------------------------------------------------------------------
+    # 5. Distance & Proximity Sensors
+    # --------------------------------------------------------------------------
+    ultrasonic:
+      enabled: true
+      sensors: ["front_sonar"]
+      front_sonar:
+        ping: 8                 # Flex DIO 8 (Trigger pulse)
+        echo: 9                 # Flex DIO 9 (Echo return)
+        frame_id: "front_sonar_link"
+        min_range_m: 0.02
+        max_range_m: 4.00
+
+    sharp:
+      enabled: true
+      sensors: ["side_obstacle_ir"]
+      side_obstacle_ir:
+        channel: 22             # VMX Analog Input 22
+        model: "GP2Y0A21YK0F"    # 10 cm - 80 cm measuring range
+        frame_id: "sharp_ir_link"
+
+    analog_light:
+      enabled: true
+      channel: 23               # VMX Analog Input 23
+      threshold: 512            # Calibration threshold (0=white line, 1023=dark floor)
+
+    # --------------------------------------------------------------------------
+    # 6. Drive Kinematics & Physical Robot Specifications
+    # --------------------------------------------------------------------------
+    kinematics:
+      drive_type: "differential" # Options: differential, omni3, omni4, mecanum
+      wheel_diameter_meters: 0.100    # 100 mm Studica drive wheels
+      track_width_meters: 0.355       # Center distance between left & right wheels
+      wheelbase_meters: 0.300         # For 4-wheel configurations
+      gear_ratio: 14.0                # Maverick 12V DC motor gearbox (14:1)
+      encoder_cpr: 1464               # Optical encoder pulses per wheel revolution
+      max_linear_velocity_mps: 1.20   # 1.2 m/s maximum safe speed
+      max_angular_velocity_radps: 3.14 # ~180 deg/sec
+
+    # --------------------------------------------------------------------------
+    # 7. Sensor Offsets & Coordinate Transforms (Base Footprint Center Reference)
+    # --------------------------------------------------------------------------
+    tf_offsets:
+      lidar_2d:
+        x: 0.120                # 12 cm forward from axle center
+        y: 0.000                # Centered on robot centerline
+        z: 0.180                # 18 cm above ground
+        yaw_rad: 0.000
+      camera_pro:
+        x: 0.160
+        y: 0.000
+        z: 0.220
+        pitch_rad: -0.150       # Tilted slightly downward for floor marker detection
+
+    # --------------------------------------------------------------------------
+    # 8. Power Architecture
+    # --------------------------------------------------------------------------
+    power:
+      battery_count: 1
+      nominal_voltage: 12.0
+      low_voltage_cutoff: 10.5
