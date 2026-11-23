@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RoboSkillsClub — WorldSkills Autonomous Mobile Robotics (Skill 20) Platform</title>
-  <meta name="description" content="Dedicated online training hub and curriculum for WorldSkills Autonomous Mobile Robotics (Skill 20) using Studica VMX-pi, Titan Quad Controller, and companion Robot Dashboard.">
+  <title>RoboSkillsClub — Autonomous Mobile Robotics Training Platform | Studica Robotics</title>
+  <meta name="description" content="Dedicated online training hub and curriculum for Autonomous Mobile Robotics using Studica Robotics Kits (VMX-pi Controller, Titan Quad Driver, and Robot Dashboard).">
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B1B3D'/><path d='M30 50 L50 30 L70 50 L50 70 Z' fill='%232563EB'/><circle cx='50' cy='50' r='10' fill='%23F49322'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F172A'/><circle cx='50' cy='50' r='25' fill='%2338BDF8'/><circle cx='50' cy='50' r='10' fill='%23F59E0B'/></svg>">
   
-  <!-- Firebase SDK v10 (Compat for seamless standalone client-side execution) -->
+  <!-- Firebase SDK v10 (Compat for seamless standalone execution) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-grid">
+<body>
 
-  <!-- Announcement Bar -->
-  <aside class="announcement-bar" aria-label="Announcement">
-    <span class="badge">Open Beta</span>
-    <span>🧪 Open Beta Phase — 100% Free for Training, Students &amp; Coaches. No commercial checkout required.</span>
-    <a href="#beta-apply">Apply for Free Team Access &rarr;</a>
+  <!-- Academy Top Announcement Bar (Eye-Care Theme Switcher Included) -->
+  <aside class="academy-topbar" aria-label="Academy Notice">
+    <div class="announcement-content">
+      <span class="badge-lead">RoboSkills Academy</span>
+      <span>Autonomous Mobile Robotics Curriculum &amp; Training Hub &mdash; Powered by Studica Robotics Kits</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <button class="btn-theme-toggle" onclick="toggleTheme()" title="Toggle Reading &amp; Study Mode (Dark / Light Paper)">
+        <span id="theme-toggle-icon">☀️</span>
+      </button>
+    </div>
   </aside>
 
   <!-- Navigation Bar -->
@@ -27,7 +33,7 @@
     <div class="container nav-wrapper">
       <a href="#home" class="brand-logo" aria-label="RoboSkillsClub Home">
         <div class="brand-icon">
-          <!-- Robotics Gear & Circuit SVG Icon -->
+          <!-- Autonomous Mobile Robotics Hex Shield Icon -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="10" rx="2"></rect>
             <circle cx="12" cy="5" r="2"></circle>
@@ -38,32 +44,33 @@
         </div>
         <div class="brand-text">
           <span class="brand-name">RoboSkillsClub</span>
-          <span class="brand-tagline">Skill 20 AMR Training Hub</span>
+          <span class="brand-sub">Studica Robotics Training Academy</span>
         </div>
       </a>
 
       <nav aria-label="Main Navigation">
         <ul class="nav-links">
           <li><a href="#home" class="active">Home</a></li>
-          <li><a href="#hardware">Hardware Kit</a></li>
+          <li><a href="#hardware">Studica Kit</a></li>
           <li><a href="#classroom-section">Classroom LMS</a></li>
           <li><a href="#robot-dashboard-section">Robot Dashboard</a></li>
           <li><a href="javascript:void(0)" onclick="openPinoutModal()">Pinouts</a></li>
           <li><a href="#faculty">Faculty</a></li>
-          <li id="nav-admin-link" style="display:none;"><a href="javascript:void(0)" onclick="openAdminConsole()" style="color:var(--amber-glow);">Admin Console</a></li>
+          <li id="nav-teacher-link" style="display:none;"><a href="javascript:void(0)" onclick="openTeacherPortal()" style="color:var(--accent-cyan);">Teacher Desk</a></li>
+          <li id="nav-admin-link" style="display:none;"><a href="javascript:void(0)" onclick="openAdminConsole()" style="color:var(--accent-amber);">Admin Console</a></li>
         </ul>
       </nav>
 
       <div class="nav-actions">
-        <a href="https://github.com/momar82/RoboSkillsClub" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="View Source on GitHub">
+        <a href="https://github.com/momar82/RoboSkillsClub" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="View Course Code on GitHub">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
           </svg>
           <span>GitHub</span>
         </a>
         <div id="nav-auth-container">
-          <button class="btn btn-outline btn-sm" onclick="openAuthModal('signin')">Sign In</button>
-          <button class="btn btn-primary btn-sm" onclick="openAuthModal('register')">Free Access</button>
+          <button class="btn btn-outline btn-sm" onclick="openSignInModal()">Sign In</button>
+          <button class="btn btn-primary btn-sm" onclick="openRegisterModal('student')">Register</button>
         </div>
       </div>
     </div>
@@ -75,13 +82,13 @@
       <div class="hero-grid">
         <div class="hero-content">
           <div class="hero-tag">
-            <span>⚡ WorldSkills Skill 20 Official Platform</span>
+            <span>🤖 Premier Autonomous Mobile Robotics Academy</span>
           </div>
           <h1 class="hero-title">
-            Empowering <span class="highlight-blue">WorldSkills</span> Autonomous Mobile <span class="highlight-amber">Robotics Teams</span>
+            Master Industrial <span class="highlight-gradient">Mobile Robotics</span> with Studica VMX &amp; Titan
           </h1>
           <p class="hero-subtitle">
-            Comprehensive hands-on curriculum for the Studica VMX-pi and Titan Quad controller, featuring step-by-step wiring guides, live Robot Dashboard telemetry, and ROS 2 autonomy.
+            Comprehensive hands-on training for the Studica VMX-pi controller and Titan Quad motor driver, featuring step-by-step wiring guides, live Robot Dashboard telemetry, ROS 2 autonomy, and verified Certificates of Achievement.
           </p>
           <div class="hero-ctas">
             <a href="#classroom-section" class="btn btn-primary">
@@ -89,12 +96,12 @@
               <span>Enter Online Classroom</span>
             </a>
             <button class="btn btn-outline" onclick="openPinoutModal()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              <span>View Hardware Pinouts</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span>Hardware Pinouts</span>
             </button>
             <a href="#robot-dashboard-section" class="btn btn-accent">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-              <span>Launch Robot Dashboard</span>
+              <span>Robot Dashboard</span>
             </a>
           </div>
           <div class="hero-metrics">
@@ -107,8 +114,8 @@
               <div class="metric-label">Robot Dashboard</div>
             </div>
             <div class="metric-item">
-              <div class="metric-value">100% Free</div>
-              <div class="metric-label">Open Beta Access</div>
+              <div class="metric-value">Certificates</div>
+              <div class="metric-label">Verifiable Achievement</div>
             </div>
           </div>
         </div>
@@ -130,19 +137,19 @@
             <div class="telemetry-grid">
               <div class="telemetry-stat">
                 <div class="stat-label">Battery Voltage</div>
-                <div class="stat-value" id="hero-stat-voltage">12.45 V</div>
+                <div class="stat-value">12.45 V</div>
               </div>
               <div class="telemetry-stat">
                 <div class="stat-label">SocketCAN Bus</div>
-                <div class="stat-value" style="color:var(--blue-light);">can0 (UP)</div>
+                <div class="stat-value" style="color:var(--accent-cyan);">can0 (UP)</div>
               </div>
               <div class="telemetry-stat">
                 <div class="stat-label">navX IMU Yaw</div>
-                <div class="stat-value" style="color:#A78BFA;">+14.2°</div>
+                <div class="stat-value" style="color:var(--accent-indigo);">+14.2°</div>
               </div>
               <div class="telemetry-stat">
                 <div class="stat-label">Titan Temperature</div>
-                <div class="stat-value" style="color:var(--amber-glow);">38.2 °C</div>
+                <div class="stat-value" style="color:var(--accent-amber);">38.2 °C</div>
               </div>
             </div>
 
@@ -163,14 +170,14 @@
     </div>
   </section>
 
-  <!-- Hardware Kit Breakdown Section -->
-  <section id="hardware" class="section" style="background:rgba(11, 27, 61, 0.4);">
+  <!-- Hardware Showcase -->
+  <section id="hardware" class="section" style="background:var(--bg-secondary);">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">Studica Robotics Kit Specifications</div>
-        <h2 class="section-title">Industrial Autonomous Mobile Robotics Hardware</h2>
+        <div class="section-tag">Industry Leading Hardware</div>
+        <h2 class="section-title">Studica Robotics Kits</h2>
         <p class="section-desc">
-          WorldSkills Skill 20 equips competitors with enterprise-grade robotics hardware engineered for high-precision autonomous navigation and manipulation.
+          Studica Robotics provides the industry-leading hardware platform for hands-on Autonomous Mobile Robotics education and research.
         </p>
       </div>
 
@@ -178,11 +185,11 @@
         <!-- VMX-pi Controller -->
         <div class="card">
           <div class="card-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line></svg>
           </div>
           <h3 class="card-title">Studica VMX-pi Controller</h3>
           <p class="card-text">
-            Integrated Raspberry Pi 4 Model B running Ubuntu &amp; ROS 2, paired with a real-time FPGA coprocessor and factory-calibrated 9-DOF navX-sensor IMU. Features Flex DIO (8–11), High-Current DIO (12–21), and 12-bit Analog ADC (22–25).
+            Integrated Raspberry Pi 4 Model B running Ubuntu Linux and ROS 2, paired with a real-time FPGA coprocessor and factory-calibrated 9-DOF navX-sensor IMU. Features Flex DIO (8–11), High-Current DIO (12–21), and 12-bit Analog ADC (22–25).
           </p>
         </div>
 
@@ -197,29 +204,36 @@
           </p>
         </div>
 
-        <!-- Sensors & Autonomy -->
+        <!-- Sensors & Vision Suite -->
         <div class="card">
           <div class="card-icon">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
-          <h3 class="card-title">Multi-Modal Sensor Suite</h3>
+          <h3 class="card-title">Multi-Modal Perception Suite</h3>
           <p class="card-text">
-            360° 2D LiDAR scanner for SLAM, SR Pro camera for AprilTag/marker recognition, Sharp GP2Y IR sensors (10–80 cm), HC-SR04 ultrasonic sonar (2–400 cm), analog contrast light sensors, and dual-layer physical/digital E-Stop safety.
+            360° 2D RPLiDAR for SLAM navigation, SR Pro camera for marker/AprilTag tracking, Sharp GP2Y IR sensors (10–80 cm), HC-SR04 ultrasonic sonar (2–400 cm), contrast light sensors, and dual-layer safety interlocks.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Interactive LMS Classroom / Course Player (Split-Screen) -->
+  <!-- Interactive LMS Classroom / Course Player -->
   <section id="classroom-section" class="section">
     <div class="container">
       <div class="section-header" style="margin-bottom:2rem;">
         <div class="section-tag">Interactive Classroom LMS</div>
-        <h2 class="section-title">Module 1: Robot Hardware Foundations</h2>
+        <h2 class="section-title">Autonomous Mobile Robotics Curriculum</h2>
         <p class="section-desc">
-          Structured 8-lesson curriculum for first-time students and team coaches. Follows the proven pedagogy: <code>Concept &rarr; Wiring &rarr; Test in Dashboard &rarr; Challenge</code>.
+          Follow the structured pedagogy: <code>Concept &rarr; Wiring Guide &rarr; Dashboard Test &rarr; Challenge Task</code>.
         </p>
+      </div>
+
+      <!-- Unlock Certificate Banner (Shown when 100% completed) -->
+      <div id="cert-unlock-banner" style="display:none; background:linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(99, 102, 241, 0.2)); border:1px solid var(--accent-gold); border-radius:var(--radius-lg); padding:1.25rem 1.75rem; margin-bottom:2rem; text-align:center;">
+        <h3 style="color:var(--accent-gold); margin-bottom:0.35rem;">🎓 Congratulations! You completed all lessons!</h3>
+        <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:0.85rem;">You have earned the official Certificate of Achievement in Autonomous Mobile Robotics.</p>
+        <button class="btn btn-accent" onclick="openCertificateModal()">View &amp; Print Certificate of Achievement</button>
       </div>
 
       <div class="lms-wrapper">
@@ -227,12 +241,12 @@
         <aside class="syllabus-sidebar" aria-label="Course Syllabus">
           <div class="syllabus-header">
             <h3 style="font-size:1.15rem; font-weight:700;">Curriculum Syllabus</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted);">WorldSkills Skill 20 · 8 Lessons (90 min each)</p>
+            <p style="font-size:0.8rem; color:var(--text-muted);">AMR-101 · 8 Lessons (90 min each)</p>
 
             <div class="course-progress-container">
               <div class="progress-label-row">
                 <span style="color:var(--text-muted);">Course Progress</span>
-                <span id="course-progress-text" style="color:var(--gold-sun);">0% (0/8 Completed)</span>
+                <span id="course-progress-text" style="color:var(--accent-amber);">0% (0/8 Completed)</span>
               </div>
               <div class="progress-track">
                 <div id="course-progress-fill" class="progress-fill"></div>
@@ -246,7 +260,7 @@
 
           <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
             <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.5rem; font-weight:700;">
-              Download Coursework Files:
+              Download Course Tools:
             </div>
             <div style="display:flex; flex-direction:column; gap:0.4rem;">
               <a href="downloads/setup_studica_robot.sh" download="setup_studica_robot.sh" class="btn btn-outline btn-sm" style="justify-content:flex-start;">
@@ -269,21 +283,23 @@
               <div class="lesson-meta-row">
                 <span class="lesson-tag" id="lms-lesson-number">Lesson 1.1</span>
                 <span class="lesson-duration">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 14 16 14"></polyline></svg>
                   <span id="lms-lesson-duration">90 min</span>
                 </span>
+                <span class="due-date-pill" id="lms-due-date-pill">📅 Due: 7 days after completion</span>
+                <button id="btn-edit-due-date" class="btn btn-outline btn-sm" style="display:none;" onclick="promptEditDueDate()">Edit Due Date</button>
                 <span class="role-pill role-admin" id="challenge-status-badge">PENDING SUBMISSION</span>
               </div>
               <h2 class="lesson-title" id="lms-lesson-title">Meet the VMX and Titan</h2>
               <div class="lesson-author-attribution">
                 <span>Curriculum Authored By:</span>
-                <strong id="lms-lesson-author" style="color:var(--text-main);">Nov 22, 2026 · @Mohammed Salameh</strong>
+                <strong id="lms-lesson-author" style="color:var(--text-heading);">Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</strong>
               </div>
             </div>
 
             <!-- 16:9 Responsive Video Walkthrough Embed -->
             <div class="video-container">
-              <iframe id="lms-video-iframe" src="https://www.youtube.com/embed/5o3fFr_gkEA" title="WorldSkills Robotics Walkthrough" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <iframe id="lms-video-iframe" src="https://www.youtube.com/embed/5o3fFr_gkEA" title="Robotics Training Walkthrough" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
 
             <!-- Lesson Tabs (Concept / Wiring / Test / Challenge) -->
@@ -315,10 +331,10 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
                   <span>Terminal &amp; ROS 2 Reference Snippet</span>
                 </span>
-                <button class="btn-copy" onclick="copyCodeSnippet()">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                  <span>Copy Code</span>
-                </button>
+                <div style="display:flex; gap:0.5rem;">
+                  <a id="lms-github-code-link" href="https://github.com/momar82/RoboSkillsClub" target="_blank" rel="noopener" class="btn-copy">GitHub Source</a>
+                  <button class="btn-copy" onclick="copyCodeSnippet()">Copy Code</button>
+                </div>
               </div>
               <pre><code id="lms-code-snippet"># Code snippet loads dynamically</code></pre>
             </div>
@@ -327,7 +343,7 @@
             <div class="download-center-card">
               <div class="download-info">
                 <h4>Lesson Resource Downloads</h4>
-                <p>Download ready-to-run parameter files and scripts for this lesson.</p>
+                <p>Download parameter files, scripts, and manuals for this lesson.</p>
               </div>
               <div id="lms-downloads-container" class="download-buttons"></div>
             </div>
@@ -341,23 +357,23 @@
                 <span style="font-size:0.8rem; color:var(--text-dim);">Evaluated by Instructors</span>
               </div>
               <div class="form-group">
-                <label for="challenge-text-input">Observations, Pin Mappings or Technical Answer:</label>
-                <textarea id="challenge-text-input" rows="3" placeholder="Enter your component pinout pairs, mathematical derivation, or measured distances..."></textarea>
+                <label for="challenge-text-input">Technical Observations, Calculations or Answers:</label>
+                <textarea id="challenge-text-input" rows="3" placeholder="Enter your measured values, calculations, or pin allocations..."></textarea>
               </div>
               <div class="form-group">
                 <label for="challenge-terminal-input">Terminal Command Output / Verification Log:</label>
-                <textarea id="challenge-terminal-input" rows="3" placeholder="Paste your terminal logs, candump frames, or ROS 2 node status output..."></textarea>
+                <textarea id="challenge-terminal-input" rows="3" placeholder="Paste your terminal logs, CAN traffic dump, or ROS 2 node status output..."></textarea>
               </div>
               <button class="btn btn-primary" onclick="submitChallenge()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                <span>Submit Solution for Verification</span>
+                <span>Submit Assignment for Review</span>
               </button>
 
               <div id="challenge-feedback-container" style="display:none;"></div>
             </div>
 
             <!-- Bottom Lesson Navigation -->
-            <div class="lesson-nav-footer">
+            <div class="lesson-nav-footer" style="display:flex; justify-content:space-between; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">
               <button id="btn-prev-lesson" class="btn btn-outline" onclick="navigatePrevLesson()">
                 <span>&larr; Previous Lesson</span>
               </button>
@@ -372,7 +388,7 @@
   </section>
 
   <!-- 6-Tab Robot Dashboard Simulator -->
-  <section id="robot-dashboard-section" class="section" style="background:#050D1E;">
+  <section id="robot-dashboard-section" class="section" style="background:var(--bg-secondary);">
     <div class="container">
       <div class="section-header">
         <div class="section-tag">Interactive Hardware Simulator</div>
@@ -385,9 +401,9 @@
       <div class="dashboard-container">
         <!-- Top Title Bar -->
         <div class="dashboard-topbar">
-          <div class="dashboard-app-title">
-            <span style="width:10px; height:10px; border-radius:50%; background:var(--green-emerald);"></span>
-            <span>Studica Robot Dashboard (v2.4.0) — Target: 192.168.1.100 [can0: 1 Mbps]</span>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="width:10px; height:10px; border-radius:50%; background:var(--accent-green);"></span>
+            <span style="font-weight:700; font-size:0.95rem;">Studica Robot Dashboard (v2.4.0) — Target: 192.168.1.100 [can0: 1 Mbps]</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.75rem;">
             <button class="btn btn-outline btn-sm" onclick="resetDashEncoders()">Reset Encoders</button>
@@ -439,34 +455,28 @@
                   <input type="password" class="form-control" value="studica" readonly>
                 </div>
               </div>
-              <div style="margin-top:1rem; padding:1rem; background:var(--bg-navy-light); border-radius:var(--radius-md); border:1px solid var(--border-color);">
-                <div style="font-weight:600; font-size:0.85rem; margin-bottom:0.3rem; color:var(--gold-sun);">Link Diagnostic Status:</div>
-                <p style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-code);">
-                  PING 192.168.1.100: 0.42ms RTT · CAN Bus: 0 error frames · Heartbeat: 2.0 Hz
-                </p>
-              </div>
             </div>
 
             <div>
               <h4 style="margin-bottom:1rem; font-size:1.1rem;">ROS 2 Node Supervisor</h4>
               <div style="display:flex; flex-direction:column; gap:0.6rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
                   <span>/titan_driver (CAN ID 42)</span>
                   <button class="role-pill role-student" id="node-toggle-titan" onclick="toggleDashNode('titan')">RUNNING</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
                   <span>/navx_imu_node (SPI)</span>
                   <button class="role-pill role-student" id="node-toggle-imu" onclick="toggleDashNode('imu')">RUNNING</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
                   <span>/servo_controller</span>
                   <button class="role-pill role-student" id="node-toggle-servo" onclick="toggleDashNode('servo')">RUNNING</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
                   <span>/dio_sensor_node</span>
                   <button class="role-pill role-student" id="node-toggle-dio" onclick="toggleDashNode('dio')">RUNNING</button>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.6rem 0.85rem; border-radius:var(--radius-sm);">
                   <span>/rplidar_node (USB)</span>
                   <button class="role-pill role-student" id="node-toggle-lidar" onclick="toggleDashNode('lidar')">RUNNING</button>
                 </div>
@@ -480,13 +490,8 @@
           <div class="grid-2">
             <div>
               <h4 style="margin-bottom:1.25rem;">Titan Quad Drive Actuators</h4>
-              
-              <!-- M0 Left Wheel -->
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Motor 0 (Left Drive Wheel):</span>
-                  <strong id="dash-m0-val" style="color:var(--gold-sun);">0%</strong>
-                </div>
+              <div class="form-group">
+                <label>Motor 0 (Left Drive Wheel): <strong id="dash-m0-val" style="color:var(--accent-amber);">0%</strong></label>
                 <input type="range" id="dash-m0-slider" min="-100" max="100" value="0">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-top:0.25rem;">
                   <span>Ticks: <strong id="dash-m0-ticks" style="color:var(--text-main);">0</strong></span>
@@ -494,55 +499,26 @@
                 </div>
               </div>
 
-              <!-- M1 Right Wheel -->
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Motor 1 (Right Drive Wheel):</span>
-                  <strong id="dash-m1-val" style="color:var(--gold-sun);">0%</strong>
-                </div>
+              <div class="form-group">
+                <label>Motor 1 (Right Drive Wheel): <strong id="dash-m1-val" style="color:var(--accent-amber);">0%</strong></label>
                 <input type="range" id="dash-m1-slider" min="-100" max="100" value="0">
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-top:0.25rem;">
                   <span>Ticks: <strong id="dash-m1-ticks" style="color:var(--text-main);">0</strong></span>
                   <span>Speed: <strong id="dash-m1-rpm" style="color:var(--text-main);">0 RPM</strong></span>
                 </div>
               </div>
-
-              <div style="display:flex; gap:1rem; margin-top:1.5rem;">
-                <div class="telemetry-stat" style="flex:1;">
-                  <div class="stat-label">Titan Current Draw</div>
-                  <div class="stat-value">1.85 A</div>
-                </div>
-                <div class="telemetry-stat" style="flex:1;">
-                  <div class="stat-label">H-Bridge Temp</div>
-                  <div class="stat-value">38.2 °C</div>
-                </div>
-              </div>
             </div>
 
             <div>
               <h4 style="margin-bottom:1.25rem;">Multi-Mode Smart Servos</h4>
-              
-              <!-- Servo Gripper -->
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Gripper (High-Current DIO 14 - Standard):</span>
-                  <strong id="dash-gripper-val" style="color:var(--amber-glow);">45°</strong>
-                </div>
+              <div class="form-group">
+                <label>Gripper (DIO 14 - Standard Angular Mode): <strong id="dash-gripper-val" style="color:var(--accent-cyan);">45°</strong></label>
                 <input type="range" id="dash-gripper-slider" min="0" max="300" value="45">
                 <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
                   <button class="btn btn-outline btn-sm" onclick="setGripperPreset(45)">Preset Open (45°)</button>
                   <button class="btn btn-outline btn-sm" onclick="setGripperPreset(80)">Preset Half (80°)</button>
                   <button class="btn btn-outline btn-sm" onclick="setGripperPreset(120)">Preset Close (120°)</button>
                 </div>
-              </div>
-
-              <!-- Wrist Servo -->
-              <div class="slider-group" style="margin-top:1.5rem;">
-                <div class="slider-label-row">
-                  <span>Wrist Pitch (DIO 15 - Continuous Mode):</span>
-                  <strong style="color:var(--blue-light);">1500 µs (Neutral)</strong>
-                </div>
-                <input type="range" min="1000" max="2000" value="1500">
               </div>
             </div>
           </div>
@@ -553,22 +529,22 @@
           <div class="grid-2">
             <div>
               <h4 style="margin-bottom:1rem;">Digital Inputs (Flex DIO)</h4>
-              <div style="display:flex; flex-direction:column; gap:0.85rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.75rem; border-radius:var(--radius-md);">
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.75rem; border-radius:var(--radius-md);">
                   <div>
                     <strong>Push Button (Start Mission)</strong>
                     <div style="font-size:0.75rem; color:var(--text-dim);">Flex DIO 10 · Active LOW</div>
                   </div>
                   <button class="btn btn-outline btn-sm" onmousedown="pressDashButton(true)" onmouseup="pressDashButton(false)">Hold to Press</button>
-                  <span id="ind-button-10" class="role-pill" style="background:var(--bg-surface);">INACTIVE (HIGH)</span>
+                  <span id="ind-button-10" class="role-pill" style="background:var(--bg-primary);">INACTIVE (HIGH)</span>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:0.75rem; border-radius:var(--radius-md);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-elevated); padding:0.75rem; border-radius:var(--radius-md);">
                   <div>
                     <strong>E-Stop Secondary Sense</strong>
                     <div style="font-size:0.75rem; color:var(--text-dim);">Flex DIO 11 · Safety Interlock</div>
                   </div>
-                  <span id="ind-estop-11" class="role-pill" style="background:var(--green-emerald);">OK (5V)</span>
+                  <span id="ind-estop-11" class="role-pill" style="background:var(--accent-green);">OK (5V)</span>
                 </div>
               </div>
 
@@ -576,14 +552,14 @@
               <div style="display:flex; gap:1.5rem;">
                 <div style="display:flex; align-items:center; gap:0.75rem;">
                   <div id="led-bulb-red" style="width:20px; height:20px; border-radius:50%; background:#EF4444; opacity:0.8;"></div>
-                  <label class="switch-toggle">
+                  <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; cursor:pointer;">
                     <input type="checkbox" onchange="toggleDashLED('red')">
                     <span>Red LED (Pin 18)</span>
                   </label>
                 </div>
                 <div style="display:flex; align-items:center; gap:0.75rem;">
                   <div id="led-bulb-green" style="width:20px; height:20px; border-radius:50%; background:#10B981; box-shadow:0 0 15px #10B981;"></div>
-                  <label class="switch-toggle">
+                  <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; cursor:pointer;">
                     <input type="checkbox" checked onchange="toggleDashLED('green')">
                     <span>Green LED (Pin 19)</span>
                   </label>
@@ -596,24 +572,17 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
                 <div class="telemetry-stat">
                   <div class="stat-label">Sharp IR Distance (Pin 22)</div>
-                  <div class="stat-value" id="dash-sharp-val" style="color:var(--amber-glow);">28.5 cm</div>
+                  <div class="stat-value" id="dash-sharp-val" style="color:var(--accent-amber);">28.5 cm</div>
                 </div>
                 <div class="telemetry-stat">
                   <div class="stat-label">Ultrasonic Distance (Pin 8/9)</div>
-                  <div class="stat-value" id="dash-sonar-val" style="color:var(--blue-light);">29.8 cm</div>
+                  <div class="stat-value" id="dash-sonar-val" style="color:var(--accent-cyan);">29.8 cm</div>
                 </div>
               </div>
 
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Light Sensor ADC (Analog Pin 23):</span>
-                  <strong id="dash-light-val" style="color:var(--gold-sun);">720</strong>
-                </div>
+              <div class="form-group">
+                <label>Light Sensor Contrast (Analog 23): <strong id="dash-light-val" style="color:var(--accent-gold);">720</strong></label>
                 <input type="range" id="dash-light-slider" min="0" max="1023" value="720">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-top:0.25rem;">
-                  <span>0 (Reflective White Tape)</span>
-                  <span>1023 (Dark Floor Tile)</span>
-                </div>
               </div>
             </div>
           </div>
@@ -623,28 +592,21 @@
         <div class="dash-tab-pane" id="dash-tab-pane-4" role="tabpanel">
           <div class="grid-2">
             <div>
-              <h4 style="margin-bottom:1rem; display:flex; justify-content:space-between;">
-                <span>2D LiDAR Polar Radar Scan</span>
-                <span class="role-pill role-student">10 Hz RPLiDAR</span>
-              </h4>
+              <h4 style="margin-bottom:1rem;">2D LiDAR Polar Radar Scan (10 Hz RPLiDAR)</h4>
               <div class="radar-canvas-container">
                 <canvas id="dash-radar-canvas" class="radar-canvas" width="380" height="280"></canvas>
               </div>
             </div>
 
             <div>
-              <h4 style="margin-bottom:1rem; display:flex; justify-content:space-between;">
-                <span>SR Pro Camera Vision Feed</span>
-                <span class="role-pill role-student">60 FPS 1080p</span>
-              </h4>
-              <div class="camera-feed-container" style="height:280px; flex-direction:column; position:relative; background:#071229;">
-                <!-- Simulated Camera View -->
-                <div style="border:2px dashed var(--amber-glow); width:140px; height:120px; display:flex; align-items:center; justify-content:center; color:var(--amber-glow); font-size:0.75rem; font-weight:700; flex-direction:column; border-radius:6px;">
-                  <span>TARGET BLOCK</span>
+              <h4 style="margin-bottom:1rem;">SR Pro Camera Vision Feed (60 FPS 1080p)</h4>
+              <div class="camera-feed-container" style="height:280px; flex-direction:column; position:relative; background:#0F172A;">
+                <div style="border:2px dashed var(--accent-amber); width:140px; height:120px; display:flex; align-items:center; justify-content:center; color:var(--accent-amber); font-size:0.75rem; font-weight:700; flex-direction:column; border-radius:6px;">
+                  <span>TARGET DETECTED</span>
                   <span>Dist: 30.2 cm</span>
                 </div>
-                <div style="position:absolute; bottom:10px; left:15px; font-size:0.75rem; font-family:var(--font-code); color:var(--green-emerald);">
-                  Target: AprilTag 16h5 (ID #4) · Pixel: (320, 240)
+                <div style="position:absolute; bottom:10px; left:15px; font-size:0.75rem; font-family:var(--font-code); color:var(--accent-green);">
+                  Marker: AprilTag 16h5 (ID #4) · Center: (320, 240)
                 </div>
               </div>
             </div>
@@ -680,7 +642,7 @@
                   <input type="number" id="cfg-gear-ratio" class="form-control" value="14.0" step="0.1" onchange="generateDynamicParamsYaml()">
                 </div>
                 <div class="form-group">
-                  <label for="cfg-cpr">Encoder CPR (Ticks/Rev):</label>
+                  <label for="cfg-cpr">Encoder CPR:</label>
                   <input type="number" id="cfg-cpr" class="form-control" value="1464" onchange="generateDynamicParamsYaml()">
                 </div>
               </div>
@@ -702,34 +664,24 @@
         <div class="dash-tab-pane" id="dash-tab-pane-6" role="tabpanel">
           <div class="grid-2">
             <div>
-              <h4 style="margin-bottom:1rem;">Cartesian &amp; Joint Jog Controls</h4>
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Vertical Lift Axis (M2 Aux Titan):</span>
-                  <strong style="color:var(--gold-sun);">145 mm</strong>
-                </div>
+              <h4 style="margin-bottom:1rem;">Cartesian Jog Controls</h4>
+              <div class="form-group">
+                <label>Vertical Lift Axis (M2 Aux): <strong style="color:var(--accent-amber);">145 mm</strong></label>
                 <input type="range" min="0" max="300" value="145">
               </div>
-              <div class="slider-group">
-                <div class="slider-label-row">
-                  <span>Horizontal Reach Extension (M3 Titan):</span>
-                  <strong style="color:var(--gold-sun);">80 mm</strong>
-                </div>
+              <div class="form-group">
+                <label>Horizontal Reach Extension (M3): <strong style="color:var(--accent-amber);">80 mm</strong></label>
                 <input type="range" min="0" max="250" value="80">
-              </div>
-              <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
-                <button class="btn btn-outline" onclick="showToast('Arm Homed to Lower Limit Switch', 'success')">🏠 Home All Axes</button>
-                <button class="btn btn-outline" onclick="showToast('Autonomous Gripper Cycle Started')">▶ Run Pick Routine</button>
               </div>
             </div>
 
             <div>
-              <h4 style="margin-bottom:1rem;">End-Effector Sensor Feedback</h4>
-              <div style="background:var(--bg-surface); padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
-                <div style="font-weight:600; margin-bottom:0.5rem;">Gripper Pressure Contact:</div>
+              <h4 style="margin-bottom:1rem;">End-Effector Feedback</h4>
+              <div style="background:var(--bg-elevated); padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                <div style="font-weight:600; margin-bottom:0.5rem;">Tactile Pressure Switch:</div>
                 <p style="font-size:0.875rem; color:var(--text-muted);">
-                  Tactile microswitch: <span style="color:var(--green-emerald); font-weight:700;">BLOCK DETECTED</span><br>
-                  Closing Force Current: <strong>0.84 A</strong> (Within safe limits)
+                  State: <span style="color:var(--accent-green); font-weight:700;">BLOCK GRIPPED</span><br>
+                  Current Draw: <strong>0.84 A</strong> (Normal load)
                 </p>
               </div>
             </div>
@@ -739,95 +691,38 @@
     </div>
   </section>
 
-  <!-- Faculty & Author Attribution Section -->
+  <!-- Faculty & Leadership Section -->
   <section id="faculty" class="section">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">Faculty &amp; Author Attribution</div>
-        <h2 class="section-title">Leadership &amp; Robotics Pedagogy</h2>
+        <div class="section-tag">Faculty &amp; Leadership</div>
+        <h2 class="section-title">Academic Leadership &amp; Pedagogy</h2>
         <p class="section-desc">
-          Crafted by certified WorldSkills Autonomous Mobile Robotics mentors and competition trainers.
+          Crafted by leading researchers in robotics, SLAM navigation, and mobile autonomy.
         </p>
       </div>
 
-      <div style="max-width:850px; margin:0 auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:var(--radius-xl); padding:2.5rem; display:flex; gap:2.5rem; align-items:center; flex-wrap:wrap;">
-        <div style="width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg, var(--blue-electric), var(--amber-glow)); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px var(--blue-glow);">
-          <span style="font-family:var(--font-heading); font-size:2.5rem; font-weight:800; color:#fff;">MS</span>
+      <div style="max-width:850px; margin:0 auto; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-xl); padding:2.5rem; display:flex; gap:2.5rem; align-items:center; flex-wrap:wrap; box-shadow:var(--shadow-md);">
+        <div style="width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg, var(--accent-blue), var(--accent-indigo)); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 0 25px rgba(59, 130, 246, 0.3);">
+          <span style="font-family:var(--font-heading); font-size:2.25rem; font-weight:800; color:#fff;">MS</span>
         </div>
         <div style="flex:1; min-width:280px;">
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
-            <h3 style="font-size:1.75rem;">@Mohammed Salameh</h3>
-            <span class="role-pill role-super-admin">Lead Author</span>
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+            <h3 style="font-size:1.75rem;">Dr. Mohammed Salameh</h3>
+            <span class="role-pill role-super-admin">PhD in Robotics, SLAM and VSLAM</span>
           </div>
-          <div style="font-size:0.875rem; color:var(--amber-glow); font-weight:600; margin-bottom:0.85rem;">
-            Published Nov 22, 2026 · WorldSkills AMR Skill 20 Pedagogical Architect
+          <div style="font-size:0.9rem; color:var(--accent-cyan); font-weight:600; margin-bottom:0.85rem;">
+            Lead Curriculum Architect &amp; Super Admin
           </div>
-          <p style="font-size:0.95rem; color:var(--text-muted); line-height:1.6;">
-            Decades of combined engineering and competition coaching experience in STEM pedagogy, mobile robotics engineering, and national team training. Overseeing complete hardware-to-software mastery for Studica VMX-pi, Titan Quad, and ROS 2 autonomy architectures.
+          <p style="font-size:0.95rem; color:var(--text-muted); line-height:1.7;">
+            Distinguished researcher and educator specializing in autonomous mobile robotics, Simultaneous Localization and Mapping (SLAM), Visual SLAM (VSLAM), and embedded ROS 2 control systems. Directing comprehensive educational programs bridging hardware-level FPGA and motor driver architectures with cutting-edge autonomous perception.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Free Beta Training Application Form Section -->
-  <section id="beta-apply" class="section" style="background:rgba(7, 18, 41, 0.7);">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-tag">Educator &amp; Team Pilot Program</div>
-        <h2 class="section-title">Apply for Free Beta Training Access</h2>
-        <p class="section-desc">
-          Are you a school, technical college, or national WorldSkills training team? Get full access to downloadable courseware, PDF workbooks, and instructor grading desks.
-        </p>
-      </div>
-
-      <div style="max-width:680px; margin:0 auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:var(--radius-xl); padding:2.5rem; box-shadow:var(--shadow-lg);">
-        <form id="beta-application-form" onsubmit="submitBetaApplication(event)">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div class="form-group">
-              <label for="beta-name">Coach / Lead Name *</label>
-              <input type="text" id="beta-name" class="form-control" placeholder="e.g. Mohammed Salameh" required>
-            </div>
-            <div class="form-group">
-              <label for="beta-email">Official Institutional Email *</label>
-              <input type="email" id="beta-email" class="form-control" placeholder="e.g. coach@institution.edu" required>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1.2fr 0.8fr; gap:1rem;">
-            <div class="form-group">
-              <label for="beta-institution">Institution / Academy / School *</label>
-              <input type="text" id="beta-institution" class="form-control" placeholder="e.g. National Robotics Institute" required>
-            </div>
-            <div class="form-group">
-              <label for="beta-team">Team / Skill Name</label>
-              <input type="text" id="beta-team" class="form-control" placeholder="Skill 20 AMR Team">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="beta-students">Estimated Student Competitors:</label>
-            <input type="number" id="beta-students" class="form-control" value="8" min="1" max="100">
-          </div>
-
-          <div class="form-group">
-            <label for="beta-message">Current Robotics Hardware Setup &amp; Training Goals:</label>
-            <textarea id="beta-message" class="form-control" rows="3" placeholder="Tell us about your Studica kit availability, competition target, or questions..."></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-accent" style="width:100%; padding:0.85rem; font-size:1rem;">
-            <span>Submit Free Beta Application</span>
-          </button>
-        </form>
-
-        <div id="beta-success-msg" style="display:none; margin-top:1.25rem; padding:1rem; background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.3); border-radius:var(--radius-md); color:#34D399; text-align:center;">
-          🎉 Your application has been logged to the RoboSkillsClub admissions desk. We will reach out within 24 hours.
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Legal Fair Use Footer -->
+  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -838,65 +733,362 @@
             </div>
             <div class="brand-text">
               <span class="brand-name">RoboSkillsClub</span>
-              <span class="brand-tagline">Skill 20 AMR Platform</span>
+              <span class="brand-sub">Autonomous Mobile Robotics</span>
             </div>
           </div>
           <p class="footer-brand-desc">
-            Independent open-source training hub and comprehensive curriculum for WorldSkills Autonomous Mobile Robotics Skill 20.
+            Dedicated online learning platform and course website for Autonomous Mobile Robotics training using Studica Robotics Kits.
           </p>
         </div>
 
         <div class="footer-col">
-          <h5>Curriculum</h5>
+          <h5>Curriculum &amp; Tools</h5>
           <ul class="footer-links">
-            <li><a href="#classroom-section">Module 1: Foundations</a></li>
+            <li><a href="#classroom-section">Module 1: Hardware Foundations</a></li>
             <li><a href="downloads/params.yaml" download>ROS 2 params.yaml</a></li>
-            <li><a href="downloads/setup_studica_robot.sh" download>Setup Script</a></li>
+            <li><a href="downloads/setup_studica_robot.sh" download>Robot Setup Script</a></li>
             <li><a href="javascript:void(0)" onclick="openPinoutModal()">Pinout Sheet</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h5>Platform &amp; Tools</h5>
+          <h5>Platform &amp; Roles</h5>
           <ul class="footer-links">
-            <li><a href="#robot-dashboard-section">Robot Dashboard</a></li>
+            <li><a href="javascript:void(0)" onclick="openSignInModal()">Classroom Sign In</a></li>
+            <li><a href="javascript:void(0)" onclick="openRegisterModal('student')">Student Registration</a></li>
+            <li><a href="javascript:void(0)" onclick="openRegisterModal('teacher')">Teacher Registration</a></li>
             <li><a href="https://github.com/momar82/RoboSkillsClub" target="_blank" rel="noopener">GitHub Repository</a></li>
-            <li><a href="#beta-apply">Educator Pilot Access</a></li>
-            <li><a href="javascript:void(0)" onclick="openAuthModal('signin')">Classroom Sign In</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h5>Administration</h5>
+          <h5>Evaluation Quick-Sign In</h5>
           <ul class="footer-links">
             <li><a href="javascript:void(0)" onclick="quickDemoSignIn('super_admin')">Super Admin Mode</a></li>
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('teacher')">Coach / Instructor Mode</a></li>
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('student')">Competitor Mode</a></li>
+            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('admin')">Admin Mode</a></li>
+            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('teacher')">Teacher Mode</a></li>
+            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('student')">Student Mode</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <div class="legal-fair-use">
-          <strong>Fair Use &amp; Trademark Compliance:</strong> WorldSkills is a registered trademark of WorldSkills International. RoboSkillsClub is an independent educational training community and is not officially affiliated with or endorsed by WorldSkills International.
+        <div>
+          &copy; 2026 RoboSkillsClub. Published by <strong>Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</strong>.
         </div>
-        <div class="footer-copyright">
-          <span>&copy; 2026 RoboSkillsClub. Published by @Mohammed Salameh. Open Beta Phase &mdash; 100% Free for Educational Use.</span>
-          <span>Target Hardware: Studica VMX-pi &amp; Titan Quad Controller</span>
+        <div>
+          Hardware Partner: <strong>Studica Robotics (VMX-pi &amp; Titan Quad Controller)</strong>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Modal: Hardware Pinouts & Wiring Guide -->
-  <div id="pinout-modal" class="modal-overlay" onclick="closePinoutModal()">
+  <!-- =========================================================================
+       MODALS: Auth, Registrations, Admin Oversight, Teacher Desk, Certificate
+       ========================================================================= -->
+
+  <!-- Modal: Sign In -->
+  <div id="signin-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem;">Sign In to RoboSkillsClub</h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <!-- Quick Switcher -->
+      <div style="background:var(--bg-primary); padding:0.85rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border:1px solid var(--border-color);">
+        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700; margin-bottom:0.5rem;">
+          ⚡ Instant Evaluation One-Click Access:
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('super_admin')">
+            <span>👑 <strong>Super Admin</strong> (${SUPER_ADMIN_EMAIL})</span>
+            <span class="role-pill role-super-admin">FULL ACCESS</span>
+          </button>
+          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('teacher')">
+            <span>🎓 <strong>Teacher</strong> (sarah.jenkins@academy.org)</span>
+            <span class="role-pill role-teacher">GRADING</span>
+          </button>
+          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('student')">
+            <span>🤖 <strong>Student</strong> (alex.student@university.edu)</span>
+            <span class="role-pill role-student">CLASSROOM</span>
+          </button>
+        </div>
+      </div>
+
+      <form onsubmit="event.preventDefault(); quickDemoSignIn('super_admin');">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" class="form-control" value="m.omar82@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" value="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Sign In</button>
+      </form>
+
+      <div style="font-size:0.85rem; color:var(--text-dim); text-align:center; margin-top:1.25rem;">
+        New here? <a href="javascript:void(0)" onclick="openRegisterModal('student')">Register as Student</a> or <a href="javascript:void(0)" onclick="openRegisterModal('teacher')">Teacher</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Registration (Student & Teacher with Approval Routing) -->
+  <div id="register-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:620px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem;">RoboSkillsClub Registration</h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <!-- Tab Switcher: Student vs Teacher -->
+      <div style="display:flex; border-bottom:1px solid var(--border-color); margin-bottom:1.5rem;">
+        <button id="reg-tab-student" class="tab-btn active" style="flex:1; justify-content:center;" onclick="switchRegisterTab('student')">
+          <span>Student Registration</span>
+        </button>
+        <button id="reg-tab-teacher" class="tab-btn" style="flex:1; justify-content:center;" onclick="switchRegisterTab('teacher')">
+          <span>Teacher / Instructor Registration</span>
+        </button>
+      </div>
+
+      <!-- Student Registration Form -->
+      <form id="student-reg-fields" onsubmit="handleStudentRegistration(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="reg-student-name" class="form-control" placeholder="e.g. Alex Rivera" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" id="reg-student-email" class="form-control" placeholder="alex@university.edu" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="reg-student-mobile" class="form-control" placeholder="+1 555-0192" required>
+          </div>
+          <div class="form-group">
+            <label>Country *</label>
+            <input type="text" id="reg-student-country" class="form-control" placeholder="e.g. Canada, Germany, UAE" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Education Level *</label>
+          <select id="reg-edu-level" class="form-control" onchange="toggleEducationSubfields()">
+            <option value="university">University / Higher Education</option>
+            <option value="school">School / K-12</option>
+          </select>
+        </div>
+
+        <!-- University Subfields -->
+        <div id="uni-subfields">
+          <div class="form-group">
+            <label>University / College Name *</label>
+            <input type="text" id="reg-uni-name" class="form-control" placeholder="e.g. Technical University of Munich">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Degree Level</label>
+              <select id="reg-uni-degree" class="form-control">
+                <option value="BSc">Bachelor's (BSc / BEng)</option>
+                <option value="MSc">Master's (MSc / MEng)</option>
+                <option value="PhD">PhD / Doctorate</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Major / Department *</label>
+              <input type="text" id="reg-uni-major" class="form-control" placeholder="e.g. Mechatronics, Robotics, CS">
+            </div>
+          </div>
+        </div>
+
+        <!-- School Subfields -->
+        <div id="school-subfields" style="display:none;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>School Name *</label>
+              <input type="text" id="reg-school-name" class="form-control" placeholder="e.g. Oakville STEM High School">
+            </div>
+            <div class="form-group">
+              <label>Grade / Year *</label>
+              <input type="text" id="reg-school-grade" class="form-control" placeholder="e.g. Grade 11">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Course to Enroll *</label>
+          <select id="reg-student-course" class="form-control">
+            <option value="course-amr-101">AMR-101: Autonomous Mobile Robotics Foundations (Instructor: Prof. Sarah Jenkins)</option>
+          </select>
+          <span style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem; display:block;">
+            ℹ️ If the course has an assigned instructor, they will review and approve your account. Otherwise, academy admin will approve.
+          </span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Register Student Account</button>
+      </form>
+
+      <!-- Teacher Registration Form -->
+      <form id="teacher-reg-fields" style="display:none;" onsubmit="handleTeacherRegistration(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="reg-teacher-name" class="form-control" placeholder="e.g. Prof. Sarah Jenkins" required>
+          </div>
+          <div class="form-group">
+            <label>Official Academic Email *</label>
+            <input type="email" id="reg-teacher-email" class="form-control" placeholder="sarah@institution.edu" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="reg-teacher-mobile" class="form-control" placeholder="+1 555-0184" required>
+          </div>
+          <div class="form-group">
+            <label>Country *</label>
+            <input type="text" id="reg-teacher-country" class="form-control" placeholder="e.g. Canada" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Organization / University / School Name *</label>
+          <input type="text" id="reg-teacher-org" class="form-control" placeholder="e.g. Department of Mechanical &amp; Mechatronics Engineering" required>
+        </div>
+
+        <div class="form-group">
+          <label>Current Job Title / Position *</label>
+          <input type="text" id="reg-teacher-job" class="form-control" placeholder="e.g. Professor of Robotics / Lead Mentor" required>
+        </div>
+
+        <div class="callout amber" style="margin:1rem 0;">
+          <div class="callout-title">Teacher Approval Policy:</div>
+          <div class="callout-body">
+            Once submitted, Academy Administration reviews your application and sets your maximum student enrollment quota. You can then directly add students and grade their coursework.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-accent" style="width:100%;">Submit Teacher Application</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Super Admin & Admin Console -->
+  <div id="admin-modal" class="modal-overlay" onclick="closeAllModals()">
     <div class="modal-card" style="max-width:800px;" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3 style="font-size:1.35rem;">Studica VMX &amp; Titan Quad Pinout Sheet</h3>
-        <button class="modal-close-btn" onclick="closePinoutModal()">&times;</button>
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>👑 RoboSkillsClub Administration Console</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; margin-bottom:1.5rem;">
+        <div class="telemetry-stat">
+          <div class="stat-label">Active Students</div>
+          <div class="stat-value">142</div>
+        </div>
+        <div class="telemetry-stat">
+          <div class="stat-label">Certified Teachers</div>
+          <div class="stat-value" style="color:var(--accent-cyan);">14</div>
+        </div>
+        <div class="telemetry-stat">
+          <div class="stat-label">Course Completion</div>
+          <div class="stat-value" style="color:var(--accent-green);">78.4%</div>
+        </div>
+      </div>
+
+      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Pending Teacher &amp; Student Registrations:</h4>
+      <div id="admin-approvals-list" style="max-height:260px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+
+      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Course &amp; Curriculum Builder:</h4>
+      <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong>AMR-101: Autonomous Mobile Robotics Foundations</strong>
+          <div style="font-size:0.8rem; color:var(--text-dim);">1 Module · 8 Lessons · Assigned: Prof. Sarah Jenkins</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Module & lesson editing active', 'success')">Manage Lessons</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Teacher Desk -->
+  <div id="teacher-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:850px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>🎓 Instructor &amp; Teacher Desk</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+        <div>
+          <strong>Course: AMR-101 Autonomous Mobile Robotics</strong>
+          <div style="font-size:0.8rem; color:var(--text-dim);">Student Quota: 3 / 35 Enrolled</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="teacherAddStudent()">+ Add Student Directly</button>
+      </div>
+
+      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Assigned Student Roster &amp; Achievements:</h4>
+      <div id="teacher-student-roster" style="max-height:300px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Official Certificate of Achievement -->
+  <div id="certificate-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:900px; padding:1.5rem;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+        <button class="btn btn-primary btn-sm" onclick="printCertificate()">🖨️ Print / Save as PDF</button>
+        <button class="modal-close-btn" style="margin-left:1rem;" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <!-- Printable Certificate Box -->
+      <div class="certificate-wrapper" id="printable-certificate">
+        <div class="certificate-header-seal">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+        </div>
+        <div class="certificate-academy-title">RoboSkillsClub Robotics Academy</div>
+        <h2 class="certificate-main-title">Certificate of Achievement</h2>
+        <div class="certificate-awarded-to">This is to officially certify that</div>
+        <div class="certificate-recipient-name" id="cert-student-name">Alex Rivera</div>
+        <div class="certificate-statement">
+          has successfully completed all rigorous coursework, wiring assessments, ROS 2 parameters tuning, and practical challenges in
+          <br><strong id="cert-course-title" style="color:#0F172A; font-size:1.15rem;">Autonomous Mobile Robotics Foundations</strong><br>
+          demonstrating verified competence in the Studica VMX-pi Controller, Titan Quad Driver, and Autonomous Perception.
+        </div>
+
+        <div class="certificate-signatures-row">
+          <div class="cert-signature-block">
+            <div class="cert-signature-line">Dr. M. Salameh</div>
+            <div class="cert-signee-title">Dr. Mohammed Salameh</div>
+            <div class="cert-signee-cred">PhD in Robotics, SLAM and VSLAM<br>Lead Curriculum Architect</div>
+          </div>
+
+          <div class="cert-signature-block">
+            <div class="cert-verification-qr" id="cert-verification-id">Verification ID: RSC-AMR-2026</div>
+            <div style="font-size:0.75rem; color:#64748B;" id="cert-date">November 23, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Hardware Pinouts & Wiring Sheet -->
+  <div id="pinout-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:800px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem;">Studica VMX &amp; Titan Quad Pinout Guide</h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
       </div>
       <div style="max-height:70vh; overflow-y:auto;">
-        <h4 style="color:var(--gold-sun); margin-bottom:0.5rem;">VMX Connector Allocations</h4>
+        <h4 style="color:var(--accent-amber); margin-bottom:0.5rem;">VMX Connector Allocations</h4>
         <table class="pinout-table">
           <thead>
             <tr><th>Port Group</th><th>Channel Range</th><th>Voltage Rail</th><th>Component Assignment</th></tr>
@@ -915,7 +1107,7 @@
           </tbody>
         </table>
 
-        <h4 style="color:var(--amber-glow); margin:1.5rem 0 0.5rem;">Titan Quad Motor &amp; Encoder Allocations</h4>
+        <h4 style="color:var(--accent-cyan); margin:1.5rem 0 0.5rem;">Titan Quad Motor &amp; Encoder Allocations</h4>
         <table class="pinout-table">
           <thead>
             <tr><th>Terminal / Port</th><th>Wiring Target</th><th>Specifications</th></tr>
@@ -932,92 +1124,10 @@
     </div>
   </div>
 
-  <!-- Modal: Auth & Demo Switcher -->
-  <div id="auth-modal" class="modal-overlay" onclick="closeAuthModal()">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 id="auth-modal-title" style="font-size:1.35rem;">Sign In to Classroom</h3>
-        <button class="modal-close-btn" onclick="closeAuthModal()">&times;</button>
-      </div>
-
-      <!-- Quick Demo Switcher -->
-      <div style="background:var(--bg-surface); padding:0.85rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border:1px solid var(--border-color);">
-        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700; margin-bottom:0.5rem;">
-          ⚡ Instant One-Click Evaluation Sign-In:
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.4rem;">
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('super_admin')">
-            <span>👑 <strong>Super Admin</strong> (${SUPER_ADMIN_EMAIL})</span>
-            <span class="role-pill role-super-admin">FULL ACCESS</span>
-          </button>
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('teacher')">
-            <span>🎓 <strong>Instructor / Coach</strong> (coach.sarah@roboskills.org)</span>
-            <span class="role-pill role-teacher">GRADING</span>
-          </button>
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('student')">
-            <span>🤖 <strong>Competitor Student</strong> (alex.team20@roboskills.org)</span>
-            <span class="role-pill role-student">CLASSROOM</span>
-          </button>
-        </div>
-      </div>
-
-      <form id="auth-form" onsubmit="handleAuthFormSubmit(event)">
-        <div class="form-group">
-          <label for="auth-email">Email Address</label>
-          <input type="email" id="auth-email" class="form-control" placeholder="m.omar82@gmail.com" required>
-        </div>
-        <div class="form-group">
-          <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required>
-        </div>
-        <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Sign In</button>
-      </form>
-
-      <div id="auth-toggle-prompt" style="font-size:0.85rem; color:var(--text-dim); text-align:center; margin-top:1.25rem;">
-        Need training access? <a href="javascript:void(0)" onclick="toggleAuthMode('register')">Register free</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Super Admin Console -->
-  <div id="admin-modal" class="modal-overlay" onclick="closeAdminConsole()">
-    <div class="modal-card" style="max-width:750px;" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem;">
-          <span>👑 RoboSkillsClub Super Admin Console</span>
-        </h3>
-        <button class="modal-close-btn" onclick="closeAdminConsole()">&times;</button>
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; margin-bottom:1.5rem;">
-        <div class="telemetry-stat">
-          <div class="stat-label">Total Enrolled Students</div>
-          <div class="stat-value" id="admin-metric-users">142</div>
-        </div>
-        <div class="telemetry-stat">
-          <div class="stat-label">Pending Inquiries</div>
-          <div class="stat-value" id="admin-metric-inquiries" style="color:var(--amber-glow);">28</div>
-        </div>
-        <div class="telemetry-stat">
-          <div class="stat-label">Module 1 Completion</div>
-          <div class="stat-value" style="color:var(--green-emerald);">78.4%</div>
-        </div>
-      </div>
-
-      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Beta Training Applications &amp; Team Inquiries:</h4>
-      <div id="admin-inquiries-list" style="max-height:300px; overflow-y:auto;"></div>
-
-      <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center; padding-top:1rem; border-top:1px solid var(--border-color);">
-        <span style="font-size:0.8rem; color:var(--text-dim);">Super Admin: m.omar82@gmail.com</span>
-        <button class="btn btn-outline btn-sm" onclick="showToast('Curriculum database synced with Firestore', 'success')">🔄 Re-seed Module 1 Data</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification Container -->
+  <!-- Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-  <!-- Application Logic -->
+  <!-- Application Script -->
   <script src="app.js"></script>
 </body>
 </html>

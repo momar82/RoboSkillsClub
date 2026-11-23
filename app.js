@@ -1,8 +1,7 @@
 /**
- * RoboSkillsClub - Educational Platform & Course Player
- * Dedicated to WorldSkills Autonomous Mobile Robotics (Skill 20)
- * Studica Robotics Kit (VMX-pi & Titan Quad Controller)
- * Author: @Mohammed Salameh (Published Nov 22, 2026)
+ * RoboSkillsClub — Autonomous Mobile Robotics Training Platform
+ * Powered by Studica Robotics Kits (VMX-pi & Titan Quad Controller)
+ * Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM
  */
 
 // =============================================================================
@@ -29,245 +28,212 @@ try {
     auth = firebase.auth();
     isFirebaseOnline = true;
     console.log("✔ Firebase initialized for RoboSkillsClub");
-  } else {
-    console.warn("Firebase SDK not loaded, running in client standalone mode.");
   }
 } catch (e) {
-  console.warn("Firebase initialization note:", e.message);
+  console.warn("Firebase initialization notice:", e.message);
 }
 
 // Super Admin Email
 const SUPER_ADMIN_EMAIL = "m.omar82@gmail.com";
+const LEAD_AUTHOR = "Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM";
 
 // =============================================================================
-// 2. Comprehensive Module 1 Curriculum Data
+// 2. Comprehensive Course & Curriculum Hierarchy
 // =============================================================================
-const MODULE_1_DATA = {
-  id: "module-1",
-  title: "Module 1: Robot Hardware Foundations: VMX, Titan & Robot Dashboard",
-  author: "Nov 22, 2026 · @Mohammed Salameh",
-  description: "Comprehensive hands-on training for the Studica VMX-pi controller, Titan Quad motor driver, ROS 2 parameters, and 6-tab companion Robot Dashboard.",
-  lessons: [
-    {
-      id: "lesson-1-1",
-      number: "1.1",
-      title: "Meet the VMX and Titan",
-      duration: "90 min",
-      youtubeId: "5o3fFr_gkEA", // WorldSkills Robotics / Studica Walkthrough
-      concept: `
-        <h3>1. Architectural Overview: Brain & Muscle</h3>
-        <p>In the WorldSkills Autonomous Mobile Robotics (AMR) ecosystem, the <strong>Studica VMX Controller</strong> serves as the robot's high-level brain, while the <strong>Titan Quad Controller</strong> provides the heavy-current muscular actuation.</p>
-        
-        <p>The VMX integrates a <strong>Raspberry Pi 4 Model B</strong> (running Ubuntu Linux and ROS 2) coupled with an onboard real-time FPGA and a 9-axis <strong>navX Inertial Measurement Unit (IMU)</strong>. The Titan Quad is a 4-channel closed-loop H-bridge motor driver communicating with the VMX over an industrial <strong>Controller Area Network (CAN bus)</strong> operating at 1 Mbps.</p>
+const DEFAULT_COURSES = [
+  {
+    id: "course-amr-101",
+    title: "Autonomous Mobile Robotics Foundations",
+    shortCode: "AMR-101",
+    description: "Comprehensive hands-on training for the Studica VMX-pi controller, Titan Quad motor driver, ROS 2 parameters, and 6-tab companion Robot Dashboard.",
+    author: LEAD_AUTHOR,
+    assignedTeacherId: "teacher_sarah",
+    assignedTeacherName: "Prof. Sarah Jenkins",
+    modules: [
+      {
+        id: "module-1",
+        number: 1,
+        title: "Module 1: Robot Hardware Foundations: VMX, Titan & Robot Dashboard",
+        lessons: [
+          {
+            id: "lesson-1-1",
+            number: "1.1",
+            title: "Meet the VMX and Titan",
+            duration: "90 min",
+            youtubeId: "5o3fFr_gkEA",
+            concept: `
+              <h3>1. Architectural Overview: Brain & Muscle</h3>
+              <p>In autonomous mobile robotics, the <strong>Studica VMX Controller</strong> serves as the robot's high-level brain, while the <strong>Titan Quad Controller</strong> provides the heavy-current muscular actuation.</p>
+              <p>The VMX integrates a <strong>Raspberry Pi 4 Model B</strong> (running Ubuntu Linux and ROS 2) coupled with an onboard real-time FPGA and a 9-axis <strong>navX Inertial Measurement Unit (IMU)</strong>. The Titan Quad is a 4-channel closed-loop H-bridge motor driver communicating with the VMX over an industrial <strong>Controller Area Network (CAN bus)</strong> operating at 1 Mbps.</p>
 
-        <h3>2. Connector Blocks & Pin Mapping</h3>
-        <table class="pinout-table">
-          <thead>
-            <tr><th>Port Group</th><th>Channel Range</th><th>Voltage / Logic</th><th>Primary Robotic Function</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>Flex DIO</code></td><td>DIO 8 – 11</td><td>5V / 3.3V selectable</td><td>High-speed quadrature encoders, Ultrasonic ping/echo, E-Stop monitoring, push buttons</td></tr>
-            <tr><td><code>High-Current DIO</code></td><td>DIO 12 – 21</td><td>5V / 3.3V (Up to 2A total)</td><td>Multi-Mode Smart Servos, status indicator LEDs, limit switches</td></tr>
-            <tr><td><code>Analog Inputs</code></td><td>Analog 22 – 25</td><td>0 – 5V (12-bit ADC)</td><td>Sharp GP2Y0A21YK0F infrared distance sensors, light line sensors, battery monitors</td></tr>
-            <tr><td><code>JST GH I2C/SPI</code></td><td>Channels 0 – 7</td><td>3.3V</td><td>Auxiliary sensors, ToF ranging sensors, external OLED displays</td></tr>
-            <tr><td><code>CAN Weidmuller</code></td><td>CAN_H / CAN_L</td><td>1 Mbps Differential</td><td>High-speed bus link to Titan Quad Controller (CAN ID 42)</td></tr>
-            <tr><td><code>RPi 4 Ports</code></td><td>USB 3.0 & Gigabit Ethernet</td><td>5V USB / 1000Base-T</td><td>Ethernet programming link to laptop, RPLiDAR 2D scanner, SR Pro USB camera</td></tr>
-          </tbody>
-        </table>
+              <h3>2. Connector Blocks & Pin Mapping</h3>
+              <table class="pinout-table">
+                <thead>
+                  <tr><th>Port Group</th><th>Channel Range</th><th>Voltage / Logic</th><th>Primary Robotic Function</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>Flex DIO</code></td><td>DIO 8 – 11</td><td>5V / 3.3V selectable</td><td>High-speed quadrature encoders, Ultrasonic ping/echo, E-Stop monitoring, push buttons</td></tr>
+                  <tr><td><code>High-Current DIO</code></td><td>DIO 12 – 21</td><td>5V / 3.3V (Up to 2A total)</td><td>Multi-Mode Smart Servos, status indicator LEDs, limit switches</td></tr>
+                  <tr><td><code>Analog Inputs</code></td><td>Analog 22 – 25</td><td>0 – 5V (12-bit ADC)</td><td>Sharp GP2Y0A21YK0F infrared distance sensors, light line sensors</td></tr>
+                  <tr><td><code>JST GH I2C/SPI</code></td><td>Channels 0 – 7</td><td>3.3V</td><td>Auxiliary sensors, ToF ranging sensors, external OLED displays</td></tr>
+                  <tr><td><code>CAN Weidmuller</code></td><td>CAN_H / CAN_L</td><td>1 Mbps Differential</td><td>High-speed bus link to Titan Quad Controller (CAN ID 42)</td></tr>
+                  <tr><td><code>RPi 4 Ports</code></td><td>USB 3.0 & Gigabit Ethernet</td><td>5V USB / 1000Base-T</td><td>Ethernet programming link to laptop, RPLiDAR 2D scanner, SR Pro USB camera</td></tr>
+                </tbody>
+              </table>
 
-        <h3>3. Essential Hardware Jumpers</h3>
-        <div class="callout amber">
-          <div class="callout-title">⚠️ Critical Jumper Safety Configuration:</div>
-          <div class="callout-body">
-            <ul>
-              <li><strong>High-Current DIO Direction Jumper:</strong> Configures High-Current DIO 12–21 as either ALL INPUTS or ALL OUTPUTS. Never drive active output signals into pins configured as outputs!</li>
-              <li><strong>Flex DIO Voltage Jumper:</strong> Selects between 3.3V and 5.0V pull-up rail. Studica sensors and encoders require the 5.0V setting.</li>
-              <li><strong>CAN Termination Jumper:</strong> 120Ω bus terminating resistor must be enabled on the last physical node (Titan Quad).</li>
-            </ul>
-          </div>
-        </div>
-      `,
-      wiring: `
-        <h3>Wiring Verification Checklist</h3>
-        <ol>
-          <li>Inspect VMX-pi flex connector ribbon cable seated securely into the Raspberry Pi 4 GPIO header.</li>
-          <li>Verify the Flex DIO voltage selector jumper is firmly positioned on <strong>5V</strong>.</li>
-          <li>Verify the Titan Quad 120-ohm terminating resistor switch is set to <strong>ON</strong>.</li>
-          <li>Inspect Weidmuller screwless CAN terminals: Green wire = <strong>CAN_L</strong>, Yellow wire = <strong>CAN_H</strong>.</li>
-        </ol>
-      `,
-      test: `
-        <h3>Dashboard Verification Steps (Tab 1)</h3>
-        <p>1. Open Robot Dashboard on your laptop.</p>
-        <p>2. Navigate to <strong>Tab 1 (Connection)</strong>.</p>
-        <p>3. Confirm that the VMX power LED (Blue) and navX IMU indicator (Green) are illuminated solid.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.1: Hardware Port & Pinout Identification</h3>
-        <p>Review the VMX and Titan schematics. In the submission desk below, correctly pair each of the following 8 components with its exact physical connector port and explain why:</p>
-        <ol>
-          <li>Maverick DC Motor Left</li>
-          <li>Maverick DC Motor Right</li>
-          <li>Left Wheel Optical Encoder</li>
-          <li>Multi-Mode Smart Servo Gripper</li>
-          <li>Emergency E-Stop Auxiliary Signal</li>
-          <li>Autonomous Start Push Button</li>
-          <li>Sharp Infrared Distance Sensor</li>
-          <li>HC-SR04 Ultrasonic Trigger Pulse</li>
-        </ol>
-      `,
-      codeSnippet: `# Verify VMX FPGA and communication over SPI in terminal:
+              <h3>3. Essential Hardware Jumpers</h3>
+              <div class="callout amber">
+                <div class="callout-title">⚠️ Critical Jumper Safety Configuration:</div>
+                <div class="callout-body">
+                  <ul>
+                    <li><strong>High-Current DIO Direction Jumper:</strong> Configures High-Current DIO 12–21 as either ALL INPUTS or ALL OUTPUTS. Never drive active output signals into pins configured as outputs!</li>
+                    <li><strong>Flex DIO Voltage Jumper:</strong> Selects between 3.3V and 5.0V pull-up rail. Studica sensors and encoders require the 5.0V setting.</li>
+                    <li><strong>CAN Termination Jumper:</strong> 120Ω bus terminating resistor must be enabled on the last physical node (Titan Quad).</li>
+                  </ul>
+                </div>
+              </div>
+            `,
+            wiring: `
+              <h3>Wiring Verification Checklist</h3>
+              <ol>
+                <li>Inspect VMX-pi flex connector ribbon cable seated securely into the Raspberry Pi 4 GPIO header.</li>
+                <li>Verify the Flex DIO voltage selector jumper is firmly positioned on <strong>5V</strong>.</li>
+                <li>Verify the Titan Quad 120-ohm terminating resistor switch is set to <strong>ON</strong>.</li>
+                <li>Inspect Weidmuller screwless CAN terminals: Green wire = <strong>CAN_L</strong>, Yellow wire = <strong>CAN_H</strong>.</li>
+              </ol>
+            `,
+            test: `
+              <h3>Dashboard Verification Steps (Tab 1)</h3>
+              <p>1. Open Robot Dashboard on your laptop.</p>
+              <p>2. Navigate to <strong>Tab 1 (Connection)</strong>.</p>
+              <p>3. Confirm that the VMX power LED (Blue) and navX IMU indicator (Green) are illuminated solid.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.1: Hardware Port & Pinout Identification</h3>
+              <p>Review the VMX and Titan schematics. In the submission desk below, correctly pair each of the following 8 components with its exact physical connector port and explain why:</p>
+              <ol>
+                <li>Maverick DC Motor Left</li>
+                <li>Maverick DC Motor Right</li>
+                <li>Left Wheel Optical Encoder</li>
+                <li>Multi-Mode Smart Servo Gripper</li>
+                <li>Emergency E-Stop Auxiliary Signal</li>
+                <li>Autonomous Start Push Button</li>
+                <li>Sharp Infrared Distance Sensor</li>
+                <li>HC-SR04 Ultrasonic Trigger Pulse</li>
+              </ol>
+            `,
+            codeSnippet: `# Verify VMX FPGA and communication over SPI in terminal:
 ls -l /dev/vmx*
 vmx-pi-test --info
 
-# Output should confirm:
+# Output confirms:
 # Hardware Model: Studica VMX-pi Revision B
 # navX IMU: Present (Firmware v3.1.4)
 # FPGA Core Clock: 50.00 MHz`,
-      downloads: [
-        { name: "VMX_Titan_Pinout_Reference.pdf", url: "downloads/params.yaml", label: "Pinout Reference (PDF)" },
-        { name: "setup_studica_robot.sh", url: "downloads/setup_studica_robot.sh", label: "Setup Script (.sh)" }
-      ]
-    },
-    {
-      id: "lesson-1-2",
-      number: "1.2",
-      title: "Laptop to Robot Over Ethernet",
-      duration: "90 min",
-      youtubeId: "r-r6rZc66g0",
-      concept: `
-        <h3>1. Reliable Field Networking</h3>
-        <p>During WorldSkills AMR competitions, wireless 2.4/5 GHz bands in the competition hall are saturated and subject to interference. Direct Gigabit Ethernet via RJ45 is the sanctioned standard for robot flashing, diagnostic telemetry, and ROS 2 parameter tuning.</p>
-        
-        <h3>2. IP Addressing Architecture</h3>
-        <p>The VMX controller utilizes dual network configuration:</p>
-        <ul>
-          <li><strong>DHCP Client:</strong> Automatically requests an IP if connected to an institutional router.</li>
-          <li><strong>Static Link-Local Fallback:</strong> If no DHCP server exists (laptop connected directly to robot), the VMX assigns static IP <code>192.168.1.100</code> on subnet <code>255.255.255.0</code>.</li>
-        </ul>
-      `,
-      wiring: `
-        <h3>Wiring Guide:</h3>
-        <p>Connect a Cat6 RJ45 patch cable from your laptop's Ethernet adapter to the Raspberry Pi 4 Ethernet port on the VMX stack.</p>
-        <p>Configure your laptop's IPv4 Ethernet adapter to:</p>
-        <ul>
-          <li>IP Address: <code>192.168.1.50</code></li>
-          <li>Subnet Mask: <code>255.255.255.0</code></li>
-          <li>Default Gateway: <code>192.168.1.1</code></li>
-        </ul>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 1 - Connection):</h3>
-        <ol>
-          <li>Launch Robot Dashboard and click <strong>Auto-Scan Subnet</strong>.</li>
-          <li>The dashboard sends an ARP probe across <code>192.168.1.0/24</code>.</li>
-          <li>Select <code>192.168.1.100</code> and enter credentials (User: <code>vmx</code>, Pass: <code>studica</code>).</li>
-          <li>Observe green status badge: <strong>LINK ESTABLISHED (1000 Mbps)</strong>.</li>
-        </ol>
-      `,
-      challenge: `
-        <h3>Challenge 1.2: Remote Terminal Access & ROS 2 Daemon Check</h3>
-        <p>Establish an SSH session to the robot from your terminal. Query the ROS 2 active node tree and echo the domain ID. Paste the complete command output into the submission desk.</p>
-      `,
-      codeSnippet: `# Connect to the VMX controller over SSH:
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/params.yaml",
+            downloads: [
+              { name: "setup_studica_robot.sh", url: "downloads/setup_studica_robot.sh", label: "Robot Provisioning Script (.sh)" },
+              { name: "params.yaml", url: "downloads/params.yaml", label: "ROS 2 Parameters (.yaml)" }
+            ]
+          },
+          {
+            id: "lesson-1-2",
+            number: "1.2",
+            title: "Laptop to Robot Over Ethernet",
+            duration: "90 min",
+            youtubeId: "r-r6rZc66g0",
+            concept: `
+              <h3>1. Reliable Field Networking</h3>
+              <p>In mobile robotics development, direct Gigabit Ethernet via RJ45 provides low-latency, deterministic communication for parameter tuning, camera streaming, and ROS 2 diagnostics.</p>
+              <h3>2. IP Addressing Architecture</h3>
+              <ul>
+                <li><strong>DHCP Client:</strong> Automatically requests an IP if connected to an institutional router.</li>
+                <li><strong>Static Link-Local Fallback:</strong> If no DHCP server exists (laptop directly linked to robot), VMX assigns static IP <code>192.168.1.100</code> on subnet <code>255.255.255.0</code>.</li>
+              </ul>
+            `,
+            wiring: `
+              <h3>Wiring Guide:</h3>
+              <p>Connect a Cat6 RJ45 patch cable from your laptop's Ethernet adapter to the Raspberry Pi 4 Ethernet port on the VMX stack.</p>
+              <p>Configure laptop IPv4 adapter: IP <code>192.168.1.50</code>, Mask <code>255.255.255.0</code>, Gateway <code>192.168.1.1</code>.</p>
+            `,
+            test: `
+              <h3>Dashboard Test (Tab 1 - Connection):</h3>
+              <p>Click <strong>Auto-Scan Subnet</strong>, select <code>192.168.1.100</code>, enter credentials (<code>vmx</code> / <code>studica</code>), and observe <strong>LINK ESTABLISHED (1000 Mbps)</strong>.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.2: Remote Terminal Access & ROS 2 Daemon Check</h3>
+              <p>Establish an SSH session to the robot from your terminal. Query the ROS 2 active node tree and echo the domain ID. Paste the complete command output into the submission desk.</p>
+            `,
+            codeSnippet: `# Connect to the VMX controller over SSH:
 ssh vmx@192.168.1.100
 
 # Verify active ROS 2 environment:
 echo "ROS_DISTRO: $ROS_DISTRO | ROS_DOMAIN_ID: $ROS_DOMAIN_ID"
 ros2 daemon status
 ros2 node list`,
-      downloads: [
-        { name: "setup_studica_robot.sh", url: "downloads/setup_studica_robot.sh", label: "Provisioning Script (.sh)" },
-        { name: "params.yaml", url: "downloads/params.yaml", label: "Base Parameters (.yaml)" }
-      ]
-    },
-    {
-      id: "lesson-1-3",
-      number: "1.3",
-      title: "Powering and Linking the Titan",
-      duration: "90 min",
-      youtubeId: "L939H15zIms",
-      concept: `
-        <h3>1. 12V Power Distribution Architecture</h3>
-        <p>Robotic competition rigs require strict isolation between logic electronics (Raspberry Pi 4 / VMX) and inductive power electronics (high-current DC motors). A sudden motor surge or stall condition must never cause a brownout reset of the computer.</p>
-        
-        <p>Power originates from a 12V NiMH or LiFePO4 battery pack, feeding through an emergency shutoff switch directly into the Titan Quad's high-current screw terminals. The Titan Quad's internal buck regulator provides clean, stabilized 12V power back out to the VMX controller through the dedicated JST-VH harness.</p>
-
-        <h3>2. CAN Communication Protocol (ID 42)</h3>
-        <p>The Titan Quad communicates with the VMX via SocketCAN. By factory default, the primary drive Titan is assigned <strong>CAN ID 42</strong>. The VMX Linux kernel encapsulates CAN frames via the <code>can0</code> network interface running at a baud rate of 1,000,000 bps (1 Mbps).</p>
-      `,
-      wiring: `
-        <h3>Wiring Instructions:</h3>
-        <ol>
-          <li>Battery (+) red lead → E-Stop switch input.</li>
-          <li>E-Stop switch output → Titan Quad <strong>BATT (+)</strong> terminal.</li>
-          <li>Battery (-) black lead → Titan Quad <strong>BATT (-)</strong> terminal.</li>
-          <li>Titan 12V Aux Output → VMX Power Input (JST-VH 2-pin connector).</li>
-          <li>Twisted-pair CAN cable: Titan CAN High (Yellow) to VMX CAN_H; Titan CAN Low (Green) to VMX CAN_L.</li>
-        </ol>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 1 & Tab 2):</h3>
-        <p>Observe the Titan Quad status LEDs:</p>
-        <ul>
-          <li><strong>Heartbeat LED (Blue):</strong> Blinks steadily at 2 Hz indicating healthy internal micro-controller clock.</li>
-          <li><strong>CAN Link LED (Green):</strong> Flashes rapidly with active packet transmission.</li>
-          <li>Check Tab 1: Battery voltage reads ~<strong>12.4V to 13.2V</strong>.</li>
-        </ul>
-      `,
-      challenge: `
-        <h3>Challenge 1.3: CAN Frame Sniffing & Voltage Monitoring</h3>
-        <p>Run <code>candump can0</code> on the robot terminal to capture 10 raw CAN frames transmitted between the Titan (ID 42) and VMX. Decode the battery telemetry frame and report the exact voltage value in your submission.</p>
-      `,
-      codeSnippet: `# Verify SocketCAN link status:
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/setup_studica_robot.sh",
+            downloads: [
+              { name: "setup_studica_robot.sh", url: "downloads/setup_studica_robot.sh", label: "Setup Script (.sh)" }
+            ]
+          },
+          {
+            id: "lesson-1-3",
+            number: "1.3",
+            title: "Powering and Linking the Titan",
+            duration: "90 min",
+            youtubeId: "L939H15zIms",
+            concept: `
+              <h3>1. 12V Power Distribution Architecture</h3>
+              <p>Robotic rigs require strict isolation between logic electronics (Raspberry Pi 4 / VMX) and inductive power electronics (high-current DC motors). A sudden motor surge must never cause a brownout reset.</p>
+              <h3>2. CAN Communication Protocol (ID 42)</h3>
+              <p>The Titan Quad communicates with the VMX via SocketCAN at 1 Mbps. The primary drive Titan is assigned <strong>CAN ID 42</strong>.</p>
+            `,
+            wiring: `
+              <h3>Wiring Instructions:</h3>
+              <p>12V Battery → E-Stop Switch → Titan BATT (+/-) terminals. Titan 12V Aux Output → VMX Power Input (JST-VH 2-pin harness). CAN High (Yellow) to VMX CAN_H, CAN Low (Green) to VMX CAN_L.</p>
+            `,
+            test: `
+              <h3>Dashboard Test (Tab 1 & Tab 2):</h3>
+              <p>Observe Titan Quad status LEDs: Blue Heartbeat blinking at 2 Hz, Green CAN Link flashing rapidly, Battery voltage reading ~12.4V to 13.2V.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.3: CAN Frame Sniffing & Voltage Monitoring</h3>
+              <p>Run <code>candump can0 -n 10</code> on the robot terminal to capture raw CAN frames. Decode the battery telemetry frame and report the exact voltage value in your submission.</p>
+            `,
+            codeSnippet: `# Check SocketCAN interface:
 ip link show can0
 
 # Dump live CAN traffic from Titan (CAN ID 0x2A = 42 decimal):
-candump can0 -n 10
-
-# Sample output:
-# can0  02A   [8]  10 4A 00 00 00 00 04 D2`,
-      downloads: [
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    },
-    {
-      id: "lesson-1-4",
-      number: "1.4",
-      title: "Two DC Motors with Encoders",
-      duration: "90 min",
-      youtubeId: "u-30k5H460s",
-      concept: `
-        <h3>1. Closed-Loop Velocity & Odometry</h3>
-        <p>Mobile robotics odometry relies on optical quadrature encoders mounted to the rear shaft of the DC gear motors. The Studica Maverick DC motor features an integrated optical encoder outputting dual square waves (Channel A and Channel B) shifted 90 degrees out of phase.</p>
-        
-        <h3>2. Distance Per Tick Mathematical Derivation</h3>
-        <p>For a standard 100 mm diameter drive wheel with a 14:1 gear ratio motor:</p>
-        <p>$$\text{Wheel Circumference} = \pi \times D = 3.14159 \times 0.100\text{ m} = 0.314159\text{ m} = 314.16\text{ mm}$$</p>
-        <p>Total quadrature counts per wheel revolution = $$1464\text{ ticks}$$.</p>
-        <p>$$\text{Distance Per Tick} = \frac{0.314159\text{ m}}{1464\text{ ticks}} = 0.0006830601\text{ meters/tick} \approx 0.683\text{ mm/tick}$$</p>
-      `,
-      wiring: `
-        <h3>Wiring Steps:</h3>
-        <ol>
-          <li>Left Motor red/black leads → Titan Motor 0 (M0) screw terminals.</li>
-          <li>Left Motor 4-pin encoder harness → Titan Encoder 0 port.</li>
-          <li>Right Motor red/black leads → Titan Motor 1 (M1) screw terminals.</li>
-          <li>Right Motor 4-pin encoder harness → Titan Encoder 1 port.</li>
-        </ol>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 2 - Motors, Encoders & Servos):</h3>
-        <p>1. Open Tab 2 in the Robot Dashboard.</p>
-        <p>2. Drag the M0 slider to <strong>+30%</strong>. Observe wheel spinning forward and tick count incrementing positively.</p>
-        <p>3. Drag the M1 slider to <strong>+30%</strong>. If the right wheel spins backwards, toggle the <strong>Invert Direction</strong> switch.</p>
-        <p>4. Click <strong>Reset Encoders</strong> to zero out both registers.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.4: 1,000 Encoder Ticks Calibration Test</h3>
-        <p>Drive both motors simultaneously until the left wheel accumulates exactly <strong>1,000 ticks</strong>. Measure the physical linear distance traveled on the floor with a tape measure. Compare your physical measurement with theoretical calculation (1000 × 0.000683m = 68.3 cm). Submit your observed distance and percentage error.</p>
-      `,
-      codeSnippet: `# Python verification script: Drive until 1,000 ticks
+candump can0 -n 10`,
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/params.yaml",
+            downloads: [
+              { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
+            ]
+          },
+          {
+            id: "lesson-1-4",
+            number: "1.4",
+            title: "Two DC Motors with Encoders",
+            duration: "90 min",
+            youtubeId: "u-30k5H460s",
+            concept: `
+              <h3>1. Closed-Loop Velocity & Odometry</h3>
+              <p>Mobile robotics odometry relies on optical quadrature encoders mounted to the rear shaft of the DC gear motors.</p>
+              <h3>2. Distance Per Tick Derivation</h3>
+              <p>Wheel Circumference = π × D = 3.14159 × 0.100 m = 0.314159 m.</p>
+              <p>Counts per revolution = 1,464 ticks. Distance Per Tick = 0.314159 / 1464 ≈ <strong>0.0006830601 meters/tick (~0.683 mm/tick)</strong>.</p>
+            `,
+            wiring: `
+              <p>Left Motor red/black leads → Titan Motor 0 (M0); encoder harness → Encoder 0. Right Motor leads → Titan Motor 1 (M1); encoder harness → Encoder 1.</p>
+            `,
+            test: `
+              <p>In Tab 2, drag M0 slider to +30%. Confirm positive tick accumulation. Drag M1 to +30% (toggle Invert Direction if spinning backwards). Click Reset Encoders.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.4: 1,000 Encoder Ticks Calibration Test</h3>
+              <p>Drive both motors simultaneously until the left wheel accumulates exactly <strong>1,000 ticks</strong>. Measure physical distance traveled on the floor. Compare physical measurement with theoretical calculation (68.3 cm). Submit your observed distance and percentage error.</p>
+            `,
+            codeSnippet: `# Python verification script: Drive until 1,000 ticks
 from studica_control.titan import TitanMotorController
 import time
 
@@ -280,96 +246,62 @@ while abs(titan.get_encoder_ticks(0)) < 1000:
 
 titan.set_motor_speed(m0=0.0, m1=0.0)
 print(f"Target reached: M0={titan.get_encoder_ticks(0)} ticks")`,
-      downloads: [
-        { name: "test_titan_motors.py", url: "downloads/test_titan_motors.py", label: "Motor Test Script (.py)" },
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    },
-    {
-      id: "lesson-1-5",
-      number: "1.5",
-      title: "Servo Motors and Servo Modes",
-      duration: "90 min",
-      youtubeId: "F1c7k0XfI58",
-      concept: `
-        <h3>1. Multi-Mode Smart Servos</h3>
-        <p>Studica Multi-Mode Smart Servos feature internal digital PID controllers and programmable firmware allowing them to operate in two distinct modes:</p>
-        <ul>
-          <li><strong>Standard Angular Mode:</strong> Precise position control across 300° (or ±150° relative to center). Pulse width: 500 µs (0°) to 2500 µs (300°), 1500 µs center (150°).</li>
-          <li><strong>Continuous Rotation Mode:</strong> Speed and direction control like a miniature gear motor. 1500 µs = stop, &gt;1500 µs = clockwise, &lt;1500 µs = counter-clockwise.</li>
-        </ul>
-
-        <h3>2. Servo Smart Programmer</h3>
-        <p>Before plugging a servo into the VMX, coaches and students use the handheld <strong>Studica Smart Programmer</strong> to select between Standard and Continuous mode and set physical mechanical endpoints to prevent gear stripping.</p>
-      `,
-      wiring: `
-        <h3>Wiring Guide:</h3>
-        <p>Connect the 3-wire servo harness (Brown=GND, Red=+5V, Orange=PWM Signal) into <strong>High-Current DIO 14</strong> for the manipulator gripper.</p>
-        <p>Verify that the VMX High-Current DIO direction jumper is set to <strong>OUTPUT</strong>.</p>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 2 - Servos):</h3>
-        <p>1. Open Tab 2 in the Robot Dashboard.</p>
-        <p>2. Locate the <strong>Servo Channel 14 (Gripper)</strong> control slider.</p>
-        <p>3. Slide from 45° (open preset) to 120° (closed preset).</p>
-        <p>4. Confirm smooth mechanical travel without buzzing or thermal stall.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.5: Program an Automated Gripper Cycle</h3>
-        <p>Create a Python routine or ROS 2 node that opens the gripper to 45°, pauses 1.5 seconds, closes securely onto a 40 mm game block at 115°, pauses 2.0 seconds, and releases. Submit the code and terminal log.</p>
-      `,
-      codeSnippet: `# ROS 2 CLI publish command to test gripper angle:
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/test_titan_motors.py",
+            downloads: [
+              { name: "test_titan_motors.py", url: "downloads/test_titan_motors.py", label: "Motor Test Script (.py)" }
+            ]
+          },
+          {
+            id: "lesson-1-5",
+            number: "1.5",
+            title: "Servo Motors and Servo Modes",
+            duration: "90 min",
+            youtubeId: "F1c7k0XfI58",
+            concept: `
+              <h3>1. Multi-Mode Smart Servos</h3>
+              <p>Studica Multi-Mode Smart Servos operate in two modes: <strong>Standard Angular Mode</strong> (0° to 300° positional control) and <strong>Continuous Rotation Mode</strong> (velocity and direction control).</p>
+            `,
+            wiring: `
+              <p>Connect servo 3-wire harness into <strong>High-Current DIO 14</strong> for gripper. Confirm VMX direction jumper is set to <strong>OUTPUT</strong>.</p>
+            `,
+            test: `
+              <p>In Tab 2, slide Gripper from 45° (open preset) to 120° (closed preset). Confirm smooth travel without buzzing.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.5: Program an Automated Gripper Cycle</h3>
+              <p>Create a Python routine or ROS 2 node that opens gripper to 45°, pauses 1.5s, closes securely onto a 40 mm game block at 115°, pauses 2.0s, and releases. Submit code and terminal log.</p>
+            `,
+            codeSnippet: `# ROS 2 CLI publish command to test gripper angle:
 ros2 topic pub --once /studica_control/servo/gripper std_msgs/msg/Float64 "{data: 45.0}"
 sleep 1.5
 ros2 topic pub --once /studica_control/servo/gripper std_msgs/msg/Float64 "{data: 115.0}"`,
-      downloads: [
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    },
-    {
-      id: "lesson-1-6",
-      number: "1.6",
-      title: "Inputs: Push Button, Limit Switch & E-Stop",
-      duration: "90 min",
-      youtubeId: "9qU7c030y8k",
-      concept: `
-        <h3>1. Dual-Layer Safety Architecture</h3>
-        <p>Autonomous mobile robots operating around humans require fail-safe safety mechanisms. In WorldSkills AMR regulations, safety intervention consists of two synchronized layers:</p>
-        <ul>
-          <li><strong>Layer 1 (Physical Power Cutoff):</strong> The physical twist-to-release Emergency Stop (E-Stop) mushroom switch cuts raw 12V battery current directly from the Titan motor H-bridges.</li>
-          <li><strong>Layer 2 (Software Digital Halt):</strong> An auxiliary normally-closed contact on the E-Stop connects to VMX Flex DIO 11. When triggered, the software daemon instantly terminates ROS 2 velocity commands and halts navigation goals.</li>
-        </ul>
-        
-        <h3>2. Active-Low Digital Inputs with Internal Pull-Ups</h3>
-        <p>Push buttons and limit switches connect between the digital pin and Ground (GND). With internal pull-up enabled on the VMX FPGA, unpressed state reads logic <code>HIGH (1)</code>; when pressed, the pin grounds and reads logic <code>LOW (0)</code>.</p>
-      `,
-      wiring: `
-        <h3>Wiring Table:</h3>
-        <table class="pinout-table">
-          <thead>
-            <tr><th>Component</th><th>VMX Connector</th><th>Pin Type</th><th>Active Logic</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Autonomous Start Button</td><td>Flex DIO 10</td><td>Digital In</td><td>Active LOW (GND)</td></tr>
-            <tr><td>E-Stop Auxiliary Sense</td><td>Flex DIO 11</td><td>Digital In</td><td>Normally Closed (High=OK, Low=Halt)</td></tr>
-            <tr><td>Arm Homing Limit Switch</td><td>Flex DIO 8</td><td>Digital In</td><td>Active LOW (GND)</td></tr>
-          </tbody>
-        </table>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 3 - GPIO & Sensors):</h3>
-        <p>1. Open Tab 3 in the Robot Dashboard.</p>
-        <p>2. Locate the <strong>Digital Inputs Matrix</strong>.</p>
-        <p>3. Press the Start push button: observe Channel 10 turns from Grey to <strong>Amber (ACTIVE)</strong>.</p>
-        <p>4. Hit the E-stop button: observe Channel 11 turns <strong>Red (ESTOP TRIGGERED)</strong>.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.6: Software Safety Interlock Logic</h3>
-        <p>Implement a safety watchdog loop in Python that monitors Flex DIO 11. If the contact opens for even a single millisecond, immediately command Titan M0–M3 speeds to 0.0 and print an audible alert to the console. Submit your code.</p>
-      `,
-      codeSnippet: `# Watchdog snippet for E-Stop digital sense on DIO 11:
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/params.yaml",
+            downloads: [
+              { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
+            ]
+          },
+          {
+            id: "lesson-1-6",
+            number: "1.6",
+            title: "Inputs: Push Button, Limit Switch & E-Stop",
+            duration: "90 min",
+            youtubeId: "9qU7c030y8k",
+            concept: `
+              <h3>1. Dual-Layer Safety Architecture</h3>
+              <p>Layer 1: Physical twist-to-release E-Stop cuts raw 12V battery power from Titan H-bridges. Layer 2: Auxiliary normally-closed contact connects to VMX Flex DIO 11 for software daemon halt.</p>
+            `,
+            wiring: `
+              <p>Start Push Button to Flex DIO 10 (Active LOW). E-Stop Auxiliary Sense to Flex DIO 11 (Normally Closed, High=OK, Low=Halt).</p>
+            `,
+            test: `
+              <p>In Tab 3, press Start button: observe Channel 10 turns Amber. Hit E-Stop: observe Channel 11 turns Red (ESTOP TRIP).</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.6: Software Safety Interlock Logic</h3>
+              <p>Implement a safety watchdog loop in Python that monitors Flex DIO 11. If the contact opens for even 1 ms, command Titan speeds to 0.0 and print an alert. Submit your code.</p>
+            `,
+            codeSnippet: `# Watchdog snippet for E-Stop digital sense on DIO 11:
 from studica_control.dio import DigitalInput
-import sys
 
 estop_sensor = DigitalInput(port=11)
 
@@ -378,124 +310,97 @@ def check_safety():
         print("CRITICAL: E-STOP ENGAGED! Halting all drive actuators.")
         return False
     return True`,
-      downloads: [
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    },
-    {
-      id: "lesson-1-7",
-      number: "1.7",
-      title: "Outputs: Red and Green Status LEDs",
-      duration: "90 min",
-      youtubeId: "k_gE4x2fD50",
-      concept: `
-        <h3>1. Human-Robot Interaction & Status Feedback</h3>
-        <p>Visual status indicators are essential for judges and safety referees to assess robot state before touching the chassis. High-brightness 10 mm LEDs mounted on the robot mast communicate system status:</p>
-        <ul>
-          <li><strong>Solid Green:</strong> System healthy, ROS 2 nodes connected, ready for autonomous trigger.</li>
-          <li><strong>Blinking Green:</strong> Autonomous mission executing in arena.</li>
-          <li><strong>Solid Red:</strong> Emergency Stop active, Titan motor fault, or low battery (&lt;10.5V).</li>
-          <li><strong>Blinking Red:</strong> Sensor disconnection or LiDAR localization lost.</li>
-        </ul>
-
-        <h3>2. Current Limiting Resistors</h3>
-        <p>High-Current DIO 12–21 outputs 5.0V. Direct connection of an LED will exceed maximum forward current and damage the diode or FPGA pin. A 220Ω or 330Ω series resistor limits current to safe 15 mA.</p>
-      `,
-      wiring: `
-        <h3>Wiring Guide:</h3>
-        <ul>
-          <li>Red LED Anode (+) through 220Ω resistor → High-Current DIO 18 Signal pin; Cathode (-) → GND.</li>
-          <li>Green LED Anode (+) through 220Ω resistor → High-Current DIO 19 Signal pin; Cathode (-) → GND.</li>
-        </ul>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 3 - GPIO & Sensors):</h3>
-        <p>1. Open Tab 3 in the Robot Dashboard.</p>
-        <p>2. Locate <strong>Digital Outputs</strong>.</p>
-        <p>3. Click the toggle switch for <strong>Pin 18 (Red LED)</strong> — observe LED illuminates on robot.</p>
-        <p>4. Click the toggle switch for <strong>Pin 19 (Green LED)</strong> — observe green LED illuminates.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.7: Robot State Machine Beacon</h3>
-        <p>Write an automated beacon node in Python that coordinates states: when robot is idle (Green solid), running mission (Green flashing at 4 Hz), and in fault (Red solid). Submit your code and verification video link or terminal log.</p>
-      `,
-      codeSnippet: `# Publish digital output state via ROS 2 CLI:
-# Turn Green LED ON (Pin 19):
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/params.yaml",
+            downloads: [
+              { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
+            ]
+          },
+          {
+            id: "lesson-1-7",
+            number: "1.7",
+            title: "Outputs: Red and Green Status LEDs",
+            duration: "90 min",
+            youtubeId: "k_gE4x2fD50",
+            concept: `
+              <h3>1. Human-Robot Interaction & Beacons</h3>
+              <p>Solid Green: Robot ready. Blinking Green: Autonomous mission executing. Solid Red: E-Stop active or fault. 220Ω series resistors protect the LEDs from 5.0V output.</p>
+            `,
+            wiring: `
+              <p>Red LED Anode (+) through 220Ω resistor → High-Current DIO 18; Cathode (-) → GND. Green LED Anode (+) through 220Ω resistor → High-Current DIO 19; Cathode (-) → GND.</p>
+            `,
+            test: `
+              <p>In Tab 3, toggle Pin 18 (Red LED) and Pin 19 (Green LED) switches to verify illumination.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.7: Robot State Machine Beacon</h3>
+              <p>Write an automated beacon node in Python coordinating states: Idle (Green solid), Mission running (Green flashing at 4 Hz), Fault (Red solid). Submit your code.</p>
+            `,
+            codeSnippet: `# Turn LEDs ON/OFF via ROS 2 CLI:
 ros2 topic pub --once /studica_control/dio/led_green std_msgs/msg/Bool "{data: true}"
-
-# Turn Red LED ON (Pin 18):
 ros2 topic pub --once /studica_control/dio/led_red std_msgs/msg/Bool "{data: true}"`,
-      downloads: [
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    },
-    {
-      id: "lesson-1-8",
-      number: "1.8",
-      title: "Sensors: Sharp IR, Ultrasonic & Light Sensor",
-      duration: "90 min",
-      youtubeId: "8Z08gRz7zL0",
-      concept: `
-        <h3>1. Sensor Modality Complementarity</h3>
-        <p>No single sensor solves every obstacle detection problem in robotics. Combining optical triangulation, acoustic time-of-flight, and photometric reflectance provides reliable environmental perception:</p>
-        <ul>
-          <li><strong>Sharp GP2Y0A21YK0F IR Sensor:</strong> Uses optical triangulation (range 10 cm – 80 cm). Highly directional with narrow beam; unhindered by ambient acoustic noise, but affected by shiny black surfaces.</li>
-          <li><strong>HC-SR04 Ultrasonic Sensor:</strong> Uses 40 kHz acoustic pulse time-of-flight ($$d = \frac{v \times t}{2}$$ where $$v \approx 343\text{ m/s}$$). Detects clear glass and shiny metal that optical sensors miss, with wide 15° beam cone (range 2 cm – 400 cm).</li>
-          <li><strong>Light / Line Sensor:</strong> Analog phototransistor circuit detecting contrast between white tape arena boundaries and dark foam tiles.</li>
-        </ul>
-      `,
-      wiring: `
-        <h3>Wiring Connections:</h3>
-        <table class="pinout-table">
-          <thead>
-            <tr><th>Sensor</th><th>VMX Port</th><th>Signal Pins</th><th>Operating Range</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Sharp GP2Y IR</td><td>Analog 22</td><td>Pin 22 (Analog In), 5V, GND</td><td>10 cm – 80 cm</td></tr>
-            <tr><td>Light / Line Sensor</td><td>Analog 23</td><td>Pin 23 (Analog In), 5V, GND</td><td>0 – 1023 Raw ADC</td></tr>
-            <tr><td>HC-SR04 Ultrasonic Ping</td><td>Flex DIO 8</td><td>Pin 8 (Trigger Output, 10 µs pulse)</td><td>Trigger Pulse</td></tr>
-            <tr><td>HC-SR04 Ultrasonic Echo</td><td>Flex DIO 9</td><td>Pin 9 (Echo Input, width proportional to dist)</td><td>2 cm – 400 cm</td></tr>
-          </tbody>
-        </table>
-      `,
-      test: `
-        <h3>Dashboard Test (Tab 3 - GPIO & Sensors):</h3>
-        <p>1. Open Tab 3 in the Robot Dashboard.</p>
-        <p>2. Observe live distance charts: <strong>Sharp IR Distance Graph</strong> and <strong>Ultrasonic Distance Meter</strong>.</p>
-        <p>3. Move your hand back and forth from 10 cm to 50 cm in front of the sensors.</p>
-        <p>4. Observe the Light Sensor threshold gauge as you slide the sensor over white paper versus dark desk surface.</p>
-      `,
-      challenge: `
-        <h3>Challenge 1.8: Obstacle Detection Benchmark (30 cm)</h3>
-        <p>Place a wooden cardboard obstacle at exactly 30.0 cm from the robot front bumper. Record 50 consecutive distance samples from both the Sharp IR sensor and HC-SR04 ultrasonic sensor. Calculate the Mean, Standard Deviation, and Absolute Error for each sensor. Submit your data table and conclusion on which sensor is preferable for indoor wall-following.</p>
-      `,
-      codeSnippet: `# Read analog voltage from Sharp IR on channel 22:
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/params.yaml",
+            downloads: [
+              { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
+            ]
+          },
+          {
+            id: "lesson-1-8",
+            number: "1.8",
+            title: "Sensors: Sharp IR, Ultrasonic & Light Sensor",
+            duration: "90 min",
+            youtubeId: "8Z08gRz7zL0",
+            concept: `
+              <h3>1. Sensor Modality Complementarity</h3>
+              <p>Sharp GP2Y IR (10–80 cm, optical triangulation, narrow beam). HC-SR04 Ultrasonic (2–400 cm, acoustic ToF, 15° cone). Light Sensor (0–1023 ADC contrast on foam arena tiles).</p>
+            `,
+            wiring: `
+              <p>Sharp IR to Analog 22. Light Sensor to Analog 23. HC-SR04 Ping to Flex DIO 8, Echo to Flex DIO 9.</p>
+            `,
+            test: `
+              <p>In Tab 3, move hand between 10 cm and 50 cm. Observe live Sharp IR and Ultrasonic distance gauges and light sensor threshold.</p>
+            `,
+            challenge: `
+              <h3>Challenge 1.8: Obstacle Detection Benchmark (30 cm)</h3>
+              <p>Place obstacle at exactly 30.0 cm. Record 50 consecutive distance samples from both Sharp IR and Ultrasonic. Calculate Mean and Standard Deviation. Submit data table and comparison.</p>
+            `,
+            codeSnippet: `# Read analog voltage from Sharp IR on channel 22:
 from studica_control.analog import AnalogInput
-import math
 
 sharp_ir = AnalogInput(channel=22)
 voltage = sharp_ir.get_voltage()
-
-# Standard GP2Y0A21YK0F distance transfer function:
 distance_cm = 27.86 * (voltage ** -1.15) if voltage > 0.4 else 80.0
-print(f"Voltage: {voltage:.3f} V -> Calculated Distance: {distance_cm:.1f} cm")`,
-      downloads: [
-        { name: "test_sensors.py", url: "downloads/test_titan_motors.py", label: "Sensor Benchmark Script (.py)" },
-        { name: "params.yaml", url: "downloads/params.yaml", label: "params.yaml" }
-      ]
-    }
-  ]
-};
+print(f"Voltage: {voltage:.3f} V -> Distance: {distance_cm:.1f} cm")`,
+            githubLink: "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/test_titan_motors.py",
+            downloads: [
+              { name: "test_sensors.py", url: "downloads/test_titan_motors.py", label: "Sensor Benchmark Script (.py)" }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// Active Course & Module
+let currentCourse = DEFAULT_COURSES[0];
+let activeLessonIndex = 0;
 
 // =============================================================================
-// 3. User & Auth State Management
+// 3. User & RBAC State Management
 // =============================================================================
 let currentUser = null;
 let currentRole = "guest"; // guest, student, teacher, admin, super_admin
-let userProgress = {}; // { [lessonId]: boolean }
+let userProgress = {};     // { [lessonId]: boolean }
+let assignmentDueDates = {}; // { [lessonId]: ISOString }
 
-// Check local storage for persistent guest / demo session
 function initAuthSession() {
+  // Theme initialization
+  const savedTheme = localStorage.getItem("roboskills_theme");
+  if (savedTheme === "light") {
+    document.body.classList.add("light-theme");
+  }
+
+  // Restore user session
   const savedUser = localStorage.getItem("roboskills_user");
   if (savedUser) {
     try {
@@ -508,7 +413,7 @@ function initAuthSession() {
     }
   }
 
-  // Firebase auth listener if available
+  // Firebase Auth listener
   if (auth) {
     auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
@@ -522,7 +427,9 @@ function initAuthSession() {
           email: firebaseUser.email,
           displayName: firebaseUser.displayName || firebaseUser.email.split('@')[0],
           role: role,
-          institution: "WorldSkills Robotics Team"
+          status: "approved",
+          country: "International",
+          institution: "Robotics Academy"
         };
         currentRole = role;
         localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
@@ -534,6 +441,17 @@ function initAuthSession() {
   }
 }
 
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+  const isLight = document.body.classList.contains("light-theme");
+  localStorage.setItem("roboskills_theme", isLight ? "light" : "dark");
+  const icon = document.getElementById("theme-toggle-icon");
+  if (icon) {
+    icon.innerHTML = isLight ? '🌙' : '☀️';
+  }
+  showToast(isLight ? "Paper Reading Mode active" : "Slate Studio Mode active");
+}
+
 function updateNavAuthUI() {
   const authContainer = document.getElementById("nav-auth-container");
   if (!authContainer) return;
@@ -542,32 +460,34 @@ function updateNavAuthUI() {
     const rolePillClass = `role-${currentUser.role.replace('_', '-')}`;
     const roleDisplay = currentUser.role === "super_admin" ? "SUPER ADMIN" :
                         currentUser.role === "admin" ? "ADMIN" :
-                        currentUser.role === "teacher" ? "INSTRUCTOR" : "STUDENT";
+                        currentUser.role === "teacher" ? "TEACHER" : "STUDENT";
 
     authContainer.innerHTML = `
       <div class="user-badge-container" onclick="openProfileModal()">
         <span class="role-pill ${rolePillClass}">${roleDisplay}</span>
-        <span style="font-size:0.85rem; font-weight:600; color:#fff;">${currentUser.displayName}</span>
+        <span style="font-size:0.85rem; font-weight:600;">${currentUser.displayName}</span>
       </div>
       <button class="btn btn-outline btn-sm" onclick="signOutUser()">Sign Out</button>
     `;
 
-    // Show admin / instructor buttons if authorized
+    // Role-based portal links
     const adminLink = document.getElementById("nav-admin-link");
+    const teacherLink = document.getElementById("nav-teacher-link");
     if (adminLink) {
-      if (currentUser.role === "super_admin" || currentUser.role === "admin" || currentUser.role === "teacher") {
-        adminLink.style.display = "inline-block";
-      } else {
-        adminLink.style.display = "none";
-      }
+      adminLink.style.display = (currentUser.role === "super_admin" || currentUser.role === "admin") ? "inline-block" : "none";
+    }
+    if (teacherLink) {
+      teacherLink.style.display = (currentUser.role === "super_admin" || currentUser.role === "admin" || currentUser.role === "teacher") ? "inline-block" : "none";
     }
   } else {
     authContainer.innerHTML = `
-      <button class="btn btn-outline btn-sm" onclick="openAuthModal('signin')">Sign In</button>
-      <button class="btn btn-primary btn-sm" onclick="openAuthModal('register')">Free Access</button>
+      <button class="btn btn-outline btn-sm" onclick="openSignInModal()">Sign In</button>
+      <button class="btn btn-primary btn-sm" onclick="openRegisterModal('student')">Register</button>
     `;
     const adminLink = document.getElementById("nav-admin-link");
+    const teacherLink = document.getElementById("nav-teacher-link");
     if (adminLink) adminLink.style.display = "none";
+    if (teacherLink) teacherLink.style.display = "none";
   }
 }
 
@@ -577,25 +497,46 @@ function quickDemoSignIn(role) {
     user = {
       uid: "super_admin_omar",
       email: SUPER_ADMIN_EMAIL,
-      displayName: "Mohammed Salameh",
+      displayName: "Dr. Mohammed Salameh",
       role: "super_admin",
-      institution: "WorldSkills Chief Expert / RoboSkillsClub"
+      status: "approved",
+      title: "Lead Robotics Scientist",
+      institution: "RoboSkillsClub Academy"
+    };
+  } else if (role === "admin") {
+    user = {
+      uid: "admin_david",
+      email: "admin.david@roboskills.org",
+      displayName: "Admin David",
+      role: "admin",
+      status: "approved",
+      institution: "RoboSkillsClub Administration"
     };
   } else if (role === "teacher") {
     user = {
-      uid: "coach_sarah_101",
-      email: "coach.sarah@roboskills.org",
-      displayName: "Coach Sarah",
+      uid: "teacher_sarah",
+      email: "sarah.jenkins@academy.org",
+      displayName: "Prof. Sarah Jenkins",
       role: "teacher",
-      institution: "National Robotics Academy"
+      status: "approved",
+      organization: "Institute of Technology",
+      jobTitle: "Associate Professor of Robotics",
+      maxStudents: 35,
+      assignedCourseIds: ["course-amr-101"]
     };
   } else {
     user = {
       uid: "student_alex_20",
-      email: "alex.team20@roboskills.org",
+      email: "alex.student@university.edu",
       displayName: "Alex Rivera",
       role: "student",
-      institution: "Team 20 AMR Competitor"
+      status: "approved",
+      educationLevel: "university",
+      universityName: "National Robotics University",
+      degreeLevel: "BSc",
+      major: "Mechatronics Engineering",
+      enrolledCourseIds: ["course-amr-101"],
+      assignedTeacherId: "teacher_sarah"
     };
   }
 
@@ -604,26 +545,143 @@ function quickDemoSignIn(role) {
   localStorage.setItem("roboskills_user", JSON.stringify(user));
   updateNavAuthUI();
   loadUserProgress();
-  closeAuthModal();
+  closeAllModals();
   showToast(`Signed in as ${user.displayName} (${user.role.toUpperCase()})`, "success");
 }
 
 function signOutUser() {
-  if (auth) {
-    auth.signOut().catch(e => console.log(e));
-  }
+  if (auth) auth.signOut().catch(e => console.log(e));
   currentUser = null;
   currentRole = "guest";
   localStorage.removeItem("roboskills_user");
   updateNavAuthUI();
-  showToast("Signed out successfully", "amber");
+  showToast("Signed out", "amber");
 }
 
 // =============================================================================
-// 4. LMS Classroom & Course Player Engine
+// 4. Registration & Approval Workflows
 // =============================================================================
-let activeLessonIndex = 0;
+function openRegisterModal(type = 'student') {
+  closeAllModals();
+  const modal = document.getElementById("register-modal");
+  if (!modal) return;
+  modal.classList.add("active");
+  switchRegisterTab(type);
+}
 
+function switchRegisterTab(type) {
+  document.getElementById("reg-tab-student").classList.toggle("active", type === 'student');
+  document.getElementById("reg-tab-teacher").classList.toggle("active", type === 'teacher');
+  document.getElementById("student-reg-fields").style.display = type === 'student' ? 'block' : 'none';
+  document.getElementById("teacher-reg-fields").style.display = type === 'teacher' ? 'block' : 'none';
+}
+
+function toggleEducationSubfields() {
+  const level = document.getElementById("reg-edu-level").value;
+  document.getElementById("school-subfields").style.display = level === 'school' ? 'block' : 'none';
+  document.getElementById("uni-subfields").style.display = level === 'university' ? 'block' : 'none';
+}
+
+async function handleStudentRegistration(event) {
+  event.preventDefault();
+  const name = document.getElementById("reg-student-name").value.trim();
+  const email = document.getElementById("reg-student-email").value.trim();
+  const mobile = document.getElementById("reg-student-mobile").value.trim();
+  const country = document.getElementById("reg-student-country").value.trim();
+  const eduLevel = document.getElementById("reg-edu-level").value;
+  const courseId = document.getElementById("reg-student-course").value;
+
+  let schoolName = "";
+  let gradeYear = "";
+  let universityName = "";
+  let degreeLevel = "";
+  let major = "";
+
+  if (eduLevel === "school") {
+    schoolName = document.getElementById("reg-school-name").value.trim();
+    gradeYear = document.getElementById("reg-school-grade").value.trim();
+  } else {
+    universityName = document.getElementById("reg-uni-name").value.trim();
+    degreeLevel = document.getElementById("reg-uni-degree").value;
+    major = document.getElementById("reg-uni-major").value.trim();
+  }
+
+  // Determine approval route
+  // If student enrolls in a course with an assigned teacher -> teacher approves
+  // Otherwise -> admin approves
+  const selectedCourse = DEFAULT_COURSES.find(c => c.id === courseId);
+  const assignedTeacherId = selectedCourse ? selectedCourse.assignedTeacherId : null;
+  const approvalRoute = assignedTeacherId ? `Assigned Teacher (${selectedCourse.assignedTeacherName})` : "Academy Administrator";
+
+  const newUser = {
+    uid: "student_" + Date.now(),
+    displayName: name,
+    email: email,
+    mobileNumber: mobile,
+    country: country,
+    role: "student",
+    status: "pending", // Requires approval
+    educationLevel: eduLevel,
+    schoolName,
+    gradeYear,
+    universityName,
+    degreeLevel,
+    major,
+    enrolledCourseIds: [courseId],
+    assignedTeacherId: assignedTeacherId,
+    createdAt: new Date().toISOString()
+  };
+
+  // Save to pending registrations
+  savePendingUser(newUser);
+
+  closeAllModals();
+  showToast(`Registration submitted! Awaiting approval from ${approvalRoute}.`, "success");
+}
+
+async function handleTeacherRegistration(event) {
+  event.preventDefault();
+  const name = document.getElementById("reg-teacher-name").value.trim();
+  const email = document.getElementById("reg-teacher-email").value.trim();
+  const mobile = document.getElementById("reg-teacher-mobile").value.trim();
+  const country = document.getElementById("reg-teacher-country").value.trim();
+  const organization = document.getElementById("reg-teacher-org").value.trim();
+  const jobTitle = document.getElementById("reg-teacher-job").value.trim();
+
+  const newTeacher = {
+    uid: "teacher_" + Date.now(),
+    displayName: name,
+    email: email,
+    mobileNumber: mobile,
+    country: country,
+    role: "teacher",
+    status: "pending", // Administrator must approve and set maxStudents
+    organization: organization,
+    jobTitle: jobTitle,
+    maxStudents: 25, // default proposed quota
+    assignedCourseIds: ["course-amr-101"],
+    createdAt: new Date().toISOString()
+  };
+
+  savePendingUser(newTeacher);
+
+  closeAllModals();
+  showToast("Teacher application submitted! Administrator has been notified to review and set student quota.", "success");
+}
+
+function savePendingUser(userObj) {
+  const pending = JSON.parse(localStorage.getItem("roboskills_pending_users") || "[]");
+  pending.push(userObj);
+  localStorage.setItem("roboskills_pending_users", JSON.stringify(pending));
+
+  if (db && isFirebaseOnline) {
+    db.collection("users").doc(userObj.uid).set(userObj).catch(e => console.warn(e));
+  }
+}
+
+// =============================================================================
+// 5. LMS Classroom & Lesson Engine
+// =============================================================================
 function initLMSPlayer() {
   renderSyllabusTree();
   loadLesson(0);
@@ -633,9 +691,10 @@ function renderSyllabusTree() {
   const treeContainer = document.getElementById("syllabus-module-tree");
   if (!treeContainer) return;
 
-  let html = `<li class="module-badge-title">${MODULE_1_DATA.title}</li>`;
+  const module1 = currentCourse.modules[0];
+  let html = `<li class="module-badge-title">${module1.title}</li>`;
   
-  MODULE_1_DATA.lessons.forEach((lesson, index) => {
+  module1.lessons.forEach((lesson, index) => {
     const isCompleted = userProgress[lesson.id] === true;
     const isActive = index === activeLessonIndex;
     
@@ -655,9 +714,10 @@ function renderSyllabusTree() {
 }
 
 function updateCourseProgress() {
-  const total = MODULE_1_DATA.lessons.length;
+  const module1 = currentCourse.modules[0];
+  const total = module1.lessons.length;
   let completedCount = 0;
-  MODULE_1_DATA.lessons.forEach(l => {
+  module1.lessons.forEach(l => {
     if (userProgress[l.id] === true) completedCount++;
   });
 
@@ -667,42 +727,58 @@ function updateCourseProgress() {
 
   if (progressBar) progressBar.style.width = `${percentage}%`;
   if (progressText) progressText.textContent = `${percentage}% (${completedCount}/${total} Completed)`;
+
+  // Certificate unlock notice
+  const certBanner = document.getElementById("cert-unlock-banner");
+  if (certBanner) {
+    certBanner.style.display = percentage === 100 ? "block" : "none";
+  }
 }
 
 function loadLesson(index) {
-  if (index < 0 || index >= MODULE_1_DATA.lessons.length) return;
+  const module1 = currentCourse.modules[0];
+  if (index < 0 || index >= module1.lessons.length) return;
   activeLessonIndex = index;
-  const lesson = MODULE_1_DATA.lessons[index];
+  const lesson = module1.lessons[index];
 
-  // Update Syllabus active class
   renderSyllabusTree();
 
-  // Populate lesson view
+  // Populate UI
   const titleEl = document.getElementById("lms-lesson-title");
   const numEl = document.getElementById("lms-lesson-number");
   const durationEl = document.getElementById("lms-lesson-duration");
   const authorEl = document.getElementById("lms-lesson-author");
   const videoIframe = document.getElementById("lms-video-iframe");
+  const dueDatePill = document.getElementById("lms-due-date-pill");
 
   if (titleEl) titleEl.textContent = `${lesson.number}: ${lesson.title}`;
   if (numEl) numEl.textContent = `Lesson ${lesson.number}`;
   if (durationEl) durationEl.textContent = lesson.duration;
-  if (authorEl) authorEl.textContent = MODULE_1_DATA.author;
+  if (authorEl) authorEl.textContent = LEAD_AUTHOR;
   if (videoIframe) {
     videoIframe.src = `https://www.youtube.com/embed/${lesson.youtubeId}?rel=0`;
   }
 
-  // Populate tab panes
+  // Calculate & Display Assignment Due Date (Default: 1 week from lesson completion or enrollment)
+  const dueDateStr = getAssignmentDueDate(lesson.id);
+  if (dueDatePill) {
+    dueDatePill.textContent = `📅 Due: ${dueDateStr}`;
+  }
+
+  // Populate Tab Panes
   document.getElementById("tab-pane-concept").innerHTML = lesson.concept;
   document.getElementById("tab-pane-wiring").innerHTML = lesson.wiring;
   document.getElementById("tab-pane-test").innerHTML = lesson.test;
   document.getElementById("tab-pane-challenge").innerHTML = lesson.challenge;
 
-  // Code Snippet Box
+  // Code snippet & GitHub Link
   const codeEl = document.getElementById("lms-code-snippet");
   if (codeEl) codeEl.textContent = lesson.codeSnippet;
 
-  // Download center
+  const ghLink = document.getElementById("lms-github-code-link");
+  if (ghLink) ghLink.href = lesson.githubLink || "https://github.com/momar82/RoboSkillsClub";
+
+  // Downloads
   const dlContainer = document.getElementById("lms-downloads-container");
   if (dlContainer) {
     let dlHtml = "";
@@ -712,34 +788,62 @@ function loadLesson(index) {
     dlContainer.innerHTML = dlHtml;
   }
 
-  // Update Challenge Desk
+  // Submission Desk Status
   const statusBadge = document.getElementById("challenge-status-badge");
   const isDone = userProgress[lesson.id] === true;
   if (statusBadge) {
-    if (isDone) {
-      statusBadge.className = "role-pill role-student";
-      statusBadge.textContent = "COMPLETED / VERIFIED";
-    } else {
-      statusBadge.className = "role-pill role-admin";
-      statusBadge.textContent = "PENDING SUBMISSION";
-    }
+    statusBadge.className = `role-pill ${isDone ? 'role-student' : 'role-admin'}`;
+    statusBadge.textContent = isDone ? "COMPLETED & VERIFIED" : "PENDING SUBMISSION";
   }
 
-  // Prev / Next button states
+  // Teacher / Admin Due Date Edit Button
+  const editDueBtn = document.getElementById("btn-edit-due-date");
+  if (editDueBtn) {
+    editDueBtn.style.display = (currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin' || currentUser.role === 'super_admin')) ? "inline-block" : "none";
+  }
+
+  // Prev / Next button
   const prevBtn = document.getElementById("btn-prev-lesson");
   const nextBtn = document.getElementById("btn-next-lesson");
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) {
-    if (index === MODULE_1_DATA.lessons.length - 1) {
-      nextBtn.innerHTML = `Complete Course 🎉`;
-    } else {
-      nextBtn.innerHTML = `Mark Complete & Next Lesson →`;
-    }
+    nextBtn.innerHTML = index === module1.lessons.length - 1 ? `Finish Course & View Certificate 🎓` : `Mark Complete & Next Lesson &rarr;`;
   }
 
-  // Reset tab to concept
   switchLessonTab('concept');
-  window.scrollTo({ top: document.getElementById("classroom-section").offsetTop - 80, behavior: 'smooth' });
+}
+
+function getAssignmentDueDate(lessonId) {
+  if (assignmentDueDates[lessonId]) {
+    return new Date(assignmentDueDates[lessonId]).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // Default: 7 days from today (or completion date)
+  const due = new Date();
+  due.setDate(due.getDate() + 7);
+  assignmentDueDates[lessonId] = due.toISOString();
+  return due.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function promptEditDueDate() {
+  const module1 = currentCourse.modules[0];
+  const lesson = module1.lessons[activeLessonIndex];
+  const currentDue = assignmentDueDates[lesson.id] ? new Date(assignmentDueDates[lesson.id]).toISOString().split('T')[0] : "";
+  const newDate = prompt(`Set new Assignment Due Date for Lesson ${lesson.number} (YYYY-MM-DD):`, currentDue);
+
+  if (newDate) {
+    const parsed = new Date(newDate);
+    if (!isNaN(parsed.getTime())) {
+      assignmentDueDates[lesson.id] = parsed.toISOString();
+      const dueDatePill = document.getElementById("lms-due-date-pill");
+      if (dueDatePill) {
+        dueDatePill.textContent = `📅 Due: ${parsed.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      }
+      showToast(`Assignment due date updated to ${newDate}`, "success");
+    } else {
+      showToast("Invalid date format", "error");
+    }
+  }
 }
 
 function switchLessonTab(tabName) {
@@ -753,43 +857,42 @@ function switchLessonTab(tabName) {
 }
 
 function markActiveLessonCompleteAndNext() {
-  const lesson = MODULE_1_DATA.lessons[activeLessonIndex];
+  const module1 = currentCourse.modules[0];
+  const lesson = module1.lessons[activeLessonIndex];
   userProgress[lesson.id] = true;
   saveUserProgress();
   renderSyllabusTree();
   showToast(`Lesson ${lesson.number} marked as complete!`, "success");
 
-  if (activeLessonIndex < MODULE_1_DATA.lessons.length - 1) {
+  if (activeLessonIndex < module1.lessons.length - 1) {
     loadLesson(activeLessonIndex + 1);
   } else {
-    showToast("Congratulations! You completed Module 1: VMX & Titan Foundations!", "success");
+    showToast("🎉 Course Completed! Your Certificate of Achievement is ready!", "success");
+    openCertificateModal();
   }
 }
 
 function navigatePrevLesson() {
-  if (activeLessonIndex > 0) {
-    loadLesson(activeLessonIndex - 1);
-  }
+  if (activeLessonIndex > 0) loadLesson(activeLessonIndex - 1);
 }
 
 function copyCodeSnippet() {
   const codeText = document.getElementById("lms-code-snippet")?.innerText;
   if (codeText) {
     navigator.clipboard.writeText(codeText).then(() => {
-      showToast("Code snippet copied to clipboard!", "success");
-    }).catch(() => {
-      showToast("Failed to copy snippet", "error");
+      showToast("Code copied to clipboard!", "success");
     });
   }
 }
 
 function submitChallenge() {
-  const lesson = MODULE_1_DATA.lessons[activeLessonIndex];
-  const submissionText = document.getElementById("challenge-text-input")?.value.trim();
-  const terminalOutput = document.getElementById("challenge-terminal-input")?.value.trim();
+  const module1 = currentCourse.modules[0];
+  const lesson = module1.lessons[activeLessonIndex];
+  const text = document.getElementById("challenge-text-input")?.value.trim();
+  const term = document.getElementById("challenge-terminal-input")?.value.trim();
 
-  if (!submissionText && !terminalOutput) {
-    showToast("Please provide your challenge observation or terminal output", "amber");
+  if (!text && !term) {
+    showToast("Please provide your challenge observation or code/terminal output", "amber");
     return;
   }
 
@@ -797,38 +900,33 @@ function submitChallenge() {
     studentId: currentUser ? currentUser.uid : "guest_student",
     studentEmail: currentUser ? currentUser.email : "guest@roboskills.org",
     studentName: currentUser ? currentUser.displayName : "Guest Student",
-    moduleId: MODULE_1_DATA.id,
+    courseId: currentCourse.id,
+    moduleId: module1.id,
     lessonId: lesson.id,
     lessonNumber: lesson.number,
-    submissionText: submissionText,
-    terminalOutput: terminalOutput,
-    score: 95, // Auto-verified baseline
-    feedback: "Excellent execution. Encoder ticks and pin allocations are verified against Studica VMX specifications.",
+    submissionText: text,
+    terminalOutput: term,
+    dueDate: assignmentDueDates[lesson.id],
+    score: 95,
+    feedback: "Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation.",
     status: "reviewed",
     submittedAt: new Date().toISOString()
   };
 
-  // Save to Firestore if available
-  if (db && isFirebaseOnline) {
-    db.collection("submissions").add(submissionObj).catch(e => console.warn(e));
-  }
-
-  // Update local progress
   userProgress[lesson.id] = true;
   saveUserProgress();
   renderSyllabusTree();
 
-  // Show feedback
   const feedbackEl = document.getElementById("challenge-feedback-container");
   if (feedbackEl) {
     feedbackEl.style.display = "block";
     feedbackEl.innerHTML = `
-      <div class="feedback-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-          <h4 style="color:var(--green-emerald);">✓ Submission Reviewed & Accepted</h4>
-          <span class="feedback-score">Score: 95 / 100</span>
+      <div style="background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.3); border-radius:var(--radius-md); padding:1rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:var(--accent-green);">✓ Submission Evaluated by Instructor</strong>
+          <span style="font-weight:800; color:var(--accent-gold); font-size:1.15rem;">Score: 95 / 100</span>
         </div>
-        <p style="font-size:0.875rem; color:var(--text-main);">${submissionObj.feedback}</p>
+        <p style="font-size:0.875rem; margin-top:0.4rem;">${submissionObj.feedback}</p>
       </div>
     `;
   }
@@ -839,17 +937,6 @@ function submitChallenge() {
 function saveUserProgress() {
   const key = currentUser ? `progress_${currentUser.uid}` : "progress_guest";
   localStorage.setItem(key, JSON.stringify(userProgress));
-
-  // Sync to Firestore if signed in
-  if (db && currentUser && isFirebaseOnline) {
-    db.collection("enrollments").doc(`${currentUser.uid}_module1`).set({
-      userId: currentUser.uid,
-      courseId: "module1",
-      completedLessons: Object.keys(userProgress).filter(k => userProgress[k]),
-      progress: Math.round((Object.keys(userProgress).filter(k => userProgress[k]).length / MODULE_1_DATA.lessons.length) * 100),
-      lastUpdated: new Date().toISOString()
-    }, { merge: true }).catch(e => console.warn(e));
-  }
 }
 
 function loadUserProgress() {
@@ -864,51 +951,41 @@ function loadUserProgress() {
 }
 
 // =============================================================================
-// 5. Interactive 6-Tab Robot Dashboard Simulator
+// 6. Certificate of Achievement Engine
+// =============================================================================
+function openCertificateModal() {
+  const modal = document.getElementById("certificate-modal");
+  if (!modal) return;
+
+  const recipientName = currentUser ? currentUser.displayName : "Alex Rivera";
+  const dateStr = new Date().toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' });
+  const certId = "RSC-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-2026";
+
+  document.getElementById("cert-student-name").textContent = recipientName;
+  document.getElementById("cert-course-title").textContent = currentCourse.title;
+  document.getElementById("cert-date").textContent = dateStr;
+  document.getElementById("cert-verification-id").textContent = `Verification ID: ${certId}`;
+
+  modal.classList.add("active");
+}
+
+function printCertificate() {
+  window.print();
+}
+
+// =============================================================================
+// 7. Interactive 6-Tab Robot Dashboard Simulator
 // =============================================================================
 let simInterval = null;
 let simData = {
-  connected: true,
-  ip: "192.168.1.100",
   batteryVoltage: 12.4,
   titanTemp: 38.2,
   titanCurrent: 1.85,
-  nodes: {
-    titan: true,
-    imu: true,
-    servo: true,
-    dio: true,
-    sharp: true,
-    sonar: true,
-    lidar: true,
-    camera: true
-  },
-  motors: {
-    m0: 0,
-    m1: 0,
-    m2: 0,
-    m3: 0,
-    m0_ticks: 0,
-    m1_ticks: 0,
-    m0_rpm: 0,
-    m1_rpm: 0
-  },
-  servos: {
-    gripper_angle: 45,
-    wrist_speed: 0
-  },
-  gpio: {
-    button_pressed: false,
-    estop_pressed: false,
-    limit_pressed: false,
-    led_red: false,
-    led_green: true
-  },
-  sensors: {
-    sharp_dist_cm: 28.5,
-    sonar_dist_cm: 29.8,
-    light_val: 720
-  },
+  nodes: { titan: true, imu: true, servo: true, dio: true, sharp: true, sonar: true, lidar: true, camera: true },
+  motors: { m0: 0, m1: 0, m0_ticks: 0, m1_ticks: 0, m0_rpm: 0, m1_rpm: 0 },
+  servos: { gripper_angle: 45 },
+  gpio: { button_pressed: false, estop_pressed: false, led_red: false, led_green: true },
+  sensors: { sharp_dist_cm: 28.5, sonar_dist_cm: 29.8, light_val: 720 },
   lidarAngle: 0
 };
 
@@ -928,39 +1005,28 @@ function switchDashTab(tabIndex) {
 }
 
 function setupDashboardEventListeners() {
-  // Motor Sliders
-  const m0Slider = document.getElementById("dash-m0-slider");
-  const m1Slider = document.getElementById("dash-m1-slider");
-  if (m0Slider) {
-    m0Slider.addEventListener("input", (e) => {
-      simData.motors.m0 = parseInt(e.target.value);
-      document.getElementById("dash-m0-val").textContent = `${simData.motors.m0}%`;
-    });
-  }
-  if (m1Slider) {
-    m1Slider.addEventListener("input", (e) => {
-      simData.motors.m1 = parseInt(e.target.value);
-      document.getElementById("dash-m1-val").textContent = `${simData.motors.m1}%`;
-    });
-  }
+  const m0 = document.getElementById("dash-m0-slider");
+  const m1 = document.getElementById("dash-m1-slider");
+  if (m0) m0.addEventListener("input", (e) => {
+    simData.motors.m0 = parseInt(e.target.value);
+    document.getElementById("dash-m0-val").textContent = `${simData.motors.m0}%`;
+  });
+  if (m1) m1.addEventListener("input", (e) => {
+    simData.motors.m1 = parseInt(e.target.value);
+    document.getElementById("dash-m1-val").textContent = `${simData.motors.m1}%`;
+  });
 
-  // Gripper Slider
-  const gripperSlider = document.getElementById("dash-gripper-slider");
-  if (gripperSlider) {
-    gripperSlider.addEventListener("input", (e) => {
-      simData.servos.gripper_angle = parseInt(e.target.value);
-      document.getElementById("dash-gripper-val").textContent = `${simData.servos.gripper_angle}°`;
-    });
-  }
+  const grip = document.getElementById("dash-gripper-slider");
+  if (grip) grip.addEventListener("input", (e) => {
+    simData.servos.gripper_angle = parseInt(e.target.value);
+    document.getElementById("dash-gripper-val").textContent = `${simData.servos.gripper_angle}°`;
+  });
 
-  // Light Sensor slider
-  const lightSlider = document.getElementById("dash-light-slider");
-  if (lightSlider) {
-    lightSlider.addEventListener("input", (e) => {
-      simData.sensors.light_val = parseInt(e.target.value);
-      document.getElementById("dash-light-val").textContent = simData.sensors.light_val;
-    });
-  }
+  const light = document.getElementById("dash-light-slider");
+  if (light) light.addEventListener("input", (e) => {
+    simData.sensors.light_val = parseInt(e.target.value);
+    document.getElementById("dash-light-val").textContent = simData.sensors.light_val;
+  });
 }
 
 function toggleDashNode(nodeName) {
@@ -989,7 +1055,7 @@ function pressDashButton(isDown) {
   simData.gpio.button_pressed = isDown;
   const ind = document.getElementById("ind-button-10");
   if (ind) {
-    ind.style.background = isDown ? "var(--amber-glow)" : "var(--bg-surface)";
+    ind.style.background = isDown ? "var(--accent-amber)" : "var(--bg-primary)";
     ind.textContent = isDown ? "ACTIVE (LOW)" : "INACTIVE (HIGH)";
   }
 }
@@ -999,7 +1065,6 @@ function toggleDashEStop() {
   const btn = document.getElementById("btn-dash-estop");
   const ind = document.getElementById("ind-estop-11");
   if (simData.gpio.estop_pressed) {
-    // Cut motor power
     simData.motors.m0 = 0;
     simData.motors.m1 = 0;
     document.getElementById("dash-m0-slider").value = 0;
@@ -1011,11 +1076,11 @@ function toggleDashEStop() {
       ind.style.background = "#EF4444";
       ind.textContent = "ESTOP TRIP (0V)";
     }
-    showToast("EMERGENCY STOP TRIGGERED! Motors cut.", "error");
+    showToast("EMERGENCY STOP ENGAGED! Motors halted.", "error");
   } else {
     if (btn) btn.style.background = "#B91C1C";
     if (ind) {
-      ind.style.background = "var(--green-emerald)";
+      ind.style.background = "var(--accent-green)";
       ind.textContent = "OK (5V)";
     }
     showToast("E-Stop reset to normal state.", "success");
@@ -1027,7 +1092,7 @@ function resetDashEncoders() {
   simData.motors.m1_ticks = 0;
   document.getElementById("dash-m0-ticks").textContent = "0";
   document.getElementById("dash-m1-ticks").textContent = "0";
-  showToast("Encoder registers reset to 0", "success");
+  showToast("Encoders zeroed", "success");
 }
 
 function setGripperPreset(angle) {
@@ -1041,12 +1106,10 @@ function setGripperPreset(angle) {
 
 function startDashboardSimulationLoop() {
   if (simInterval) clearInterval(simInterval);
-  
-  const radarCanvas = document.getElementById("dash-radar-canvas");
-  const ctx = radarCanvas ? radarCanvas.getContext("2d") : null;
+  const canvas = document.getElementById("dash-radar-canvas");
+  const ctx = canvas ? canvas.getContext("2d") : null;
 
   simInterval = setInterval(() => {
-    // Update ticks and RPM
     if (!simData.gpio.estop_pressed) {
       simData.motors.m0_ticks += Math.round(simData.motors.m0 * 0.8);
       simData.motors.m1_ticks += Math.round(simData.motors.m1 * 0.8);
@@ -1067,18 +1130,16 @@ function startDashboardSimulationLoop() {
     if (r0) r0.textContent = `${simData.motors.m0_rpm} RPM`;
     if (r1) r1.textContent = `${simData.motors.m1_rpm} RPM`;
 
-    // Sensors small noise
-    simData.sensors.sharp_dist_cm = +(28.5 + (Math.sin(Date.now() / 1000) * 2.2)).toFixed(1);
-    simData.sensors.sonar_dist_cm = +(29.8 + (Math.cos(Date.now() / 1200) * 1.8)).toFixed(1);
+    simData.sensors.sharp_dist_cm = +(28.5 + Math.sin(Date.now() / 1000) * 2.2).toFixed(1);
+    simData.sensors.sonar_dist_cm = +(29.8 + Math.cos(Date.now() / 1200) * 1.8).toFixed(1);
 
     const sSharp = document.getElementById("dash-sharp-val");
     const sSonar = document.getElementById("dash-sonar-val");
     if (sSharp) sSharp.textContent = `${simData.sensors.sharp_dist_cm} cm`;
     if (sSonar) sSonar.textContent = `${simData.sensors.sonar_dist_cm} cm`;
 
-    // Draw Polar Radar
-    if (ctx && radarCanvas) {
-      drawLiDARRadar(ctx, radarCanvas.width, radarCanvas.height);
+    if (ctx && canvas) {
+      drawLiDARRadar(ctx, canvas.width, canvas.height);
     }
   }, 100);
 }
@@ -1089,45 +1150,33 @@ function drawLiDARRadar(ctx, w, h) {
   const cy = h / 2;
   const maxR = Math.min(w, h) / 2 - 15;
 
-  // Background grid circles
-  ctx.strokeStyle = "rgba(37, 99, 235, 0.25)";
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.25)";
   ctx.lineWidth = 1;
-  [0.25, 0.5, 0.75, 1.0].forEach(rRatio => {
+  [0.25, 0.5, 0.75, 1.0].forEach(r => {
     ctx.beginPath();
-    ctx.arc(cx, cy, maxR * rRatio, 0, Math.PI * 2);
+    ctx.arc(cx, cy, maxR * r, 0, Math.PI * 2);
     ctx.stroke();
   });
 
-  // Crosshairs
   ctx.beginPath();
   ctx.moveTo(cx, 10); ctx.lineTo(cx, h - 10);
   ctx.moveTo(10, cy); ctx.lineTo(w - 10, cy);
   ctx.stroke();
 
-  // Spinning radar beam
   simData.lidarAngle = (simData.lidarAngle + 0.08) % (Math.PI * 2);
   const bx = cx + Math.cos(simData.lidarAngle) * maxR;
   const by = cy + Math.sin(simData.lidarAngle) * maxR;
 
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-  grad.addColorStop(0, "rgba(37, 99, 235, 0.6)");
-  grad.addColorStop(1, "rgba(37, 99, 235, 0.0)");
-
-  ctx.strokeStyle = "#60A5FA";
+  ctx.strokeStyle = "#38BDF8";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(bx, by);
   ctx.stroke();
 
-  // Simulated obstacle points
   const obstacles = [
-    { a: 0.5, r: 0.65 },
-    { a: 0.55, r: 0.63 },
-    { a: 0.6, r: 0.66 },
-    { a: 2.1, r: 0.4 },
-    { a: 3.8, r: 0.75 },
-    { a: 5.2, r: 0.5 }
+    { a: 0.5, r: 0.65 }, { a: 0.55, r: 0.63 }, { a: 0.6, r: 0.66 },
+    { a: 2.1, r: 0.4 }, { a: 3.8, r: 0.75 }, { a: 5.2, r: 0.5 }
   ];
 
   obstacles.forEach(pt => {
@@ -1137,29 +1186,25 @@ function drawLiDARRadar(ctx, w, h) {
     ctx.beginPath();
     ctx.arc(px, py, 4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowColor = "#F49322";
-    ctx.shadowBlur = 8;
   });
-  ctx.shadowBlur = 0;
 }
 
-// Generate params.yaml dynamically based on Tab 5 Kinematics inputs
 function generateDynamicParamsYaml() {
-  const driveType = document.getElementById("cfg-drive-type")?.value || "differential";
-  const wheelDiam = document.getElementById("cfg-wheel-diam")?.value || "0.100";
-  const trackWidth = document.getElementById("cfg-track-width")?.value || "0.355";
-  const gearRatio = document.getElementById("cfg-gear-ratio")?.value || "14.0";
+  const drive = document.getElementById("cfg-drive-type")?.value || "differential";
+  const diam = document.getElementById("cfg-wheel-diam")?.value || "0.100";
+  const track = document.getElementById("cfg-track-width")?.value || "0.355";
+  const gear = document.getElementById("cfg-gear-ratio")?.value || "14.0";
   const cpr = document.getElementById("cfg-cpr")?.value || "1464";
 
-  const yamlContent = `# RoboSkillsClub Custom Configuration
-# Generated via Robot Dashboard Kinematics Designer
+  const yaml = `# RoboSkillsClub Autonomous Mobile Robotics
+# Studica Robotics Kit Configuration
 control_server:
   ros__parameters:
     kinematics:
-      drive_type: "${driveType}"
-      wheel_diameter_meters: ${wheelDiam}
-      track_width_meters: ${trackWidth}
-      gear_ratio: ${gearRatio}
+      drive_type: "${drive}"
+      wheel_diameter_meters: ${diam}
+      track_width_meters: ${track}
+      gear_ratio: ${gear}
       encoder_cpr: ${cpr}
     titan:
       can_id: 42
@@ -1169,206 +1214,169 @@ control_server:
       frame_id: "imu_link"
 `;
 
-  const yamlPreview = document.getElementById("cfg-yaml-preview");
-  if (yamlPreview) yamlPreview.textContent = yamlContent;
+  const preview = document.getElementById("cfg-yaml-preview");
+  if (preview) preview.textContent = yaml;
 
-  const blob = new Blob([yamlContent], { type: "text/yaml" });
-  const url = URL.createObjectURL(blob);
+  const blob = new Blob([yaml], { type: "text/yaml" });
   const dlLink = document.getElementById("cfg-download-yaml");
   if (dlLink) {
-    dlLink.href = url;
-    dlLink.download = "custom_params.yaml";
+    dlLink.href = URL.createObjectURL(blob);
+    dlLink.download = "studica_params.yaml";
   }
 }
 
 // =============================================================================
-// 6. Free Beta Application Form Handler
+// 8. Super Admin & Instructor Portals
 // =============================================================================
-async function submitBetaApplication(event) {
-  event.preventDefault();
-  const form = document.getElementById("beta-application-form");
-  if (!form) return;
+function openAdminConsole() {
+  closeAllModals();
+  const modal = document.getElementById("admin-modal");
+  if (modal) {
+    modal.classList.add("active");
+    renderAdminOversight();
+  }
+}
 
-  const name = document.getElementById("beta-name").value.trim();
-  const email = document.getElementById("beta-email").value.trim();
-  const institution = document.getElementById("beta-institution").value.trim();
-  const team = document.getElementById("beta-team").value.trim();
-  const studentCount = parseInt(document.getElementById("beta-students").value) || 1;
-  const message = document.getElementById("beta-message").value.trim();
+function openTeacherPortal() {
+  closeAllModals();
+  const modal = document.getElementById("teacher-modal");
+  if (modal) {
+    modal.classList.add("active");
+    renderTeacherDashboard();
+  }
+}
 
-  if (!name || !email || !institution) {
-    showToast("Please fill in all required fields", "amber");
+function renderAdminOversight() {
+  const pending = JSON.parse(localStorage.getItem("roboskills_pending_users") || "[]");
+  const container = document.getElementById("admin-approvals-list");
+  if (!container) return;
+
+  if (pending.length === 0) {
+    container.innerHTML = `<p style="font-size:0.875rem; color:var(--text-dim);">No pending approvals. All registrations are up to date.</p>`;
     return;
   }
 
-  const inquiryData = {
-    name,
-    email,
-    institution,
-    team: team || "Team 20",
-    studentCount,
-    message,
-    type: "beta_application",
-    createdAt: new Date().toISOString(),
-    status: "new"
-  };
+  let html = "";
+  pending.forEach((user, idx) => {
+    const isTeacher = user.role === "teacher";
+    html += `
+      <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:0.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>${user.displayName}</strong> (${user.email})
+            <span class="role-pill ${isTeacher ? 'role-teacher' : 'role-student'}">${user.role.toUpperCase()}</span>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            ${isTeacher ? `
+              <input type="number" id="quota-teacher-${idx}" style="width:70px; padding:0.25rem; font-size:0.75rem; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); border-radius:4px;" value="${user.maxStudents || 25}" title="Set student quota">
+            ` : ''}
+            <button class="btn btn-primary btn-sm" onclick="approvePendingUser(${idx})">Approve</button>
+            <button class="btn btn-outline btn-sm" onclick="rejectPendingUser(${idx})">Decline</button>
+          </div>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem;">
+          ${isTeacher ? `Org: ${user.organization} | Role: ${user.jobTitle}` : `Edu: ${user.educationLevel.toUpperCase()} | Institution: ${user.universityName || user.schoolName || 'N/A'}`} · Country: ${user.country}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
 
-  try {
-    if (db && isFirebaseOnline) {
-      await db.collection("inquiries").add(inquiryData);
-    } else {
-      // Store locally
-      const inquiries = JSON.parse(localStorage.getItem("roboskills_inquiries") || "[]");
-      inquiries.push(inquiryData);
-      localStorage.setItem("roboskills_inquiries", JSON.stringify(inquiries));
+function approvePendingUser(index) {
+  const pending = JSON.parse(localStorage.getItem("roboskills_pending_users") || "[]");
+  if (index >= 0 && index < pending.length) {
+    const user = pending[index];
+    user.status = "approved";
+    
+    // Check if quota adjusted
+    const quotaInput = document.getElementById(`quota-teacher-${index}`);
+    if (quotaInput && user.role === 'teacher') {
+      user.maxStudents = parseInt(quotaInput.value) || 25;
     }
 
-    form.reset();
-    showToast("🎉 Application submitted! Our coaching team will email your classroom credentials.", "success");
-    document.getElementById("beta-success-msg").style.display = "block";
-  } catch (err) {
-    console.error("Inquiry error:", err);
-    showToast("Saved locally. We will contact you shortly!", "success");
+    pending.splice(index, 1);
+    localStorage.setItem("roboskills_pending_users", JSON.stringify(pending));
+
+    renderAdminOversight();
+    showToast(`Approved ${user.displayName} as ${user.role}!`, "success");
+  }
+}
+
+function rejectPendingUser(index) {
+  const pending = JSON.parse(localStorage.getItem("roboskills_pending_users") || "[]");
+  if (index >= 0 && index < pending.length) {
+    pending.splice(index, 1);
+    localStorage.setItem("roboskills_pending_users", JSON.stringify(pending));
+    renderAdminOversight();
+    showToast("Application declined", "amber");
+  }
+}
+
+function renderTeacherDashboard() {
+  const rosterContainer = document.getElementById("teacher-student-roster");
+  if (!rosterContainer) return;
+
+  const mockStudents = [
+    { name: "Alex Rivera", email: "alex.student@university.edu", progress: 100, submissions: 8, status: "Completed" },
+    { name: "Chen Wei", email: "chen.wei@polytech.edu", progress: 75, submissions: 6, status: "Active" },
+    { name: "Elena Rostova", email: "elena.r@robotics.ac.at", progress: 50, submissions: 4, status: "Active" }
+  ];
+
+  let html = `
+    <table class="pinout-table" style="margin:0;">
+      <thead>
+        <tr><th>Student Name</th><th>Email</th><th>Progress</th><th>Submissions</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+  `;
+  mockStudents.forEach(s => {
+    html += `
+      <tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${s.email}</td>
+        <td><span class="role-pill role-student">${s.progress}%</span></td>
+        <td>${s.submissions}/8 Lessons</td>
+        <td><button class="btn btn-outline btn-sm" onclick="showToast('Reviewing submissions for ${s.name}')">Grade</button></td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+  rosterContainer.innerHTML = html;
+}
+
+// Add student directly by teacher (up to quota)
+function teacherAddStudent() {
+  const name = prompt("Student Full Name:");
+  const email = prompt("Student Email Address:");
+  if (name && email) {
+    showToast(`Student ${name} successfully enrolled in ${currentCourse.title}`, "success");
+    renderTeacherDashboard();
   }
 }
 
 // =============================================================================
-// 7. Modals, UI Toasts & Helpers
+// 9. Modals & Helpers
 // =============================================================================
-function openAuthModal(mode) {
-  const modal = document.getElementById("auth-modal");
-  if (!modal) return;
-  modal.classList.add("active");
-  toggleAuthMode(mode);
-}
-
-function closeAuthModal() {
-  const modal = document.getElementById("auth-modal");
-  if (modal) modal.classList.remove("active");
-}
-
-function toggleAuthMode(mode) {
-  const isReg = mode === 'register';
-  document.getElementById("auth-modal-title").textContent = isReg ? "Register for Free Beta" : "Sign In to Classroom";
-  document.getElementById("auth-submit-btn").textContent = isReg ? "Create Free Account" : "Sign In";
-  document.getElementById("auth-toggle-prompt").innerHTML = isReg ?
-    `Already registered? <a href="#" onclick="toggleAuthMode('signin')">Sign in here</a>` :
-    `Need training access? <a href="#" onclick="toggleAuthMode('register')">Register free</a>`;
-}
-
-async function handleAuthFormSubmit(event) {
-  event.preventDefault();
-  const email = document.getElementById("auth-email").value.trim();
-  const pass = document.getElementById("auth-password").value.trim();
-
-  if (!email || !pass) {
-    showToast("Please enter email and password", "amber");
-    return;
-  }
-
-  // Check super admin bootstrap
-  let role = "student";
-  if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
-    role = "super_admin";
-  }
-
-  if (auth && isFirebaseOnline) {
-    try {
-      let res;
-      try {
-        res = await auth.signInWithEmailAndPassword(email, pass);
-      } catch (err) {
-        if (err.code === "auth/user-not-found") {
-          res = await auth.createUserWithEmailAndPassword(email, pass);
-        } else {
-          throw err;
-        }
-      }
-
-      currentUser = {
-        uid: res.user.uid,
-        email: res.user.email,
-        displayName: res.user.email.split('@')[0],
-        role: role,
-        institution: "WorldSkills Team"
-      };
-      currentRole = role;
-      localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
-      updateNavAuthUI();
-      closeAuthModal();
-      showToast(`Welcome ${currentUser.displayName}!`, "success");
-      return;
-    } catch (e) {
-      console.warn("Firebase Auth fallback to local session:", e.message);
-    }
-  }
-
-  // Local authentication session fallback
-  currentUser = {
-    uid: "user_" + Date.now(),
-    email: email,
-    displayName: email.split('@')[0],
-    role: role,
-    institution: "WorldSkills Robotics Club"
-  };
-  currentRole = role;
-  localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
-  updateNavAuthUI();
-  closeAuthModal();
-  showToast(`Signed in as ${currentUser.displayName} (${role.toUpperCase()})`, "success");
+function openSignInModal() {
+  closeAllModals();
+  const modal = document.getElementById("signin-modal");
+  if (modal) modal.classList.add("active");
 }
 
 function openPinoutModal() {
+  closeAllModals();
   const modal = document.getElementById("pinout-modal");
   if (modal) modal.classList.add("active");
 }
 
-function closePinoutModal() {
-  const modal = document.getElementById("pinout-modal");
-  if (modal) modal.classList.remove("active");
+function openProfileModal() {
+  if (!currentUser) return;
+  alert(`User Profile:\nName: ${currentUser.displayName}\nEmail: ${currentUser.email}\nRole: ${currentUser.role.toUpperCase()}\nStatus: ${currentUser.status}`);
 }
 
-function openAdminConsole() {
-  const modal = document.getElementById("admin-modal");
-  if (modal) {
-    modal.classList.add("active");
-    loadAdminData();
-  }
-}
-
-function closeAdminConsole() {
-  const modal = document.getElementById("admin-modal");
-  if (modal) modal.classList.remove("active");
-}
-
-function loadAdminData() {
-  const countUsers = document.getElementById("admin-metric-users");
-  const countInquiries = document.getElementById("admin-metric-inquiries");
-  if (countUsers) countUsers.textContent = "142";
-  if (countInquiries) countInquiries.textContent = "28";
-
-  // Render recent inquiries
-  const inqContainer = document.getElementById("admin-inquiries-list");
-  if (inqContainer) {
-    inqContainer.innerHTML = `
-      <div style="background:var(--bg-surface); padding:1rem; border-radius:var(--radius-md); margin-bottom:0.75rem; border:1px solid var(--border-color);">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>Abu Dhabi STEM High School</strong>
-          <span class="role-pill role-admin">NEW</span>
-        </div>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin:0.3rem 0;">Coach Tariq (12 students) — Preparing for WorldSkills Lyon national selection.</p>
-        <span style="font-size:0.75rem; color:var(--text-dim);">tariq.robotics@ad-stem.ac.ae · 2 hours ago</span>
-      </div>
-      <div style="background:var(--bg-surface); padding:1rem; border-radius:var(--radius-md); margin-bottom:0.75rem; border:1px solid var(--border-color);">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>Munich Technical Institute</strong>
-          <span class="role-pill role-student">CONTACTED</span>
-        </div>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin:0.3rem 0;">Prof. Hans Weber (8 students) — Requesting VMX-pi ROS 2 workbook PDF packages.</p>
-        <span style="font-size:0.75rem; color:var(--text-dim);">h.weber@mti-robotics.de · Yesterday</span>
-      </div>
-    `;
-  }
+function closeAllModals() {
+  document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
 }
 
 function showToast(message, type = "info") {
@@ -1390,7 +1398,6 @@ function showToast(message, type = "info") {
   }, 4000);
 }
 
-// Global initialization on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   initAuthSession();
   initLMSPlayer();
