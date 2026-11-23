@@ -1073,6 +1073,7 @@
               <option value="1.3">Lesson 1.3: Building the Robot Chassis</option>
               <option value="1.4">Lesson 1.4: Installing Motors and Wheels</option>
               <option value="1.5">Lesson 1.5: Power and Wiring Hygiene</option>
+              <option value="2.1">Lesson 2.1: Workstation &amp; Robot Commissioning</option>
               <option value="T0">Lesson T0: Teacher Robot Commissioning &amp; Setup</option>
               <option value="T1">Lesson T1: Pre-Flight Hardware Health Check</option>
             </select>
@@ -1095,6 +1096,7 @@
               <option value="1.3">Lesson 1.3 Slides: Chassis Assembly &amp; Squaring</option>
               <option value="1.4">Lesson 1.4 Slides: Motors, Wheels &amp; Encoders</option>
               <option value="1.5">Lesson 1.5 Slides: Power Distribution &amp; Wiring Hygiene</option>
+              <option value="2.1">Lesson 2.1 Slides: Automated Setup &amp; Dual-Brain Network</option>
             </select>
           </div>
           <button class="btn btn-outline btn-sm" onclick="copyPptDeckOutline()">📋 Copy Slide Script</button>
@@ -1115,15 +1117,27 @@
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1.25rem;">
           <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">💻 Student Workstation Setup</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Configures student laptop static IP <code>172.22.11.247</code>, CycloneDDS, SSH keys, aliases, and desktop icon.</p>
+            <a href="downloads/setup_student_laptop.sh" download class="btn btn-primary btn-sm" style="width:100%; justify-content:center;">Download setup_student_laptop.sh</a>
+          </div>
+
+          <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">🤖 Robot Remote Provisioning</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Executed from laptop: deploys bringup scripts, sets passwordless SSH, and audits LiDAR/camera/CAN.</p>
+            <a href="downloads/setup_robot_from_laptop.sh" download class="btn btn-primary btn-sm" style="width:100%; justify-content:center;">Download setup_robot_from_laptop.sh</a>
+          </div>
+
+          <div class="card" style="padding:1.25rem;">
             <h4 style="font-size:1rem; margin-bottom:0.5rem;">⚡ Automated Robot Commissioning</h4>
             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Configures static IP <code>172.22.11.2</code>, CycloneDDS, Titan Quad ID 42, and systemd service.</p>
-            <a href="downloads/setup_studica_robot.sh" download class="btn btn-primary btn-sm" style="width:100%; justify-content:center;">Download teacher_commission.sh</a>
+            <a href="downloads/setup_studica_robot.sh" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download setup_studica_robot.sh</a>
           </div>
 
           <div class="card" style="padding:1.25rem;">
             <h4 style="font-size:1rem; margin-bottom:0.5rem;">🔍 Pre-Flight Health Check</h4>
             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Automated Python audit testing motors, encoders, navX IMU, and LiDAR telemetry.</p>
-            <a href="downloads/test_titan_motors.py" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download verify_health.py</a>
+            <a href="downloads/test_titan_motors.py" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download test_titan_motors.py</a>
           </div>
 
           <div class="card" style="padding:1.25rem;">

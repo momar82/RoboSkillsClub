@@ -225,27 +225,43 @@ const DEFAULT_COURSES = [
           {
             "id": "lesson-2-1",
             "number": "2.1",
-            "title": "Network Connection & CycloneDDS",
+            "title": "Workstation & Robot Commissioning: Automated Setup & Dual-Brain Network",
             "duration": "90 min",
             "youtubeId": "5o3fFr_gkEA",
-            "objective": "Establish high-speed Ethernet communication between laptop and robot using CycloneDDS.",
+            "objective": "Configure the student laptop and robot dual-brain architecture using automated commissioning scripts (setup_student_laptop.sh and setup_robot_from_laptop.sh). Establish direct Gigabit Ethernet communication (172.22.11.247 to 172.22.11.2), configure CycloneDDS multicast isolation, verify passwordless SSH, audit onboard sensors, and launch the Studica Master Robot Dashboard.",
             "exitTicket": [
-              "What is ROS_DOMAIN_ID?",
-              "Why do we use CycloneDDS?",
-              "What is the static robot IP?"
+              "What static IP address and CIDR subnet mask must be configured on the student laptop's Ethernet interface?",
+              "Why must CycloneDDS specify the exact network interface name (e.g., enp0s31f6 on laptop, eth0 on robot) with multicast enabled?",
+              "How does setup_robot_from_laptop.sh automate SSH key authentication without requiring manual password typing every time?",
+              "Which terminal command launches the Master Robot Control Center from anywhere on your student laptop?"
             ],
-            "concept": "<h3>Lesson 2.1: Network Connection</h3><p>Connecting your student laptop to the robot controller via direct Gigabit Ethernet.</p>",
-            "wiring": "<h3>Wiring Guide:</h3><p>RJ45 patch cable from laptop to Raspberry Pi 4 Ethernet port.</p>",
-            "test": "<h3>Ping Test:</h3><p>Ping 172.22.11.2 from your terminal.</p>",
-            "video": "<div class='video-tutorial-card'><h4>\ud83c\udfa5 Network Setup Video Walkthrough</h4><p>Step-by-step connection guide.</p></div>",
-            "challenge": "<h3>Challenge 2.1:</h3><p>Ping robot and verify 0% packet loss.</p>",
-            "codeSnippet": "ping -c 3 172.22.11.2",
-            "githubLink": "https://github.com/momar82/RoboSkillsClub",
+            "concept": "\n<h3>1. The Distributed Dual-Brain Architecture</h3>\n<p>Modern autonomous mobile robots require immense computational bandwidth: processing $360^\\circ$ LiDAR laser scans, calculating 16-bit 3D depth point clouds, executing SLAM graph optimization, and rendering high-resolution graphical user interfaces (GUIs). Running all these tasks on a small embedded robot computer can lead to thermal throttling, memory exhaustion, and sluggish responsiveness.</p>\n<p>To overcome this, our training system implements a <strong>Distributed Dual-Brain Architecture</strong>:</p>\n\n<div style=\"background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-code); font-size:0.85rem; line-height:1.4; margin:1rem 0; overflow-x:auto;\">\n<pre>\n[Student Workstation Laptop (Ubuntu 22.04 LTS)] \n \u2502  \u2022 Static IP: 172.22.11.247/24\n \u2502  \u2022 Role: Master Robot Dashboard (PyQt5), RViz2 3D PointCloud Viewer, High-Level Python AI Logic\n \u2502  \u2022 Middleware: CycloneDDS on NetworkInterface \"enp0s31f6\"\n \u2502\n \u2502  [Point-to-Point Gigabit Ethernet Link (RJ45 Cat6 Cable)]  < 1 ms Latency, Zero Wi-Fi Packet Loss\n \u2502\n \u25bc\n[Robot Onboard Controller (Studica VMX-pi / Raspberry Pi 4)]\n    \u2022 Static IP: 172.22.11.2/24 (User: vmx)\n    \u2022 Role: Real-time motor PWM, Titan CAN Bus (CAN ID 42), YDLidar serial driver, Orbbec 3D camera streamer\n    \u2022 Middleware: CycloneDDS on NetworkInterface \"eth0\"\n</pre>\n</div>\n\n<h3>2. Why Direct Ethernet Beats Wi-Fi for Robotics Training</h3>\n<p>In school labs and robotics arenas, dozens of Wi-Fi routers, smartphones, and computers share the same radio channels. Over-the-air congestion causes dropped packets, high jitter, and unpredictable latency spikes. A dropped motor velocity command can cause a robot to veer off course or crash into a wall!</p>\n<p>A direct, shielded <strong>Gigabit Ethernet Cable (RJ45)</strong> provides guaranteed physical isolation with steady <strong>&lt; 0.5 ms ping latency</strong> and 1000 Mbps bandwidth, completely unaffected by surrounding Wi-Fi traffic.</p>\n\n<div class=\"callout tip\">\n  <div class=\"callout-title\">\ud83d\udca1 PRO-TIP: ROS_DOMAIN_ID & CYCLONEDDS MULTICAST ISOLATION</div>\n  <div class=\"callout-body\">\n    ROS 2 uses DDS (Data Distribution Service) to discover and exchange sensor messages. If two student robots in the same classroom use default network settings, Robot A's joystick might accidentally drive Robot B! By restricting CycloneDDS to the wired Ethernet adapter (<code>cyclonedds.xml</code>) and assigning unique <code>ROS_DOMAIN_ID</code> numbers, we guarantee absolute communication isolation.\n  </div>\n</div>\n\n<div class=\"callout warning\">\n  <div class=\"callout-title\">\u26a0\ufe0f PREVENTING WI-FI DEFAULT GATEWAY OVERWRITE</div>\n  <div class=\"callout-body\">\n    When setting a static IP on your Ethernet adapter (<code>172.22.11.247/24</code>), <strong>never set a default gateway</strong> unless instructed. Leaving the Ethernet gateway blank ensures your laptop continues routing normal web browsing through classroom Wi-Fi while seamlessly talking to the robot over Ethernet!\n  </div>\n</div>\n\n<div class=\"callout troubleshoot\">\n  <div class=\"callout-title\">\ud83d\udd27 TROUBLESHOOTING: DESTINATION HOST UNREACHABLE</div>\n  <div class=\"callout-body\">\n    If typing <code>ping 172.22.11.2</code> returns <em>\"Destination Host Unreachable\"</em>:\n    <ol>\n      <li><strong>Check RJ45 Link LEDs:</strong> Look closely at the Ethernet port on the Raspberry Pi 4. The Amber link LED and Green activity LED should be solidly glowing or blinking. If dark, replace the Ethernet cable.</li>\n      <li><strong>Verify Laptop IP:</strong> In your terminal, run <code>ip a show enp0s31f6</code>. It must show <code>inet 172.22.11.247/24</code>. If missing, run <code>sudo nmcli connection up RoboSkills-Robot-Ethernet</code>.</li>\n      <li><strong>Robot Power Switch:</strong> Ensure the 12V battery toggle switch is ON and the VMX-pi status LED is illuminated.</li>\n    </ol>\n  </div>\n</div>\n",
+            "wiring": "\n<h3>1. Workstation &amp; Robot Interconnect Topology</h3>\n<p>The table below summarizes the exact hardware, network, and communication assignments for the Studica AMR Dual-Brain system:</p>\n\n<table class=\"pinout-table\">\n  <thead>\n    <tr><th>Subsystem / Device</th><th>Network Address</th><th>Port / Channel</th><th>Hardware Protocol</th><th>Function</th></tr>\n  </thead>\n  <tbody>\n    <tr><td><code>Student Laptop</code></td><td>172.22.11.247/24</td><td>RJ45 Ethernet</td><td>Gigabit Ethernet (1000BASE-T)</td><td>Master Dashboard, RViz2, High-Level Autonomy</td></tr>\n    <tr><td><code>Robot VMX Controller</code></td><td>172.22.11.2/24</td><td>RJ45 (eth0)</td><td>Gigabit Ethernet / TCP/UDP</td><td>Onboard ROS 2 Humble Core &amp; Bringup Daemon</td></tr>\n    <tr><td><code>Titan Quad Driver</code></td><td>CAN ID 42</td><td>CAN_H / CAN_L</td><td>1 Mbps Differential CAN Bus</td><td>12V Maverick Motor PWM &amp; Quadrature Encoders</td></tr>\n    <tr><td><code>2D Laser LiDAR</code></td><td>Internal Serial</td><td>/dev/ttyUSB0</td><td>115,200 Baud UART (USB Bridge)</td><td>$360^\\circ$ LaserScan Distance Radar (/scan)</td></tr>\n    <tr><td><code>Orbbec 3D Camera</code></td><td>Internal USB 3.0</td><td>/dev/video*</td><td>UVC / High-Speed Video Stream</td><td>RGB Color (/camera/color) &amp; 16-Bit Depth</td></tr>\n    <tr><td><code>SSH Protocol</code></td><td>Port 22</td><td>TCP</td><td>OpenSSH (ed25519 Keypair)</td><td>Passwordless Remote Command Execution</td></tr>\n    <tr><td><code>CycloneDDS Engine</code></td><td>Domain ID 0</td><td>UDP Multicast</td><td>RTPS / DDS Middleware</td><td>Zero-Copy ROS 2 Topic &amp; Service Exchange</td></tr>\n  </tbody>\n</table>\n\n<div class=\"ref-image-box\">\n  <div class=\"ref-image-tag\">\u26a0\ufe0f [Dr. Salameh's Image Placeholder \u2014 Replace with actual lab photo/screenshot]</div>\n  <img src=\"images/robot_laptop_screenshots/gui_screenshot.png\" alt=\"Studica Master Robot Dashboard\" style=\"max-height:360px;\" />\n  <div class=\"ref-image-caption\">Figure 2.1A: Studica Master Robot Control Center (robot_control_center.py) with 5 Launcher buttons, live camera viewport, LiDAR radar HUD, and bench actuator diagnostics.</div>\n</div>\n\n<div class=\"ref-image-box\">\n  <div class=\"ref-image-tag\">\u26a0\ufe0f [Dr. Salameh's Image Placeholder \u2014 Replace with actual lab photo/screenshot]</div>\n  <img src=\"images/robot_laptop_screenshots/dashboard_tab0_nav.png\" alt=\"Navigation &amp; SLAM Cockpit\" style=\"max-height:360px;\" />\n  <div class=\"ref-image-caption\">Figure 2.1B: Navigation &amp; SLAM Cockpit displaying the 4-Quadrant 360° Proximity Radar, live 3D Camera feed, manual WASD teleoperation, and bench actuator pulse testing.</div>\n</div>\n",
+            "test": "\n<h3>Simulated Visual Guide: Student Workstation &amp; Dashboard Checkpoints</h3>\n<p>Hover or click each numbered marker below to review the critical commissioning steps from laptop configuration to robot launch:</p>\n\n<div class=\"click-guide-container\">\n  <div class=\"click-guide-header\">\n    <strong>Interactive Commissioning Map: Student Laptop to Master Dashboard</strong>\n    <span style=\"font-size:0.8rem; color:var(--text-dim);\">Click numbered markers for step details</span>\n  </div>\n\n  <div class=\"click-screen-mock\" style=\"height:280px; position:relative; background:linear-gradient(135deg, #071229, #1E293B);\">\n    <!-- Marker 1: Desktop Launcher -->\n    <div class=\"click-marker\" style=\"top:20%; left:18%;\" onclick=\"showToast('Step 1: Double-Click Desktop Launcher \u2014 Starts the PyQt5 Studica Master Control Center.', 'info')\">\n      1\n      <svg class=\"mouse-pointer-symbol\" viewBox=\"0 0 24 24\" fill=\"#FFFFFF\"><path d=\"M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.259z\"/></svg>\n    </div>\n\n    <!-- Marker 2: Start Hardware Drivers -->\n    <div class=\"click-marker\" style=\"top:35%; left:50%;\" onclick=\"showToast('Step 2: Click [1. Start Hardware Drivers] \u2014 Remotely triggers bringup_robot.sh over SSH.', 'info')\">\n      2\n      <svg class=\"mouse-pointer-symbol\" viewBox=\"0 0 24 24\" fill=\"#FFFFFF\"><path d=\"M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.259z\"/></svg>\n    </div>\n\n    <!-- Marker 3: Bench Motor Test -->\n    <div class=\"click-marker\" style=\"top:68%; left:82%;\" onclick=\"showToast('Step 3: Click [Safe 1-Sec Spin Test] \u2014 Sends 1-second pulse to Left (M0) and Right (M1) wheels.', 'info')\">\n      3\n      <svg class=\"mouse-pointer-symbol\" viewBox=\"0 0 24 24\" fill=\"#FFFFFF\"><path d=\"M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 5.259z\"/></svg>\n    </div>\n\n    <div style=\"position:absolute; bottom:15px; left:20px; color:#94A3B8; font-size:0.85rem;\">\n      <span style=\"display:inline-block; width:10px; height:10px; background:#EF4444; border-radius:50%; margin-right:6px;\"></span>\n      Action Guide: Always elevate the chassis on a wooden block before clicking Marker 3.\n    </div>\n  </div>\n\n  <div class=\"click-steps-list\">\n    <div class=\"click-step-item\">\n      <div class=\"click-step-num\">1</div>\n      <div><strong>Step 1: Student Laptop Setup</strong><br><span style=\"color:var(--text-muted);\">Run <code>./setup_student_laptop.sh</code> to configure static IP, CycloneDDS, and desktop icons.</span></div>\n    </div>\n    <div class=\"click-step-item\">\n      <div class=\"click-step-num\">2</div>\n      <div><strong>Step 2: Robot Remote Provisioning</strong><br><span style=\"color:var(--text-muted);\">Run <code>./setup_robot_from_laptop.sh</code> to install SSH keys and audit onboard LiDAR, camera, and CAN bus.</span></div>\n    </div>\n    <div class=\"click-step-item\">\n      <div class=\"click-step-num\">3</div>\n      <div><strong>Step 3: Launch Dashboard &amp; Test</strong><br><span style=\"color:var(--text-muted);\">Run <code>robot-dashboard</code>, click [1. Start Hardware Drivers], and verify battery telemetry and motor pulse.</span></div>\n    </div>\n  </div>\n</div>\n\n<div class=\"ref-image-box\">\n  <div class=\"ref-image-tag\">\u26a0\ufe0f [Dr. Salameh's Image Placeholder \u2014 Replace with actual lab photo/screenshot]</div>\n  <img src=\"images/robot_laptop_screenshots/dashboard_tab1_gamepad.png\" alt=\"Gamepad Calibration Screen\" style=\"max-height:340px;\" />\n  <div class=\"ref-image-caption\">Figure 2.1C: Gamepad Calibration Panel with real-time 8-axis analog monitor, 12-channel button states, and deadband tuning sliders.</div>\n</div>\n\n<h3>2. Step-by-Step Terminal Execution Guide</h3>\n<p>Open your student laptop terminal (<code>Ctrl+Alt+T</code>) and run the automated provisioning commands below:</p>\n\n<p><strong>Step 1: Download &amp; Run Student Laptop Setup</strong></p>\n<div style=\"background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-code); font-size:0.85rem; line-height:1.4; margin:0.75rem 0;\">\n<pre>\n# 1. Download laptop commissioning script\ncurl -sSL https://roboskillsclub.web.app/downloads/setup_student_laptop.sh -o setup_student_laptop.sh\n\n# 2. Grant executable permissions\nchmod +x setup_student_laptop.sh\n\n# 3. Execute setup (prompts for student sudo password once)\n./setup_student_laptop.sh\n\n# 4. Refresh your shell environment\nsource ~/.bashrc\n</pre>\n</div>\n\n<p><strong>Step 2: Run Robot Remote Provisioning from Laptop</strong></p>\n<div style=\"background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-code); font-size:0.85rem; line-height:1.4; margin:0.75rem 0;\">\n<pre>\n# 1. Download robot remote provisioning script\ncurl -sSL https://roboskillsclub.web.app/downloads/setup_robot_from_laptop.sh -o setup_robot_from_laptop.sh\n\n# 2. Grant executable permissions\nchmod +x setup_robot_from_laptop.sh\n\n# 3. Execute remote setup through the Ethernet cable\n./setup_robot_from_laptop.sh\n</pre>\n</div>\n\n<p><strong>Step 3: Launch the Master Robot Dashboard</strong></p>\n<div style=\"background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-code); font-size:0.85rem; line-height:1.4; margin:0.75rem 0;\">\n<pre>\n# Simply type the alias in any terminal:\nrobot-dashboard\n\n# Or click the \"Studica Robot Dashboard\" icon on your Ubuntu desktop!\n</pre>\n</div>\n",
+            "video": "\n<div class=\"video-tutorial-card\">\n  <div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;\">\n    <h4 style=\"font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;\">\n      <span>\ud83c\udfa5 Step-by-Step Video Walkthrough Guide</span>\n    </h4>\n    <span class=\"role-pill role-student\">Lesson 2.1 Video Breakdown</span>\n  </div>\n\n  <div class=\"video-step-row\">\n    <div class=\"video-time-tag\">00:00 - 02:30</div>\n    <div>\n      <strong>Part 1: Physical Cabling &amp; Robot Power-On Sequence</strong>\n      <p style=\"font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;\">\n        Plugging the RJ45 shielded cable between the laptop and Raspberry Pi 4. Turning on the 12V battery toggle switch. Observing VMX-pi status LED indicators and RJ45 link lights.\n      </p>\n    </div>\n  </div>\n\n  <div class=\"video-step-row\">\n    <div class=\"video-time-tag\">02:30 - 05:00</div>\n    <div>\n      <strong>Part 2: Running setup_student_laptop.sh &amp; Network Configuration</strong>\n      <p style=\"font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;\">\n        Executing the student workstation script. Demonstrating automatic detection of Ethernet interfaces (enp0s31f6), static IP assignment (172.22.11.247/24), CycloneDDS configuration, and desktop shortcut creation.\n      </p>\n    </div>\n  </div>\n\n  <div class=\"video-step-row\">\n    <div class=\"video-time-tag\">05:00 - 07:30</div>\n    <div>\n      <strong>Part 3: Running setup_robot_from_laptop.sh &amp; Automated SSH Key Exchange</strong>\n      <p style=\"font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;\">\n        Executing the remote robot provisioning script. Showing the automated SSH keypair transfer via sshpass, ensuring students never have to type passwords again when connecting to the robot.\n      </p>\n    </div>\n  </div>\n\n  <div class=\"video-step-row\">\n    <div class=\"video-time-tag\">07:30 - 10:00</div>\n    <div>\n      <strong>Part 4: Onboard Subsystem Audit &amp; CycloneDDS Verification</strong>\n      <p style=\"font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;\">\n        Verifying onboard hardware: checking the YDLidar serial link (/dev/ttyUSB0), Orbbec 3D camera device node, Titan Quad CAN daemon (CAN ID 42), and CycloneDDS multicast configuration.\n      </p>\n    </div>\n  </div>\n\n  <div class=\"video-step-row\">\n    <div class=\"video-time-tag\">10:00 - 13:00</div>\n    <div>\n      <strong>Part 5: Launching Master Control Center &amp; Safe Bench Spin Test</strong>\n      <p style=\"font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;\">\n        Launching robot-dashboard. Clicking [1. Start Hardware Drivers], verifying green status lights, monitoring live battery voltage, and executing the safe 1-second motor spin confirmation test!\n      </p>\n    </div>\n  </div>\n</div>\n",
+            "challenge": "\n<h3>Hands-On Team Challenge: The 120-Second Zero-to-Telemetry Sprint</h3>\n<div class=\"callout challenge\">\n  <div class=\"callout-title\">\ud83c\udfaf JUNIOR TEAM CHALLENGE: COMMISSIONING SPRINT</div>\n  <div class=\"callout-body\">\n    <p>Practice competitive robotic readiness with your lab partner:</p>\n    <ol>\n      <li>Start with the robot turned OFF and the Ethernet cable disconnected.</li>\n      <li>Start a 120-second stopwatch. Connect the Ethernet cable and switch battery power ON.</li>\n      <li>Run <code>./setup_robot_from_laptop.sh --skip-spin</code> from your laptop terminal.</li>\n      <li>Launch <code>robot-dashboard</code>, click <strong>[1. Start Hardware Drivers]</strong>, and confirm that both the battery voltage (e.g. <code>12.4V</code>) and the 4-quadrant proximity radar status display <strong>CLEAR</strong>.</li>\n      <li>Stop the timer when live telemetry streams smoothly. Record your team's time in your lab workbook!</li>\n    </ol>\n  </div>\n</div>\n",
+            "codeSnippet": "# Step 1: Run Student Laptop Commissioning\n./setup_student_laptop.sh\nsource ~/.bashrc\n\n# Step 2: Run Remote Robot Setup over Ethernet Link\n./setup_robot_from_laptop.sh\n\n# Step 3: Launch Studica Master Robot Dashboard\nrobot-dashboard",
+            "githubLink": "https://github.com/momar82/RoboSkillsClub/blob/main/downloads/setup_student_laptop.sh",
             "downloads": [
               {
-                "name": "06_network_check.py",
-                "url": "downloads/code_templates/06_network_check.py",
-                "label": "Network Check Script (.py)"
+                "name": "setup_student_laptop.sh",
+                "url": "downloads/setup_student_laptop.sh",
+                "label": "Student Laptop Setup (.sh)"
+              },
+              {
+                "name": "setup_robot_from_laptop.sh",
+                "url": "downloads/setup_robot_from_laptop.sh",
+                "label": "Robot Remote Setup (.sh)"
+              },
+              {
+                "name": "params.yaml",
+                "url": "downloads/params.yaml",
+                "label": "ROS 2 Params (.yaml)"
+              },
+              {
+                "name": "QSTSS_Studica_AMR_Junior_Textbook.pdf",
+                "url": "pdf_export/QSTSS_Studica_AMR_Junior_Textbook.pdf",
+                "label": "Junior Textbook (PDF)"
               }
             ]
           },
@@ -808,6 +824,92 @@ const TEACHER_LESSON_PLANS = {
       },
       {
         "criteria": "Exit Ticket & Module 1 Completion",
+        "points": "10 pts"
+      }
+    ]
+  },
+  "2.1": {
+    "title": "Lesson 2.1: Workstation & Robot Commissioning: Automated Setup & Dual-Brain Network",
+    "duration": "90 Minutes",
+    "prerequisites": "Module 1 Complete: Physical Chassis Assembled and 12V Power System Verified",
+    "objectives": [
+      "Understand the Distributed Dual-Brain Architecture (Student Workstation vs Embedded VMX-pi Controller).",
+      "Execute setup_student_laptop.sh to configure static IP 172.22.11.247/24, CycloneDDS, and desktop shortcuts.",
+      "Execute setup_robot_from_laptop.sh over Gigabit Ethernet to provision passwordless SSH and audit onboard hardware.",
+      "Verify the 5-point hardware audit: YDLidar serial bus, Orbbec 3D camera UVC node, Titan CAN daemon (CAN ID 42), and ROS 2 Humble.",
+      "Launch the Studica Master Robot Dashboard (robot_control_center.py) and perform safe bench actuator testing."
+    ],
+    "materials": [
+      "Student Ubuntu 22.04 LTS Laptop with Gigabit Ethernet port (or USB-to-Ethernet adapter)",
+      "Fully assembled Studica AMR chassis with 12V 3000mAh NiMH battery",
+      "Shielded Cat6 RJ45 Gigabit Ethernet patch cable",
+      "Wooden bench block / chassis stand to elevate drive wheels in the air",
+      "Commissioning scripts: setup_student_laptop.sh and setup_robot_from_laptop.sh"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:15",
+        "title": "Hook & Concept: The Dual-Brain Paradigm",
+        "activity": "Discuss why perception (LiDAR, 3D PointClouds) and GUIs run on the student laptop, while real-time motor loops run on VMX-pi."
+      },
+      {
+        "time": "00:15 - 00:35",
+        "title": "Student Workstation Setup (setup_student_laptop.sh)",
+        "activity": "Students run the automated laptop script. Review static IP configuration (172.22.11.247), cyclonedds.xml, and desktop icon."
+      },
+      {
+        "time": "00:35 - 00:55",
+        "title": "Remote Robot Provisioning (setup_robot_from_laptop.sh)",
+        "activity": "Connect Ethernet cable, power on robot. Run the remote provisioning script. Verify automated SSH key exchange and driver audit."
+      },
+      {
+        "time": "00:55 - 01:15",
+        "title": "Master Robot Dashboard Exploration",
+        "activity": "Launch robot-dashboard. Click [1. Start Hardware Drivers], inspect 4-quadrant proximity radar, camera feed, and battery voltage."
+      },
+      {
+        "time": "01:15 - 01:30",
+        "title": "Safe Bench Spin Check & Exit Ticket",
+        "activity": "Elevate robot chassis on wooden block. Click [Safe 1-Sec Spin Test] to verify M0 and M1 wheels. Complete Exit Ticket."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Setting an Ethernet default gateway",
+        "intervention": "Explain that setting an Ethernet gateway cuts off classroom Wi-Fi. The Ethernet link must have an empty gateway."
+      },
+      {
+        "pitfall": "Expecting Wi-Fi to work during initial robot bringup",
+        "intervention": "Emphasize that radio congestion in school labs drops UDP packets. Gigabit Ethernet provides guaranteed 0.3ms latency."
+      },
+      {
+        "pitfall": "Typing passwords for every SSH command",
+        "intervention": "Demonstrate how setup_robot_from_laptop.sh installs an ed25519 public key so students never type passwords again."
+      }
+    ],
+    "differentiation": {
+      "support": "Provide pre-configured USB-to-Ethernet adapters for laptops without native RJ45 ports; assist with interface naming.",
+      "extension": "Inspect raw DDS discovery packets using cyclonedds-tools and monitor live ROS 2 topic bandwidth using 'ros2 topic bw /scan'."
+    },
+    "rubric": [
+      {
+        "criteria": "Student Laptop Environment & Static IP Setup",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Remote Robot Provisioning & Passwordless SSH",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Onboard Subsystem Audit (LiDAR, Camera, CAN)",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Dashboard Launch & Bench Actuator Pulse Test",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Exit Ticket Assessment",
         "points": "10 pts"
       }
     ]
@@ -1402,6 +1504,102 @@ const TEACHER_PPT_DECKS = {
         ],
         "visual": "Graduation banner with robot completion badge.",
         "notes": "Issue Module 1 completion stamps and prepare for Module 2: Connect and Drive!"
+      }
+    ]
+  },
+  "2.1": {
+    "title": "Lesson 2.1: Automated Commissioning & Dual-Brain Network",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Lesson 2.1: Commissioning the Dual-Brain Architecture",
+        "bullets": [
+          "Course: Autonomous Mobile Robotics (Studica Kit)",
+          "Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM",
+          "Today's Mission: Connect your student laptop to the robot via Gigabit Ethernet and launch live telemetry!"
+        ],
+        "visual": "Diagram of Student Laptop connected via RJ45 cable to Studica AMR Robot.",
+        "notes": "Welcome students to Module 2! Their physical robot is built; today they bring it to life digitally."
+      },
+      {
+        "num": 2,
+        "title": "The Distributed Dual-Brain Architecture",
+        "bullets": [
+          "Brain 1 (The Mind): Student Laptop (Ubuntu 22.04 LTS, PyQt5 Dashboard, RViz2 3D)",
+          "Brain 2 (The Muscle): VMX-pi Controller (Raspberry Pi 4 + FPGA + Titan Motor Driver)",
+          "Why divide work? Prevents overheating and frees CPU for 3D SLAM mapping."
+        ],
+        "visual": "Dual-Brain architecture flowchart with Gigabit Ethernet bridge.",
+        "notes": "Ask students: Why shouldn't a small Raspberry Pi render 3D graphics while balancing motors?"
+      },
+      {
+        "num": 3,
+        "title": "Why Gigabit Ethernet Beats Classroom Wi-Fi",
+        "bullets": [
+          "Wi-Fi in school arenas: 50+ devices, packet collision, dropped commands",
+          "Gigabit Ethernet (Cat6): 1000 Mbps bandwidth, < 0.5 ms ping latency",
+          "Zero wireless interference during critical motor testing"
+        ],
+        "visual": "Comparison graph: Wi-Fi packet jitter vs steady 0.3ms Ethernet ping.",
+        "notes": "Remind students: competitive robotics matches require reliable, deterministic communication."
+      },
+      {
+        "num": 4,
+        "title": "Step 1: Automated Laptop Commissioning",
+        "bullets": [
+          "Command: ./setup_student_laptop.sh",
+          "Auto-configures static IP: 172.22.11.247/24 on Ethernet interface",
+          "Generates cyclonedds.xml and creates 'Studica Robot Dashboard' desktop icon"
+        ],
+        "visual": "Terminal screenshot running setup_student_laptop.sh with green checkmarks.",
+        "notes": "Students run the script once. Have them verify their desktop icon after completion."
+      },
+      {
+        "num": 5,
+        "title": "Step 2: Remote Robot Provisioning via Laptop",
+        "bullets": [
+          "Command: ./setup_robot_from_laptop.sh",
+          "Pings 172.22.11.2 to verify physical cable link",
+          "Installs SSH keys automatically: no more typing passwords!",
+          "Uploads bringup daemons and configures robot CycloneDDS for eth0"
+        ],
+        "visual": "Terminal screenshot of setup_robot_from_laptop.sh output.",
+        "notes": "Show students how passwordless SSH enables instant remote control from their laptop."
+      },
+      {
+        "num": 6,
+        "title": "Step 3: Onboard Subsystem Hardware Audit",
+        "bullets": [
+          "✔ 2D Laser LiDAR: Detected on /dev/ttyUSB0 (115,200 baud)",
+          "✔ Orbbec 3D Camera: Active video nodes on /dev/video*",
+          "✔ Titan Quad Driver: CAN bus ID 42 responding with battery telemetry",
+          "✔ ROS 2 Humble Core: Ready to launch"
+        ],
+        "visual": "Close-up of YDLidar spinning and Orbbec camera status LED.",
+        "notes": "Explain that every professional robotics team executes this pre-flight audit before moving."
+      },
+      {
+        "num": 7,
+        "title": "Step 4: Launching the Master Robot Dashboard",
+        "bullets": [
+          "Terminal command: robot-dashboard (or double-click desktop icon)",
+          "Click [1. Start Hardware Drivers]: triggers onboard ROS 2 bringup",
+          "Check indicators: Battery voltage (12.4V) and Proximity Radar (CLEAR)"
+        ],
+        "visual": "Screenshot of Master Robot Dashboard with live radar and camera viewport.",
+        "notes": "Walk around the room to verify every team has green connection status on their dashboard."
+      },
+      {
+        "num": 8,
+        "title": "Safe Bench Spin Check & Exit Ticket",
+        "bullets": [
+          "Elevate chassis on wooden block: wheels must spin freely in the air",
+          "Click [Safe 1-Sec Spin Test]: verify Left (M0) and Right (M1) wheels",
+          "Exit Ticket Q1: What is the laptop's static IP? (172.22.11.247)",
+          "Exit Ticket Q2: Why is the Ethernet default gateway left empty?"
+        ],
+        "visual": "Elevated robot on test bench performing 1-second pulse test.",
+        "notes": "Celebrate success! Teams are now fully commissioned and ready for Lesson 2.2 Gamepad Teleop."
       }
     ]
   }
