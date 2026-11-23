@@ -1,0 +1,576 @@
+{
+  "1.1": {
+    "title": "Lesson 1.1: Exploring the Studica Robotics Kit",
+    "duration": "90 Minutes",
+    "prerequisites": "None (Day 1 Laboratory Onboarding)",
+    "objectives": [
+      "Identify structural aluminum extrusion channels and standard metric 8mm pitch patterns.",
+      "Distinguish between M3 and M4 screws (8mm, 12mm, 16mm) and understand Nyloc locknut mechanics.",
+      "Enforce mandatory lab safety rules (ANSI Z87.1 glasses, battery disconnect, loose clothing)."
+    ],
+    "materials": [
+      "Studica Robotics Kit storage bin per 2-student team",
+      "Divided plastic hardware sorting tray",
+      "2.5mm and 2.0mm ball-end hex keys",
+      "7.0mm open-end box wrench / nut driver",
+      "300mm stainless steel metric ruler",
+      "Safety glasses for all students"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:05",
+        "title": "Safety Briefing & PPE Check",
+        "activity": "Ensure every student is wearing safety glasses. Explain the rule of zero power during assembly."
+      },
+      {
+        "time": "00:05 - 00:20",
+        "title": "Hardware Overview & Mechanics",
+        "activity": "Demonstrate the 6061-T6 aluminum U-channel profile and explain the 8mm modular hole pitch."
+      },
+      {
+        "time": "00:20 - 00:50",
+        "title": "Hands-On Sorting & Sizing",
+        "activity": "Students sort screws into M3, M4x8, M4x12, M4x16 bins. Measure channels with metric rulers."
+      },
+      {
+        "time": "00:50 - 01:15",
+        "title": "Joint Assembly Exercise",
+        "activity": "Assemble sample 90\u00b0 corner joint with two M4x12 bolts and Nyloc nuts. Guide proper torque technique."
+      },
+      {
+        "time": "01:15 - 01:25",
+        "title": "Junior Rigidity Squeeze Challenge",
+        "activity": "Teams perform the diagonal torsional squeeze test on their sample frames. Verify zero play."
+      },
+      {
+        "time": "01:25 - 01:30",
+        "title": "Summary & Exit Ticket Review",
+        "activity": "Conduct Exit Ticket check. Ensure all tools are accounted for and returned to bins."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Students use standard nuts instead of Nylocs",
+        "intervention": "Point out the blue nylon ring. Have students try to spin a Nyloc by hand vs a standard nut."
+      },
+      {
+        "pitfall": "Over-tightening and stripping hex socket heads",
+        "intervention": "Demonstrate two-finger torque on the short arm of the hex key. Never use pliers on hex keys."
+      },
+      {
+        "pitfall": "Cross-threading screws into channel holes",
+        "intervention": "Teach the 'back-turn' rule: turn counter-clockwise until you feel a tiny click, then thread in."
+      }
+    ],
+    "differentiation": {
+      "support": "Provide a pre-printed 1:1 scale fastener identification sheet where students place screws directly on matching drawings.",
+      "extension": "Fast-finishing students assemble a 3D corner cube using 3 gusset plates and calculate total fastener mass using digital lab scale."
+    },
+    "rubric": [
+      {
+        "criteria": "Lab Safety & PPE Compliance",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Fastener Sorting Accuracy",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Mechanical Joint Rigidity (Zero Flex)",
+        "points": "30 pts"
+      },
+      {
+        "criteria": "Tool Handling & Workstation Organization",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Exit Ticket Accuracy",
+        "points": "15 pts"
+      }
+    ]
+  },
+  "1.2": {
+    "title": "Lesson 1.2: Understanding the Robot Controller",
+    "duration": "90 Minutes",
+    "prerequisites": "Lesson 1.1",
+    "objectives": [
+      "Explain the architectural division of labor between Raspberry Pi 4 (brain), VMX-pi (reflexes), and Titan Quad (muscle).",
+      "Identify the key VMX-pi port groups: HiCurrDIO, FlexDIO, PWM, Analog, and CAN.",
+      "Wire and terminate a 1 Mbps differential CAN bus network with a 120-ohm terminating resistor."
+    ],
+    "materials": [
+      "Assembled VMX-pi / Raspberry Pi 4 controller stack",
+      "Titan Quad DC Motor Controller (CAN ID 42)",
+      "Yellow/Green twisted pair CAN bus harness",
+      "2.5mm flathead terminal screwdriver",
+      "Digital multimeter set to DC Volts"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:05",
+        "title": "Review & Objective",
+        "activity": "Review fastener rules from Lesson 1.1. Introduce the concept of dual-brain architecture."
+      },
+      {
+        "time": "00:05 - 00:20",
+        "title": "Dual-Brain Theory & CAN Bus",
+        "activity": "Explain why Linux requires an FPGA coprocessor for microsecond timing. Explain differential CAN noise immunity."
+      },
+      {
+        "time": "00:20 - 00:50",
+        "title": "Header Inspection & Port Mapping",
+        "activity": "Students locate HiCurrDIO pins 20/21, FlexDIO pins 8-11, and the CAN port on their VMX-pi."
+      },
+      {
+        "time": "00:50 - 01:15",
+        "title": "CAN Bus & Power Rail Wiring",
+        "activity": "Connect twisted CAN pair to Titan CAN IN Weidmuller terminals. Set 120\u03a9 termination switch to ON."
+      },
+      {
+        "time": "01:15 - 01:25",
+        "title": "Zero Wire Snags Team Challenge",
+        "activity": "Route cables cleanly inside extrusion cavity with spiral wrap and zip ties. Verify strain relief."
+      },
+      {
+        "time": "01:25 - 01:30",
+        "title": "Exit Ticket & Terminal Verify",
+        "activity": "Students answer Exit Ticket questions and execute candump command to observe Titan ID 42."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Students plug 12V motor leads into 5V logic headers",
+        "intervention": "Use color-coded tape to physically block off VMX headers until high-voltage power is completed."
+      },
+      {
+        "pitfall": "Forgetting the 120-ohm CAN termination resistor",
+        "intervention": "Explain transmission line reflections (echo effect) using a skipping rope demonstration."
+      },
+      {
+        "pitfall": "Reversing CAN_H and CAN_L wires",
+        "intervention": "Mnemonic rule: Yellow = Sunshine (High), Green = Grass (Low)."
+      }
+    ],
+    "differentiation": {
+      "support": "Provide students with a color-coded wiring diagram sticker to attach directly to their acrylic deck.",
+      "extension": "Have students run 'candump can0' in Linux terminal and decode the hexadecimal byte containing battery voltage."
+    },
+    "rubric": [
+      {
+        "criteria": "Dual-Brain Concept Comprehension",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Correct Header Port Mapping",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "CAN Bus Wiring & Termination Accuracy",
+        "points": "30 pts"
+      },
+      {
+        "criteria": "Cable Strain Relief & Routing Cleanliness",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Exit Ticket & Lab Log",
+        "points": "10 pts"
+      }
+    ]
+  },
+  "1.3": {
+    "title": "Lesson 1.3: Building the Robot Chassis",
+    "duration": "90 Minutes",
+    "prerequisites": "Lessons 1.1 & 1.2",
+    "objectives": [
+      "Assemble the 240mm x 180mm x 100mm structural aluminum chassis.",
+      "Apply diagonal measurement techniques to eliminate chassis parallelogram distortion within \u00b10.5 mm.",
+      "Mount standoff hardware and fasten the laser-cut acrylic electronics deck securely."
+    ],
+    "materials": [
+      "2 x 240mm aluminum side extrusion channels",
+      "2 x 180mm aluminum cross extrusion channels",
+      "4 x 90-degree corner gusset plates",
+      "16 x M4x12mm socket-head bolts & 16 x M4 Nyloc nuts",
+      "4 x M3x20mm nylon standoffs & M3 button screws",
+      "Laser-cut acrylic electronics mounting deck",
+      "Precision digital caliper / 300mm steel metric ruler"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:05",
+        "title": "Chassis Blueprint Walkthrough",
+        "activity": "Show engineering drawing of 24x18cm footprint. Emphasize why squareness matters for straight driving."
+      },
+      {
+        "time": "00:05 - 00:20",
+        "title": "Squaring Principles & Geometry",
+        "activity": "Derive Pythagorean diagonal ($D = \\sqrt{240^2 + 180^2} = 300\\,\\text{mm}$). Explain parallelogram drift."
+      },
+      {
+        "time": "00:20 - 00:50",
+        "title": "Base Frame Assembly",
+        "activity": "Students bolt channels and gussets together finger-tight. Measure diagonals $D_1$ and $D_2$."
+      },
+      {
+        "time": "00:50 - 01:15",
+        "title": "Final Torquing & Acrylic Deck",
+        "activity": "Torque all 8 corner bolts in X-pattern. Mount nylon standoffs and fasten acrylic baseplate."
+      },
+      {
+        "time": "01:15 - 01:25",
+        "title": "The Caliper Audit Challenge",
+        "activity": "Teacher inspects each chassis: verify $300\\,\\text{mm} \\pm 0.5\\,\\text{mm}$ and zero table rocking."
+      },
+      {
+        "time": "01:25 - 01:30",
+        "title": "Exit Ticket & Workspace Cleanup",
+        "activity": "Review chassis dimension checklist and sign off student lab workbooks."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Tightening bolts fully before measuring diagonals",
+        "intervention": "Instruct students to leave nuts finger-loose until ruler confirms exact equal diagonals."
+      },
+      {
+        "pitfall": "Over-torquing nylon standoffs with pliers",
+        "intervention": "Enforce strict 'finger-tight only' rule on nylon standoffs to prevent stripped threads."
+      },
+      {
+        "pitfall": "Mounting channels with open U-profile facing outward",
+        "intervention": "Ensure U-channels face INWARD so wires and batteries can sit safely inside the frame cavity."
+      }
+    ],
+    "differentiation": {
+      "support": "Provide pre-cut wooden 300mm diagonal alignment jigs that drop directly into the frame corners.",
+      "extension": "Have students calculate the moment of inertia and torsional stiffness of the chassis frame."
+    },
+    "rubric": [
+      {
+        "criteria": "Chassis Dimensional Accuracy (240x180mm)",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Diagonal Squaring (<0.5mm delta)",
+        "points": "30 pts"
+      },
+      {
+        "criteria": "Zero Rocking on Inspection Table",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Acrylic Deck & Standoff Installation",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Exit Ticket Completion",
+        "points": "10 pts"
+      }
+    ]
+  },
+  "1.4": {
+    "title": "Lesson 1.4: Installing Motors and Wheels",
+    "duration": "90 Minutes",
+    "prerequisites": "Lesson 1.3",
+    "objectives": [
+      "Mount 60:1 Maverick planetary gearmotors using aluminum clamping brackets.",
+      "Derive and explain the 1,680 ticks/rev quadrature encoder formula ($28 \\times 60 = 1680$).",
+      "Install 100mm rubber drive wheels with blue threadlocker on D-shaft set screws and align rear omni caster."
+    ],
+    "materials": [
+      "2 x Studica Maverick 12V DC Planetary Gearmotors (60:1)",
+      "2 x Aluminum clamping motor mounts & M4 clamping hardware",
+      "2 x 6mm steel D-shaft hex wheel couplers & set screws",
+      "2 x 100mm high-traction rubber drive wheels & M3 mounting screws",
+      "1 x Smooth omnidirectional ball caster wheel & standoff spacers",
+      "1 x Bottle Blue Threadlocker (Loctite 242)",
+      "Wooden test blocks (to elevate robot wheels during bench testing)"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:05",
+        "title": "Drivetrain Overview",
+        "activity": "Introduce planetary gear reduction and encoder feedback. Emphasize rotating machinery safety."
+      },
+      {
+        "time": "00:05 - 00:20",
+        "title": "Gear Ratio & Kinematics Math",
+        "activity": "Derive 1680 ticks/rev ($28 \\times 60$). Calculate 100mm wheel circumference ($C = 314.16\\,\\text{mm}$) and 0.187 mm/tick."
+      },
+      {
+        "time": "00:20 - 00:50",
+        "title": "Motor & Wheel Installation",
+        "activity": "Mount gearmotors into clamping brackets. Fasten hex hubs onto D-shaft flat face with threadlocker."
+      },
+      {
+        "time": "00:50 - 01:15",
+        "title": "Rear Caster Alignment & Harness",
+        "activity": "Install rear omni caster. Plug motor harnesses into Titan Channels M0 (Left) and M1 (Right)."
+      },
+      {
+        "time": "01:15 - 01:25",
+        "title": "Roll-Out Resistance Challenge",
+        "activity": "Perform 5-degree ramp roll-out test. Listen for quiet, smooth mechanical hum from planetary gearboxes."
+      },
+      {
+        "time": "01:25 - 01:30",
+        "title": "Exit Ticket & Bench Audit",
+        "activity": "Complete Worksheet 04 calculation table and review encoder derivation."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Tightening the set screw against the rounded side of the D-shaft",
+        "intervention": "Shine a flashlight into the hub bore to visually confirm the set screw is aligned with the flat face."
+      },
+      {
+        "pitfall": "Forgetting threadlocker on motor set screws",
+        "intervention": "Demonstrate how motor vibration shakes unglued set screws loose within 5 minutes of driving."
+      },
+      {
+        "pitfall": "Omitting the 1mm clearance gap between wheel and frame",
+        "intervention": "Use a 1mm guitar pick or business card as a spacer between the hex coupler and the bearing face."
+      }
+    ],
+    "differentiation": {
+      "support": "Pre-mark the flat face of motor D-shafts with a bright paint marker for easy visual alignment.",
+      "extension": "Have students write a 5-line Python script that reads live encoder ticks as the wheel is turned by hand."
+    },
+    "rubric": [
+      {
+        "criteria": "Gearbox & Encoder Kinematics Derivation",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Motor Clamping & D-Shaft Alignment",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Blue Threadlocker Application",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Roll-Out Test Performance (Straight & Smooth)",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Exit Ticket Accuracy",
+        "points": "15 pts"
+      }
+    ]
+  },
+  "1.5": {
+    "title": "Lesson 1.5: Power and Wiring Hygiene",
+    "duration": "90 Minutes",
+    "prerequisites": "Lessons 1.1 to 1.4",
+    "objectives": [
+      "Construct a segregated 12V DC power distribution tree with a 20A automotive blade fuse.",
+      "Execute a mandatory digital multimeter polarity audit to prevent catastrophic reverse polarity.",
+      "Apply professional wire routing hygiene: separate high-current motor cables from low-voltage signals."
+    ],
+    "materials": [
+      "12V 3000mAh NiMH battery pack with yellow XT60 connector",
+      "Inline rubber fuse holder & 20-Amp yellow automotive blade fuse",
+      "Heavy-duty SPST toggle switch & rear chassis mounting bracket",
+      "14 AWG high-flex silicone wire (Red positive, Black ground)",
+      "Digital multimeter with needle probes",
+      "Wire strippers & small flathead terminal screwdriver",
+      "Spiral cable wrap & miniature zip ties"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:05",
+        "title": "Electrical Safety Protocol",
+        "activity": "Enforce zero battery connection until multimeter audit is signed off by teacher. Explain reverse polarity."
+      },
+      {
+        "time": "00:05 - 00:20",
+        "title": "Power Topology & Fuse Protection",
+        "activity": "Explain segregated power tree (muscle vs brain). Show how a 20A fuse prevents battery fires and short circuits."
+      },
+      {
+        "time": "00:20 - 00:50",
+        "title": "Power Wiring & Switch Installation",
+        "activity": "Install fuse, mount toggle switch, strip 14 AWG wire, and clamp firmly into Titan VIN (+) and GND (-) terminals."
+      },
+      {
+        "time": "00:50 - 01:15",
+        "title": "Multimeter Polarity Audit",
+        "activity": "Teacher observes each team probe switch output with multimeter. Confirm positive +12V DC reading."
+      },
+      {
+        "time": "01:15 - 01:25",
+        "title": "The 5G Tug & Shake Challenge",
+        "activity": "Gently tug wires and shake robot: zero rattling, zero loose terminals. Flip switch: solid green LEDs!"
+      },
+      {
+        "time": "01:25 - 01:30",
+        "title": "Module 1 Wrap-Up & Graduation",
+        "activity": "Celebrate the completion of the physical robot build! Issue Module 1 completion stamp."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Clamping screw terminal onto wire insulation jacket",
+        "intervention": "Inspect the terminal window with a magnifying glass or flashlight: copper must be visible under screw head."
+      },
+      {
+        "pitfall": "Relying on wire color without multimeter verification",
+        "intervention": "Always test with a multimeter! Assume nothing in electrical engineering."
+      },
+      {
+        "pitfall": "Leaving battery loose inside the chassis",
+        "intervention": "Demonstrate what happens in a sudden robot stop: an unstrapped battery slides forward and tears wires."
+      }
+    ],
+    "differentiation": {
+      "support": "Provide pre-stripped and tinned wire leads with ferrules to make screw terminal insertion foolproof.",
+      "extension": "Have students measure quiescent idle current draw of the robot using an in-line DC clamp ammeter."
+    },
+    "rubric": [
+      {
+        "criteria": "Electrical Safety & Fuse Installation",
+        "points": "25 pts"
+      },
+      {
+        "criteria": "Multimeter Polarity Audit (+12V Confirmed)",
+        "points": "30 pts"
+      },
+      {
+        "criteria": "Screw Terminal Mechanical Integrity (Tug Test)",
+        "points": "20 pts"
+      },
+      {
+        "criteria": "Wiring Hygiene & Battery Strap Security",
+        "points": "15 pts"
+      },
+      {
+        "criteria": "Exit Ticket & Module 1 Completion",
+        "points": "10 pts"
+      }
+    ]
+  },
+  "T0": {
+    "title": "Lesson T0: Teacher Robot Commissioning & Lab Setup",
+    "duration": "60 Minutes (Teacher Pre-Course Setup)",
+    "prerequisites": "Teacher & Technician Level",
+    "objectives": [
+      "Automate the flashing, networking, and provisioning of the Studica VMX-pi Ubuntu 22.04 environment.",
+      "Deploy CycloneDDS routing XML configuration bound to static Ethernet IP 172.22.11.2.",
+      "Configure the unified systemd background service (qstss_robot.service) to prevent pigpio memory collisions."
+    ],
+    "materials": [
+      "Teacher laptop running Ubuntu 22.04 with ROS 2 Humble",
+      "Cat6 RJ45 Gigabit Ethernet cable",
+      "Studica VMX-pi Controller with freshly flashed micro-SD card",
+      "Commissioning script: teacher_commission_robot.sh"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:15",
+        "title": "Ethernet Link & SSH Key Exchange",
+        "activity": "Connect laptop to robot via Ethernet. Configure laptop IP 172.22.11.247 and verify passwordless SSH."
+      },
+      {
+        "time": "00:15 - 00:35",
+        "title": "Executing Commissioning Script",
+        "activity": "Run ./teacher_commission_robot.sh: deploys CycloneDDS XML, CAN ID 42 configs, and udev rules."
+      },
+      {
+        "time": "00:35 - 00:50",
+        "title": "Service Validation & Hardware Daemon",
+        "activity": "Check systemctl status qstss_robot.service. Confirm pigpio single-daemon lock."
+      },
+      {
+        "time": "00:50 - 01:00",
+        "title": "Lab Fleet Mass Provisioning",
+        "activity": "Repeat procedure across all team robots. Tag each robot with assigned team number."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Allowing students to run apt-get or build ROS 2 packages during class",
+        "intervention": "Strictly pre-install all offline Debian packages and ROS 2 libraries before day 1."
+      },
+      {
+        "pitfall": "Multiple processes attempting to access VMX pigpio hardware simultaneously",
+        "intervention": "Ensure manual_composition handles all digital I/O, motors, and encoders in one service."
+      }
+    ],
+    "differentiation": {
+      "support": "Keep a clone image of a fully configured micro-SD card ready for instant swapping in case of SD corruption.",
+      "extension": "Set up a local DHCP and TFTP server to PXE-boot or network-clone student laptops."
+    },
+    "rubric": [
+      {
+        "criteria": "Network Static IP & CycloneDDS Configuration",
+        "points": "35 pts"
+      },
+      {
+        "criteria": "Single Hardware Daemon Service Health",
+        "points": "35 pts"
+      },
+      {
+        "criteria": "Fleet Readiness & Documentation",
+        "points": "30 pts"
+      }
+    ]
+  },
+  "T1": {
+    "title": "Lesson T1: Pre-Flight Hardware Health Check",
+    "duration": "30 Minutes (Before Each Class Session)",
+    "prerequisites": "Lesson T0 Commissioning Completed",
+    "objectives": [
+      "Run automated Python hardware diagnostic script (verify_robot_health.py).",
+      "Verify CAN bus communication with Titan Quad Controller (CAN ID 42) and battery telemetry.",
+      "Verify navX 9-axis IMU gyro calibration and YDLidar laser rotation."
+    ],
+    "materials": [
+      "Commissioned Studica AMR robot on wooden bench support blocks",
+      "Fully charged 12V 3000mAh NiMH battery",
+      "Student laptop with test scripts in /home/qstss1/Documents/studica_amr_course/scripts"
+    ],
+    "timeline": [
+      {
+        "time": "00:00 - 00:10",
+        "title": "Power & Voltage Check",
+        "activity": "Power ON robot. Check battery voltage: must be >12.4V. Verify green/blue LEDs."
+      },
+      {
+        "time": "00:10 - 00:20",
+        "title": "Automated Sensor Suite Audit",
+        "activity": "Run python3 verify_robot_health.py: tests motors M0/M1, encoders, IMU, and LiDAR."
+      },
+      {
+        "time": "00:20 - 00:30",
+        "title": "Fleet Sign-Off & Lab Readiness",
+        "activity": "Confirm all test output shows [\u2713] PASS. Elevate wheels and place ready for students."
+      }
+    ],
+    "misconceptions": [
+      {
+        "pitfall": "Running motor tests while robot wheels are resting on the table",
+        "intervention": "Always elevate the robot frame on a wooden block so moving wheels do not launch the robot off the desk!"
+      }
+    ],
+    "differentiation": {
+      "support": "Create a 1-page laminated pre-flight checklist attached to each robot workstation.",
+      "extension": "Integrate automated Slack or email alerts when any robot battery drops below 11.5V."
+    },
+    "rubric": [
+      {
+        "criteria": "Battery Voltage & Power LED Audit",
+        "points": "30 pts"
+      },
+      {
+        "criteria": "Motor & Encoder Telemetry Verification",
+        "points": "35 pts"
+      },
+      {
+        "criteria": "navX IMU & LiDAR Sensor Health",
+        "points": "35 pts"
+      }
+    ]
+  }
+}

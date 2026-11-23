@@ -1,0 +1,470 @@
+{
+  "1.1": {
+    "title": "Lesson 1.1: Exploring the Studica Kit",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Module 1: Build Your First Robot \u2014 Lesson 1.1",
+        "bullets": [
+          "Welcome to Autonomous Mobile Robotics (AMR)",
+          "Today's Goal: Unbox, inventory, and master mechanical fasteners",
+          "The Hands-on First Philosophy: Build First \u2192 Experience \u2192 Understand"
+        ],
+        "visual": "Photo of complete Studica robotics kit with open storage bins.",
+        "notes": "Welcome students warmly. Emphasize that robotics is a hands-on craft. Today we start from zero: no coding yet, pure mechanical building."
+      },
+      {
+        "num": 2,
+        "title": "Hardware Spotlight: Structural Aluminum U-Channels",
+        "bullets": [
+          "6061-T6 Aircraft-Grade Extruded Aluminum",
+          "Standard 8mm Pitch Grid (holes spaced exactly 8mm apart)",
+          "High strength-to-weight ratio + internal wire routing cavity"
+        ],
+        "visual": "Cross-section diagram of U-channel profile showing 8mm hole pitch.",
+        "notes": "Hold up a 240mm channel. Show how the open channel creates a protected tunnel for wires."
+      },
+      {
+        "num": 3,
+        "title": "Fastener Mechanics: M3 vs. M4 Sizing",
+        "bullets": [
+          "M4 Socket-Head Cap Screws: 8mm, 12mm, 16mm lengths (2.5mm hex key)",
+          "M3 Button-Head Screws: for electronics decks and small sensors (2.0mm hex key)",
+          "Metric Rule: measure only the threaded shaft, NOT the screw head!"
+        ],
+        "visual": "Fastener sizing chart showing M4x8, M4x12, M4x16 against a metric ruler.",
+        "notes": "Common mistake: students measure including the head. Demonstrate with a ruler that length is thread only."
+      },
+      {
+        "num": 4,
+        "title": "The Secret Weapon: M4 Nyloc Locknuts",
+        "bullets": [
+          "Standard nuts shake completely loose in 10 minutes of driving",
+          "Nyloc nuts feature an integrated blue nylon locking collar",
+          "Vibration-proof: friction holds the bolt permanently in place"
+        ],
+        "visual": "Close-up cutaway view of a Nyloc nut showing threads cutting into the blue nylon collar.",
+        "notes": "Pass around a standard nut and a Nyloc nut. Have students try to spin each onto an M4 bolt with fingers."
+      },
+      {
+        "num": 5,
+        "title": "Mandatory Laboratory Safety Protocols",
+        "bullets": [
+          "Rule 1: ANSI Z87.1 Safety Glasses must be worn at all times",
+          "Rule 2: Never connect or disconnect battery leads with power switch ON",
+          "Rule 3: Tie back long hair, remove lanyard badges, roll up loose sleeves"
+        ],
+        "visual": "Icons for Eye Protection, Battery Safety, and Hair Restraint.",
+        "notes": "Non-negotiable. Enforce eye protection before anyone opens a tool bin."
+      },
+      {
+        "num": 6,
+        "title": "Troubleshooting: Cross-Threading & Stripped Screws",
+        "bullets": [
+          "If a bolt feels stiff after 1-2 turns: STOP! Do not force it",
+          "Use the Back-Turn Rule: turn counter-clockwise until you feel a gentle click",
+          "Always align the hex wrench 90\u00b0 straight into the socket"
+        ],
+        "visual": "Side-by-side illustration: Cross-threaded screw (tilted) vs properly aligned perpendicular screw.",
+        "notes": "Demonstrate the back-turn technique. Explain that aluminum is softer than steel and threads can be ruined if forced."
+      },
+      {
+        "num": 7,
+        "title": "Junior Hands-On Challenge: The Rigidity Squeeze",
+        "bullets": [
+          "Assemble a 4-beam square test frame with corner gussets and Nyloc nuts",
+          "Hold opposite corners and apply torsional twist",
+          "Target: Zero play, zero wobble, zero clicking sound!"
+        ],
+        "visual": "Hands grasping opposite corners of a square aluminum test frame.",
+        "notes": "Walk around the lab and test student frames. If it clicks or flexes, guide them to tighten loose bolts."
+      },
+      {
+        "num": 8,
+        "title": "Exit Ticket & Lab Wrap-Up",
+        "bullets": [
+          "Q1: What does the blue nylon collar inside a Nyloc nut do?",
+          "Q2: Why do we never use standard hex nuts on motor mounts?",
+          "Q3: Name the 3 mandatory lab safety rules.",
+          "Tool accounting: return hex keys and rulers to bin"
+        ],
+        "visual": "Exit ticket checkmark icon and lab cleanup reminder.",
+        "notes": "Ensure all tools are accounted for before dismissing class. Review Exit Ticket submissions."
+      }
+    ]
+  },
+  "1.2": {
+    "title": "Lesson 1.2: Robot Controller Architecture",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Understanding the Robot Controller",
+        "bullets": [
+          "How your robot thinks, reacts, and drives",
+          "The Dual-Brain Architecture: Linux vs. FPGA",
+          "The CAN Bus Network: High-speed motor telemetry"
+        ],
+        "visual": "Block diagram of Raspberry Pi 4, VMX-pi FPGA, and Titan Quad Controller.",
+        "notes": "Introduce the analogy: Raspberry Pi = Cerebral Cortex, VMX-pi = Spinal Cord Reflexes, Titan = Muscles."
+      },
+      {
+        "num": 2,
+        "title": "High-Level Brain: Raspberry Pi 4",
+        "bullets": [
+          "Runs Ubuntu Linux 22.04 LTS and ROS 2 Humble",
+          "Processes complex LiDAR maps, cameras, and Wi-Fi teleop",
+          "Non-deterministic: background OS tasks can jitter motor timing"
+        ],
+        "visual": "Raspberry Pi 4 board with Ethernet, USB 3.0, and quad-core CPU.",
+        "notes": "Explain why Linux is great for AI and maps, but bad for timing individual motor pulses."
+      },
+      {
+        "num": 3,
+        "title": "Real-Time Reflexes: VMX-pi FPGA & navX IMU",
+        "bullets": [
+          "Dedicated FPGA hardware for microsecond timing",
+          "Integrated 9-Axis navX Inertial Measurement Unit (IMU)",
+          "Deterministic hardware interrupts and high-speed encoder counters"
+        ],
+        "visual": "VMX-pi circuit board layout showing FPGA chip and IMU sensor.",
+        "notes": "Explain that an FPGA runs in pure silicon gates\u2014timing is exact to the microsecond."
+      },
+      {
+        "num": 4,
+        "title": "The Muscle: Titan Quad Motor Controller",
+        "bullets": [
+          "4-Channel H-Bridge motor amplifier (12V DC, 20A peak)",
+          "Communicates over 1 Mbps differential Controller Area Network (CAN)",
+          "Hardware closed-loop velocity PID and encoder tracking"
+        ],
+        "visual": "Titan Quad Controller with 4 motor channels and CAN Weidmuller port.",
+        "notes": "Titan handles the heavy currents so the Raspberry Pi never experiences motor surges."
+      },
+      {
+        "num": 5,
+        "title": "Twisted Pair CAN Bus Physics",
+        "bullets": [
+          "Yellow (CAN_H) and Green (CAN_L) wires twisted tightly",
+          "Differential signaling cancels high-current motor EMI noise",
+          "Crucial: 120-ohm terminating resistor switch must be ON"
+        ],
+        "visual": "Differential voltage waveform diagram showing noise cancellation.",
+        "notes": "Demonstrate the 120-ohm termination switch. Explain signal echoes if termination is missing."
+      },
+      {
+        "num": 6,
+        "title": "VMX-pi Header Geography",
+        "bullets": [
+          "HiCurrDIO (Ch 20-23): 1.0A sink for Red & Green LEDs",
+          "FlexDIO (Ch 8-11): 5V pull-up for buttons & limit switches",
+          "PWM Headers (Ch 0-9): 50 Hz pulses for manipulator servos"
+        ],
+        "visual": "Annotated photograph of VMX-pi pin headers.",
+        "notes": "Show students where each header is physically located on their robot."
+      },
+      {
+        "num": 7,
+        "title": "Junior Hands-On Challenge: Zero Wire Snags",
+        "bullets": [
+          "Route CAN and power cables inside the U-channel cavity",
+          "Verify strain relief: wires must never pull taut",
+          "Maintain at least 20mm clearance from rotating wheels"
+        ],
+        "visual": "Clean, spiral-wrapped cable harness running inside U-channel.",
+        "notes": "Grade student harnesses on clean routing and strain relief."
+      },
+      {
+        "num": 8,
+        "title": "Exit Ticket & Verification",
+        "bullets": [
+          "Q1: Why does Linux need an FPGA coprocessor?",
+          "Q2: Why are CAN wires twisted together?",
+          "Q3: Which header drives status LEDs?"
+        ],
+        "visual": "Exit ticket prompt and terminal status check.",
+        "notes": "Review candump terminal command output."
+      }
+    ]
+  },
+  "1.3": {
+    "title": "Lesson 1.3: Chassis Assembly & Squaring",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Building the Robot Chassis",
+        "bullets": [
+          "Constructing the physical 24cm x 18cm aluminum frame",
+          "Chassis squareness: why geometry prevents drift",
+          "Mounting plates, standoffs, and electronics deck"
+        ],
+        "visual": "Assembled 24cm x 18cm robot chassis frame.",
+        "notes": "Emphasize that straight robot driving begins with a perfectly square mechanical frame."
+      },
+      {
+        "num": 2,
+        "title": "Chassis Blueprint & Target Dimensions",
+        "bullets": [
+          "Length: 240 mm (24.0 cm) side channels",
+          "Width: 180 mm (18.0 cm) cross channels",
+          "Base Height Clearance: 100 mm (10.0 cm)"
+        ],
+        "visual": "Dimensioned CAD drawing of the chassis frame.",
+        "notes": "Have students verify beam lengths with their steel rulers before assembling."
+      },
+      {
+        "num": 3,
+        "title": "The Parallelogram Trap",
+        "bullets": [
+          "If corner angles deviate by even 1\u00b0, frame becomes a parallelogram",
+          "A skewed chassis will veer sideways even with identical motor speeds",
+          "Solution: The Pythagorean Diagonal Audit ($D = 300.0\\,\\text{mm}$)"
+        ],
+        "visual": "Comparison diagram: Parallelogram distortion vs True Rectangle.",
+        "notes": "Explain why software odometry cannot fix a mechanically crooked chassis."
+      },
+      {
+        "num": 4,
+        "title": "Assembly Steps: Finger-Tight First",
+        "bullets": [
+          "Step 1: Lay out channels with open U facing INWARD",
+          "Step 2: Insert M4x12mm bolts through corner gussets",
+          "Step 3: Thread Nyloc nuts finger-tight (allow frame to flex)"
+        ],
+        "visual": "Exploded view of corner gusset, channel, M4 bolt, and Nyloc nut.",
+        "notes": "Stress the finger-tight rule: do not torque until measured."
+      },
+      {
+        "num": 5,
+        "title": "Diagonal Measurement Technique",
+        "bullets": [
+          "Measure Diagonal A (Top-Left to Bottom-Right)",
+          "Measure Diagonal B (Top-Right to Bottom-Left)",
+          "Nudge frame until both diagonals match within \u00b10.5 mm!"
+        ],
+        "visual": "Diagram showing diagonal measurement lines forming an 'X'.",
+        "notes": "Demonstrate holding the ruler firmly against the corner hole centers."
+      },
+      {
+        "num": 6,
+        "title": "Alternating Cross-Torquing Technique",
+        "bullets": [
+          "Press frame firmly flat against table with palm",
+          "Torque corner bolts in an X-pattern (like lug nuts on a car)",
+          "Verifying flat stance: tap all four corners; zero rocking allowed!"
+        ],
+        "visual": "Numbered diagram showing 1-2-3-4 tightening sequence.",
+        "notes": "Explain that tightening one side completely first will warp the frame."
+      },
+      {
+        "num": 7,
+        "title": "Junior Hands-On Challenge: The Caliper Audit",
+        "bullets": [
+          "Teacher inspection: Caliper measure Length, Width, and Diagonals",
+          "Marble surface plate test: all four corners must touch flat",
+          "Passing Standard: Diagonal difference < 0.5 mm with zero rocking"
+        ],
+        "visual": "Digital caliper measuring diagonal corner gusset holes.",
+        "notes": "Inspect and sign off each team's frame in their workbook."
+      },
+      {
+        "num": 8,
+        "title": "Exit Ticket & Cleanup",
+        "bullets": [
+          "Q1: What are the target dimensions (L x W x H)?",
+          "Q2: Why must both diagonals match within 0.5mm?",
+          "Q3: What happens if a chassis is skewed into a parallelogram?"
+        ],
+        "visual": "Exit ticket prompt.",
+        "notes": "Review submissions before dismissing."
+      }
+    ]
+  },
+  "1.4": {
+    "title": "Lesson 1.4: Motors, Wheels & Encoders",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Installing Motors and Wheels",
+        "bullets": [
+          "Maverick 12V DC Planetary Gearmotors (60:1 reduction)",
+          "Deriving the 1,680 Ticks/Rev Encoder Resolution",
+          "Mounting 100mm Rubber Drive Wheels & Rear Omni Caster"
+        ],
+        "visual": "Maverick gearmotor with 100mm wheel attached.",
+        "notes": "Introduce today's transition from static frame to moving vehicle."
+      },
+      {
+        "num": 2,
+        "title": "Why Gear Reduction? Torque vs. Speed",
+        "bullets": [
+          "Bare DC motors spin at 6,000+ RPM but produce tiny torque",
+          "60:1 Planetary Gearbox reduces speed to 100 RPM",
+          "Output torque is multiplied by 60x to haul payloads and climb ramps"
+        ],
+        "visual": "Cutaway diagram of a multi-stage planetary gearbox.",
+        "notes": "Explain the mechanical trade-off: speed is traded for immense pushing force."
+      },
+      {
+        "num": 3,
+        "title": "Quadrature Encoders: 1680 Ticks Per Turn",
+        "bullets": [
+          "28 raw magnetic pulses per motor shaft turn",
+          "$28 \\times 60\\text{ (gear ratio)} = 1,680\\text{ ticks per full wheel turn}$",
+          "Wheel circumference: $C = \\pi \\times 100\\,\\text{mm} \\approx 314.16\\,\\text{mm}$",
+          "Resolution: $314.16 / 1680 \\approx 0.187\\,\\text{mm per tick}$!"
+        ],
+        "visual": "Quadrature wave diagram (Channel A and B 90\u00b0 out of phase).",
+        "notes": "Walk through the math step-by-step on the board. Make sure every student writes 1680 in their book."
+      },
+      {
+        "num": 4,
+        "title": "D-Shaft Flat Alignment & Blue Threadlocker",
+        "bullets": [
+          "Motor shaft has one flat face (6mm D-Shaft)",
+          "Set screw MUST be tightened perpendicular to the flat face",
+          "Always apply one drop of blue threadlocker (Loctite 242)"
+        ],
+        "visual": "Diagram showing set screw clamping squarely onto flat face of D-shaft.",
+        "notes": "Show students what happens if set screw hits the curved side: it slips instantly under load."
+      },
+      {
+        "num": 5,
+        "title": "Mounting Drive Wheels & Rear Caster",
+        "bullets": [
+          "Secure clamping motor mounts to side rails with M4 bolts",
+          "Fasten 100mm wheels with four M3 screws in cross pattern",
+          "Attach rear omni caster ball and adjust spacers for level stance"
+        ],
+        "visual": "Chassis side view showing drive wheels and rear omni caster.",
+        "notes": "Ensure 1mm clearance gap between wheel hub and channel wall."
+      },
+      {
+        "num": 6,
+        "title": "Wiring Harness to Titan M0 & M1",
+        "bullets": [
+          "Left Motor harness \u2192 Titan Motor 0 (M0) & Encoder 0 (ENC0)",
+          "Right Motor harness \u2192 Titan Motor 1 (M1) & Encoder 1 (ENC1)",
+          "Track width: $W = 200\\,\\text{mm}$ (center-to-center wheel distance)"
+        ],
+        "visual": "Titan Quad connector diagram with M0 and M1 harnesses plugged in.",
+        "notes": "Verify harness colors match port labels on the Titan."
+      },
+      {
+        "num": 7,
+        "title": "Junior Hands-On Challenge: Roll-Out Test",
+        "bullets": [
+          "Place robot on a gentle 5\u00b0 ramp with motors unplugged",
+          "Robot must roll down straight without veering",
+          "Listen for smooth mechanical hum: zero grinding or binding!"
+        ],
+        "visual": "Robot rolling down test ramp.",
+        "notes": "If a robot veers, check for tire rubbing or uneven caster height."
+      },
+      {
+        "num": 8,
+        "title": "Exit Ticket & Derivation Check",
+        "bullets": [
+          "Q1: What is the gear reduction ratio?",
+          "Q2: Calculate encoder ticks: $28 \\times 60 = ?$",
+          "Q3: Why do we apply blue threadlocker?"
+        ],
+        "visual": "Exit ticket prompt.",
+        "notes": "Sign off student calculation tables in Worksheet 04."
+      }
+    ]
+  },
+  "1.5": {
+    "title": "Lesson 1.5: Power Distribution & Wiring Hygiene",
+    "slides": [
+      {
+        "num": 1,
+        "title": "Power and Wiring Hygiene",
+        "bullets": [
+          "Wiring the 12V DC power loop: battery, fuse, and switch",
+          "Segregated power rails: Muscle (Titan) vs. Brain (VMX)",
+          "Mandatory Multimeter Polarity Audit (+12V verification)"
+        ],
+        "visual": "Complete robot power wiring diagram.",
+        "notes": "Today we bring the robot to life! Electrical safety is our highest priority."
+      },
+      {
+        "num": 2,
+        "title": "Power Topology: Preventing Brownouts",
+        "bullets": [
+          "Motors pull up to 20A peak during acceleration",
+          "Brownout danger: sudden current spike crashes the Raspberry Pi",
+          "Solution: Segregated power tree with regulated auxiliary logic supply"
+        ],
+        "visual": "Block diagram: Battery \u2192 Fuse \u2192 Switch \u2192 Titan VIN & VMX Regulated In.",
+        "notes": "Explain why motors and microprocessors must never share thin, unregulated wires."
+      },
+      {
+        "num": 3,
+        "title": "Circuit Protection: The 20A Blade Fuse",
+        "bullets": [
+          "Automotive 20A yellow blade fuse in positive (Red) wire",
+          "Sacrificial element: melts in milliseconds if a short circuit occurs",
+          "Protects battery pack against fire and prevents melted wiring"
+        ],
+        "visual": "Cutaway diagram of blade fuse showing internal metal bridge.",
+        "notes": "Pass around a blown fuse vs a good fuse so students know how to visually inspect it."
+      },
+      {
+        "num": 4,
+        "title": "Reverse Polarity Danger: The XT60 Guardian",
+        "bullets": [
+          "Reversing Red (+) and Black (-) destroys the Titan H-Bridge in 5 ms",
+          "Yellow XT60 connectors are physically keyed with chamfered corners",
+          "Never force a connector backward!"
+        ],
+        "visual": "Cross-section of XT60 connector showing keyed chamfered profile.",
+        "notes": "Emphasize: never solder or wire battery leads backward. Yellow XT60 only plugs in one way."
+      },
+      {
+        "num": 5,
+        "title": "Step-by-Step Power Wiring Procedure",
+        "bullets": [
+          "Step 1: Insert 20A blade fuse into inline rubber holder",
+          "Step 2: Mount heavy-duty toggle switch to rear bracket (UP = ON)",
+          "Step 3: Strip 6mm wire and clamp into Titan VIN (+) and GND (-)"
+        ],
+        "visual": "Close-up of Titan power screw terminals with Red and Black leads.",
+        "notes": "Ensure copper is clamped under screw head, not plastic insulation jacket."
+      },
+      {
+        "num": 6,
+        "title": "The Mandatory Multimeter Polarity Audit",
+        "bullets": [
+          "Black probe on Titan GND (-), Red probe on Titan VIN (+)",
+          "Multimeter must read between +12.0V and +13.5V DC",
+          "A minus sign (-12V) means wires are REVERSED! Do not turn ON!"
+        ],
+        "visual": "Multimeter display showing +12.6V DC reading.",
+        "notes": "Every single team must have their multimeter reading signed off by the teacher before turning switch ON."
+      },
+      {
+        "num": 7,
+        "title": "Junior Hands-On Challenge: The 5G Tug & Shake",
+        "bullets": [
+          "Gently tug every wire: zero wires may slip from terminals",
+          "Shake robot vertically and horizontally: zero rattles",
+          "Turn ON: confirm solid green power LEDs on both controllers!"
+        ],
+        "visual": "Instructor performing tug test on robot wiring.",
+        "notes": "Celebrate this milestone! The students' physical robot is officially complete."
+      },
+      {
+        "num": 8,
+        "title": "Exit Ticket & Module 1 Graduation!",
+        "bullets": [
+          "Q1: What happens if battery polarity is reversed?",
+          "Q2: What is the purpose of the 20A blade fuse?",
+          "Q3: Why are motor and sensor wires routed separately?",
+          "Congratulations on completing Module 1: Build Your First Robot!"
+        ],
+        "visual": "Graduation banner with robot completion badge.",
+        "notes": "Issue Module 1 completion stamps and prepare for Module 2: Connect and Drive!"
+      }
+    ]
+  }
+}

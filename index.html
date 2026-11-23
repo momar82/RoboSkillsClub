@@ -302,19 +302,22 @@
               <iframe id="lms-video-iframe" src="https://www.youtube.com/embed/5o3fFr_gkEA" title="Robotics Training Walkthrough" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
 
-            <!-- Lesson Tabs (Concept / Wiring / Test / Challenge) -->
+            <!-- Lesson Tabs (Concept / Wiring / Visual Test / Video / Challenge) -->
             <div class="lesson-tabs" role="tablist">
               <button class="tab-btn active" id="tab-btn-concept" role="tab" onclick="switchLessonTab('concept')">
-                <span>📖 1. Concept</span>
+                <span>📖 1. Concept &amp; Theory</span>
               </button>
               <button class="tab-btn" id="tab-btn-wiring" role="tab" onclick="switchLessonTab('wiring')">
-                <span>🔌 2. Wiring Guide</span>
+                <span>🔌 2. Hardware &amp; Wiring</span>
               </button>
               <button class="tab-btn" id="tab-btn-test" role="tab" onclick="switchLessonTab('test')">
-                <span>🎛️ 3. Dashboard Test</span>
+                <span>🎛️ 3. Visual Guide &amp; Test</span>
+              </button>
+              <button class="tab-btn" id="tab-btn-video" role="tab" onclick="switchLessonTab('video')">
+                <span>🎥 4. Video Tutorial</span>
               </button>
               <button class="tab-btn" id="tab-btn-challenge" role="tab" onclick="switchLessonTab('challenge')">
-                <span>🏆 4. Challenge Task</span>
+                <span>🏆 5. Challenge &amp; Exit Ticket</span>
               </button>
             </div>
 
@@ -322,6 +325,7 @@
             <div id="tab-pane-concept" class="tab-content active" role="tabpanel"></div>
             <div id="tab-pane-wiring" class="tab-content" role="tabpanel"></div>
             <div id="tab-pane-test" class="tab-content" role="tabpanel"></div>
+            <div id="tab-pane-video" class="tab-content" role="tabpanel"></div>
             <div id="tab-pane-challenge" class="tab-content" role="tabpanel"></div>
 
             <!-- High-Contrast Code Snippet Box -->
@@ -1020,7 +1024,7 @@
 
   <!-- Modal: Teacher Desk -->
   <div id="teacher-modal" class="modal-overlay" onclick="closeAllModals()">
-    <div class="modal-card" style="max-width:850px;" onclick="event.stopPropagation()">
+    <div class="modal-card" style="max-width:950px; width:95vw;" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem;">
           <span>🎓 Instructor &amp; Teacher Desk</span>
@@ -1028,16 +1032,113 @@
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-        <div>
-          <strong>Course: AMR-101 Autonomous Mobile Robotics</strong>
-          <div style="font-size:0.8rem; color:var(--text-dim);">Student Quota: 3 / 35 Enrolled</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="teacherAddStudent()">+ Add Student Directly</button>
+      <!-- Teacher Desk Tabs -->
+      <div class="teacher-desk-tabs" role="tablist">
+        <button class="teacher-tab-btn active" id="btn-teachertab-roster" onclick="switchTeacherTab('roster')">
+          <span>👥 Student Roster &amp; Grading</span>
+        </button>
+        <button class="teacher-tab-btn" id="btn-teachertab-lessonplans" onclick="switchTeacherTab('lessonplans')">
+          <span>📋 90-Min Lesson Plans</span>
+        </button>
+        <button class="teacher-tab-btn" id="btn-teachertab-ppt" onclick="switchTeacherTab('ppt')">
+          <span>📊 PowerPoint Presentation Slides</span>
+        </button>
+        <button class="teacher-tab-btn" id="btn-teachertab-tools" onclick="switchTeacherTab('tools')">
+          <span>⚡ Commissioning &amp; Setup Tools</span>
+        </button>
       </div>
 
-      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Assigned Student Roster &amp; Achievements:</h4>
-      <div id="teacher-student-roster" style="max-height:300px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+      <!-- Tab 1: Student Roster & Grading -->
+      <div id="teachertab-pane-roster" class="teacher-tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+          <div>
+            <strong>Course: AMR-101 Autonomous Mobile Robotics (Studica Kit)</strong>
+            <div style="font-size:0.8rem; color:var(--text-dim);" id="teacher-quota-display">Student Quota: 3 / 35 Enrolled</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="teacherAddStudent()">+ Add Student Directly</button>
+        </div>
+
+        <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Assigned Student Submissions &amp; Grades:</h4>
+        <div id="teacher-student-roster" style="max-height:350px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+      </div>
+
+      <!-- Tab 2: 90-Min Lesson Plans -->
+      <div id="teachertab-pane-lessonplans" class="teacher-tab-content" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <div>
+            <label style="font-size:0.85rem; color:var(--text-dim); display:block; margin-bottom:0.25rem;">Select Lesson Plan:</label>
+            <select id="teacher-lesson-plan-select" class="form-control" style="min-width:320px;" onchange="renderSelectedLessonPlan()">
+              <option value="1.1">Lesson 1.1: Exploring the Studica Robotics Kit</option>
+              <option value="1.2">Lesson 1.2: Understanding the Robot Controller</option>
+              <option value="1.3">Lesson 1.3: Building the Robot Chassis</option>
+              <option value="1.4">Lesson 1.4: Installing Motors and Wheels</option>
+              <option value="1.5">Lesson 1.5: Power and Wiring Hygiene</option>
+              <option value="T0">Lesson T0: Teacher Robot Commissioning &amp; Setup</option>
+              <option value="T1">Lesson T1: Pre-Flight Hardware Health Check</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="printActiveLessonPlan()">🖨️ Print / Save Lesson Plan</button>
+        </div>
+        <div id="teacher-lesson-plan-content" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; max-height:450px; overflow-y:auto;">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab 3: PowerPoint Presentation Slides -->
+      <div id="teachertab-pane-ppt" class="teacher-tab-content" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <div>
+            <label style="font-size:0.85rem; color:var(--text-dim); display:block; margin-bottom:0.25rem;">Select Presentation Deck:</label>
+            <select id="teacher-ppt-select" class="form-control" style="min-width:320px;" onchange="renderSelectedPptDeck()">
+              <option value="1.1">Lesson 1.1 Slides: Exploring the Studica Kit</option>
+              <option value="1.2">Lesson 1.2 Slides: Robot Controller Architecture</option>
+              <option value="1.3">Lesson 1.3 Slides: Chassis Assembly &amp; Squaring</option>
+              <option value="1.4">Lesson 1.4 Slides: Motors, Wheels &amp; Encoders</option>
+              <option value="1.5">Lesson 1.5 Slides: Power Distribution &amp; Wiring Hygiene</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="copyPptDeckOutline()">📋 Copy Slide Script</button>
+        </div>
+        <div id="teacher-ppt-deck-content" style="max-height:450px; overflow-y:auto;">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab 4: Commissioning & Setup Tools -->
+      <div id="teachertab-pane-tools" class="teacher-tab-content" style="display:none;">
+        <div class="callout tip">
+          <div class="callout-title">💡 Teacher Pre-Course Commissioning Philosophy</div>
+          <div class="callout-body">
+            Junior students should never waste precious lab time fighting Linux permissions, building ROS 2 packages from source, or fixing network subnets. As the instructor, run these pre-flight tools before day 1:
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1.25rem;">
+          <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">⚡ Automated Robot Commissioning</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Configures static IP <code>172.22.11.2</code>, CycloneDDS, Titan Quad ID 42, and systemd service.</p>
+            <a href="downloads/setup_studica_robot.sh" download class="btn btn-primary btn-sm" style="width:100%; justify-content:center;">Download teacher_commission.sh</a>
+          </div>
+
+          <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">🔍 Pre-Flight Health Check</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Automated Python audit testing motors, encoders, navX IMU, and LiDAR telemetry.</p>
+            <a href="downloads/test_titan_motors.py" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download verify_health.py</a>
+          </div>
+
+          <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">📘 Master Course PDF Workbook</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Official Junior Textbook (7.2MB) with all 40 lessons and mechanical diagrams.</p>
+            <a href="pdf_export/QSTSS_Studica_AMR_Junior_Textbook.pdf" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download Textbook (PDF)</a>
+          </div>
+
+          <div class="card" style="padding:1.25rem;">
+            <h4 style="font-size:1rem; margin-bottom:0.5rem;">📝 Student Lab Workbook</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Printable worksheets, quizzes, calculations, and reflection logs for students.</p>
+            <a href="pdf_export/QSTSS_Studica_AMR_Student_Workbook.pdf" download class="btn btn-outline btn-sm" style="width:100%; justify-content:center;">Download Workbook (PDF)</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

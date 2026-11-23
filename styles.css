@@ -708,30 +708,326 @@ body.light-theme .section-tag {
   border-radius: 4px;
 }
 
-/* Callouts */
+/* Callouts with Distinct Colors & Icons */
 .callout {
   background: rgba(56, 189, 248, 0.08);
-  border-left: 4px solid var(--accent-cyan);
+  border-left: 5px solid var(--accent-cyan);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.35rem;
   margin: 1.5rem 0;
 }
 
-.callout.amber {
-  background: rgba(245, 158, 11, 0.08);
+.callout.tip, .callout.info {
+  background: rgba(56, 189, 248, 0.08);
+  border-left-color: var(--accent-cyan);
+}
+
+.callout.warning, .callout.amber {
+  background: rgba(245, 158, 11, 0.09);
   border-left-color: var(--accent-amber);
+}
+
+.callout.troubleshoot, .callout.danger {
+  background: rgba(244, 63, 94, 0.09);
+  border-left-color: var(--accent-red);
+}
+
+.callout.challenge, .callout.success {
+  background: rgba(16, 185, 129, 0.09);
+  border-left-color: var(--accent-green);
+}
+
+.callout.objective {
+  background: rgba(99, 102, 241, 0.09);
+  border-left-color: var(--accent-indigo);
 }
 
 .callout-title {
   font-weight: 700;
-  font-size: 0.925rem;
-  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
   color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .callout-body {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-main);
+}
+
+.callout-body ul, .callout-body ol {
+  margin-left: 1.25rem;
+  margin-top: 0.4rem;
+}
+
+.callout-body li {
+  margin-bottom: 0.35rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Dr. Salameh's Reference Image Box (Red Border Requirement)
+   ----------------------------------------------------------------------------- */
+.ref-image-box {
+  border: 3px solid #EF4444 !important;
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.04);
+  padding: 1.25rem;
+  margin: 1.75rem 0;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);
+}
+
+.ref-image-tag {
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ref-image-box img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  display: block;
+  margin: 0 auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.ref-image-caption {
+  font-size: 0.825rem;
   color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.65rem;
+  font-style: italic;
+}
+
+/* -----------------------------------------------------------------------------
+   Visual Guidance: Mouse-Click Marker Overlay Guides
+   ----------------------------------------------------------------------------- */
+.click-guide-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.click-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.click-screen-mock {
+  position: relative;
+  background: #0B132B;
+  border: 2px solid #1E293B;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.click-marker {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #EF4444;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: pulse-marker 1.8s infinite;
+  z-index: 10;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+}
+
+@keyframes pulse-marker {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.mouse-pointer-symbol {
+  position: absolute;
+  bottom: -16px;
+  right: -16px;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.8));
+}
+
+.click-steps-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.click-step-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.click-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Exit Ticket Card
+   ----------------------------------------------------------------------------- */
+.exit-ticket-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.06));
+  border: 2px dashed var(--accent-indigo);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin: 1.75rem 0;
+}
+
+.exit-ticket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  color: var(--text-heading);
+}
+
+.exit-ticket-badge {
+  background: var(--accent-indigo);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+}
+
+.exit-ticket-questions {
+  list-style: decimal;
+  margin-left: 1.25rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.exit-ticket-questions li {
+  margin-bottom: 0.5rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Video Tutorial Breakdown
+   ----------------------------------------------------------------------------- */
+.video-tutorial-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.video-step-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: flex-start;
+}
+
+.video-step-row:last-child {
+  border-bottom: none;
+}
+
+.video-time-tag {
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-code);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--accent-cyan);
+  white-space: nowrap;
+}
+
+/* -----------------------------------------------------------------------------
+   Teacher Desk Lesson Plans & PowerPoint Decks
+   ----------------------------------------------------------------------------- */
+.teacher-desk-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1.25rem;
+}
+
+.teacher-tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: var(--transition);
+}
+
+.teacher-tab-btn.active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+}
+
+.ppt-slide-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.ppt-slide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ppt-slide-notes {
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 3px solid var(--accent-amber);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 /* -----------------------------------------------------------------------------
