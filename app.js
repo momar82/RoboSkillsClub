@@ -4907,7 +4907,9 @@ function handleAdminSaveUser(event) {
   users[idx].organization = org;
   users[idx].jobTitle = subfield;
   users[idx].major = subfield;
-  users[idx].maxStudents = maxStudents;
+  if (role === "teacher") {
+    users[idx].maxStudents = maxStudents;
+  }
   users[idx].profileCompleted = isProfileCompleted;
   users[idx].needsProfileCompletion = !isProfileCompleted;
 

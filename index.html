@@ -2054,15 +2054,9 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-          <div class="form-group">
-            <label>Max Student Quota (For Teachers)</label>
-            <input type="number" id="admin-edit-max-students" class="form-control" value="35" min="1" max="500">
-          </div>
-          <div class="form-group">
-            <label>Reset Account Password</label>
-            <input type="text" id="admin-edit-password" class="form-control" placeholder="Enter new password to reset">
-          </div>
+        <div class="form-group">
+          <label>Reset Account Password</label>
+          <input type="text" id="admin-edit-password" class="form-control" placeholder="Enter new password to reset (leave empty to keep current)">
         </div>
 
         <div class="form-group">
@@ -2078,8 +2072,12 @@
             📚 Course Allocation &amp; Assignment
           </div>
 
-          <!-- If Teacher: Select Courses they teach -->
+          <!-- If Teacher: Select Courses they teach & Max Quota -->
           <div id="admin-edit-teacher-courses" style="display:none;">
+            <div class="form-group" style="margin-bottom:0.85rem;">
+              <label style="font-size:0.8rem; font-weight:600; margin-bottom:0.35rem; display:block;">Max Student Quota (Teacher Limit):</label>
+              <input type="number" id="admin-edit-max-students" class="form-control" value="35" min="1" max="500" style="max-width:220px;">
+            </div>
             <label style="font-size:0.8rem; font-weight:600; margin-bottom:0.35rem; display:block;">Select Course(s) this Teacher Instructs:</label>
             <div id="admin-edit-teacher-courses-checkboxes" style="display:flex; flex-direction:column; gap:0.5rem;">
               <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
