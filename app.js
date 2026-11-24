@@ -1617,10 +1617,10 @@ let userProgress = {};     // { [lessonId]: boolean }
 let assignmentDueDates = {}; // { [lessonId]: ISOString }
 
 function initAuthSession() {
-  // Theme initialization
+  // Theme initialization (Default: "Modern Hardware Lab" Palette)
   const savedTheme = localStorage.getItem("roboskills_theme");
-  if (savedTheme === "light") {
-    document.body.classList.add("light-theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-theme");
   }
 
   // Restore user session
@@ -1665,14 +1665,14 @@ function initAuthSession() {
 }
 
 function toggleTheme() {
-  document.body.classList.toggle("light-theme");
-  const isLight = document.body.classList.contains("light-theme");
-  localStorage.setItem("roboskills_theme", isLight ? "light" : "dark");
+  document.body.classList.toggle("dark-theme");
+  const isDark = document.body.classList.contains("dark-theme");
+  localStorage.setItem("roboskills_theme", isDark ? "dark" : "modern-lab");
   const icon = document.getElementById("theme-toggle-icon");
   if (icon) {
-    icon.innerHTML = isLight ? '🌙' : '☀️';
+    icon.innerHTML = isDark ? '☀️' : '🌙';
   }
-  showToast(isLight ? "Paper Reading Mode active" : "Slate Studio Mode active");
+  showToast(isDark ? "Dark Studio Mode active" : "Modern Hardware Lab Mode active");
 }
 
 function updateNavAuthUI() {
@@ -1905,6 +1905,35 @@ function savePendingUser(userObj) {
 // =============================================================================
 // 5. LMS Classroom & Lesson Engine
 // =============================================================================
+function getLessonTagInfo(lesson) {
+  const num = (lesson && lesson.number) ? String(lesson.number) : "";
+  if (num.startsWith("1.1") || num.startsWith("1.2")) {
+    return { className: "tag-theory", label: "Theory / Concepts", shortLabel: "Theory" };
+  } else if (num.startsWith("1.3") || num.startsWith("1.4") || num.startsWith("1.5")) {
+    return { className: "tag-wiring", label: "Wiring / Hardware Setup", shortLabel: "Wiring" };
+  } else {
+    // Module 2 & Advanced Autonomy (2.1, 2.2, etc.)
+    return { className: "tag-coding", label: "Coding / Firmware", shortLabel: "Coding" };
+  }
+}
+
+function getAllCourseLessons() {
+  const all = [];
+  (currentCourse.modules || []).forEach((mod, modIdx) => {
+    (mod.lessons || []).forEach((les, lesIdx) => {
+      all.push({
+        ...les,
+        modIndex: modIdx,
+        modId: mod.id,
+        modTitle: mod.title,
+        lesIndexInMod: lesIdx,
+        flatIndex: all.length
+      });
+    });
+  });
+  return all;
+}
+
 function initLMSPlayer() {
   renderSyllabusTree();
   loadLesson(0);
@@ -1914,22 +1943,31 @@ function renderSyllabusTree() {
   const treeContainer = document.getElementById("syllabus-module-tree");
   if (!treeContainer) return;
 
-  const module1 = currentCourse.modules[0];
-  let html = `<li class="module-badge-title">${module1.title}</li>`;
-  
-  module1.lessons.forEach((lesson, index) => {
-    const isCompleted = userProgress[lesson.id] === true;
-    const isActive = index === activeLessonIndex;
-    
-    html += `
-      <li class="lesson-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" onclick="loadLesson(${index})">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <span class="check-icon">${isCompleted ? '✓' : index + 1}</span>
-          <span>${lesson.number} ${lesson.title}</span>
-        </div>
-        <span style="font-size:0.75rem; color:var(--text-dim);">${lesson.duration}</span>
-      </li>
-    `;
+  const allLessons = getAllCourseLessons();
+  let html = "";
+  let flatCounter = 0;
+
+  (currentCourse.modules || []).forEach((module) => {
+    html += `<li class="module-badge-title">${module.title}</li>`;
+    (module.lessons || []).forEach((lesson) => {
+      const flatIndex = flatCounter++;
+      const isCompleted = userProgress[lesson.id] === true;
+      const isActive = flatIndex === activeLessonIndex;
+      const tagInfo = getLessonTagInfo(lesson);
+
+      html += `
+        <li class="lesson-item ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}" onclick="loadLesson(${flatIndex})">
+          <div style="display:flex; align-items:center; gap:0.6rem; overflow:hidden;">
+            <span class="check-icon">${isCompleted ? "✓" : flatIndex + 1}</span>
+            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lesson.number} ${lesson.title}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.4rem; flex-shrink:0;">
+            <span class="lesson-tag-mini ${tagInfo.className}">${tagInfo.shortLabel}</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">${lesson.duration}</span>
+          </div>
+        </li>
+      `;
+    });
   });
 
   treeContainer.innerHTML = html;
@@ -1937,14 +1975,14 @@ function renderSyllabusTree() {
 }
 
 function updateCourseProgress() {
-  const module1 = currentCourse.modules[0];
-  const total = module1.lessons.length;
+  const allLessons = getAllCourseLessons();
+  const total = allLessons.length;
   let completedCount = 0;
-  module1.lessons.forEach(l => {
+  allLessons.forEach(l => {
     if (userProgress[l.id] === true) completedCount++;
   });
 
-  const percentage = Math.round((completedCount / total) * 100);
+  const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
   const progressBar = document.getElementById("course-progress-fill");
   const progressText = document.getElementById("course-progress-text");
 
@@ -1959,10 +1997,10 @@ function updateCourseProgress() {
 }
 
 function loadLesson(index) {
-  const module1 = currentCourse.modules[0];
-  if (index < 0 || index >= module1.lessons.length) return;
+  const allLessons = getAllCourseLessons();
+  if (index < 0 || index >= allLessons.length) return;
   activeLessonIndex = index;
-  const lesson = module1.lessons[index];
+  const lesson = allLessons[index];
 
   renderSyllabusTree();
 
@@ -1974,8 +2012,13 @@ function loadLesson(index) {
   const videoIframe = document.getElementById("lms-video-iframe");
   const dueDatePill = document.getElementById("lms-due-date-pill");
 
+  const tagInfo = getLessonTagInfo(lesson);
+
   if (titleEl) titleEl.textContent = `${lesson.number}: ${lesson.title}`;
-  if (numEl) numEl.textContent = `Lesson ${lesson.number}`;
+  if (numEl) {
+    numEl.className = `lesson-tag ${tagInfo.className}`;
+    numEl.innerHTML = `<span>Lesson ${lesson.number}</span> <span style="opacity:0.65; margin:0 4px;">•</span> <span>${tagInfo.label}</span>`;
+  }
   if (durationEl) durationEl.textContent = lesson.duration;
   if (authorEl) authorEl.textContent = LEAD_AUTHOR;
   if (videoIframe) {
@@ -2051,14 +2094,14 @@ function loadLesson(index) {
   const statusBadge = document.getElementById("challenge-status-badge");
   const isDone = userProgress[lesson.id] === true;
   if (statusBadge) {
-    statusBadge.className = `role-pill ${isDone ? 'role-student' : 'role-admin'}`;
+    statusBadge.className = `role-pill ${isDone ? "role-student" : "role-admin"}`;
     statusBadge.textContent = isDone ? "COMPLETED & VERIFIED" : "PENDING SUBMISSION";
   }
 
   // Teacher / Admin Due Date Edit Button
   const editDueBtn = document.getElementById("btn-edit-due-date");
   if (editDueBtn) {
-    editDueBtn.style.display = (currentUser && (currentUser.role === 'teacher' || currentUser.role === 'admin' || currentUser.role === 'super_admin')) ? "inline-block" : "none";
+    editDueBtn.style.display = (currentUser && (currentUser.role === "teacher" || currentUser.role === "admin" || currentUser.role === "super_admin")) ? "inline-block" : "none";
   }
 
   // Prev / Next button
@@ -2066,28 +2109,29 @@ function loadLesson(index) {
   const nextBtn = document.getElementById("btn-next-lesson");
   if (prevBtn) prevBtn.disabled = index === 0;
   if (nextBtn) {
-    nextBtn.innerHTML = index === module1.lessons.length - 1 ? `Finish Course & View Certificate 🎓` : `Mark Complete & Next Lesson &rarr;`;
+    nextBtn.innerHTML = index === allLessons.length - 1 ? "Finish Course & View Certificate 🎓" : "Mark Complete & Next Lesson &rarr;";
   }
 
-  switchLessonTab('concept');
+  switchLessonTab("concept");
 }
 
 function getAssignmentDueDate(lessonId) {
   if (assignmentDueDates[lessonId]) {
-    return new Date(assignmentDueDates[lessonId]).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(assignmentDueDates[lessonId]).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   }
 
   // Default: 7 days from today (or completion date)
   const due = new Date();
   due.setDate(due.getDate() + 7);
   assignmentDueDates[lessonId] = due.toISOString();
-  return due.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' });
+  return due.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function promptEditDueDate() {
-  const module1 = currentCourse.modules[0];
-  const lesson = module1.lessons[activeLessonIndex];
-  const currentDue = assignmentDueDates[lesson.id] ? new Date(assignmentDueDates[lesson.id]).toISOString().split('T')[0] : "";
+  const allLessons = getAllCourseLessons();
+  const lesson = allLessons[activeLessonIndex];
+  if (!lesson) return;
+  const currentDue = assignmentDueDates[lesson.id] ? new Date(assignmentDueDates[lesson.id]).toISOString().split("T")[0] : "";
   const newDate = prompt(`Set new Assignment Due Date for Lesson ${lesson.number} (YYYY-MM-DD):`, currentDue);
 
   if (newDate) {
@@ -2096,7 +2140,7 @@ function promptEditDueDate() {
       assignmentDueDates[lesson.id] = parsed.toISOString();
       const dueDatePill = document.getElementById("lms-due-date-pill");
       if (dueDatePill) {
-        dueDatePill.textContent = `📅 Due: ${parsed.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        dueDatePill.textContent = `📅 Due: ${parsed.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
       }
       showToast(`Assignment due date updated to ${newDate}`, "success");
     } else {
@@ -2114,15 +2158,17 @@ function switchLessonTab(tabName) {
   if (targetBtn) targetBtn.classList.add("active");
   if (targetPane) targetPane.classList.add("active");
 }
+
 function markActiveLessonCompleteAndNext() {
-  const module1 = currentCourse.modules[0];
-  const lesson = module1.lessons[activeLessonIndex];
+  const allLessons = getAllCourseLessons();
+  const lesson = allLessons[activeLessonIndex];
+  if (!lesson) return;
   userProgress[lesson.id] = true;
   saveUserProgress();
   renderSyllabusTree();
   showToast(`Lesson ${lesson.number} marked as complete!`, "success");
 
-  if (activeLessonIndex < module1.lessons.length - 1) {
+  if (activeLessonIndex < allLessons.length - 1) {
     loadLesson(activeLessonIndex + 1);
   } else {
     showToast("🎉 Course Completed! Your Certificate of Achievement is ready!", "success");
@@ -2144,8 +2190,9 @@ function copyCodeSnippet() {
 }
 
 function submitChallenge() {
-  const module1 = currentCourse.modules[0];
-  const lesson = module1.lessons[activeLessonIndex];
+  const allLessons = getAllCourseLessons();
+  const lesson = allLessons[activeLessonIndex];
+  if (!lesson) return;
   const text = document.getElementById("challenge-text-input")?.value.trim();
   const term = document.getElementById("challenge-terminal-input")?.value.trim();
 
@@ -2159,7 +2206,7 @@ function submitChallenge() {
     studentEmail: currentUser ? currentUser.email : "guest@roboskills.org",
     studentName: currentUser ? currentUser.displayName : "Guest Student",
     courseId: currentCourse.id,
-    moduleId: module1.id,
+    moduleId: lesson.modId || "module-1",
     lessonId: lesson.id,
     lessonNumber: lesson.number,
     submissionText: text,

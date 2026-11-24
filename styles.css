@@ -2,41 +2,69 @@
    RoboSkillsClub — Dedicated Autonomous Mobile Robotics Training Platform
    Powered by Studica Robotics Kits (VMX-pi & Titan Quad Controller)
    Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM
-   Theme: Eye-Comfort Academic Reading System (Dark / Paper Light Modes)
+   Theme: "Modern Hardware Lab" (Cool Off-White, Deep Cobalt/Navy, Circuit-Board Teal)
+          Paired with a Dedicated Dark IDE Container Theme for Code & Pinouts
    ============================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap');
 
 /* -----------------------------------------------------------------------------
-   Design System Tokens (Eye-Care & Online Study Palette)
+   Design System Tokens ("Modern Hardware Lab" Palette)
    ----------------------------------------------------------------------------- */
 :root {
-  /* Slate Eye-Care Dark Mode (Default) */
-  --bg-primary: #0F172A;        /* Slate 900 - Soft dark, no harsh pitch black */
-  --bg-secondary: #0A1020;      /* Slate 950 */
-  --bg-card: #1E293B;           /* Slate 800 - Reading surface */
-  --bg-card-hover: #24344D;
-  --bg-elevated: #26354A;
-  --border-color: #334155;      /* Slate 700 */
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  /* Main Background (60%): Cool Alabaster — Keeps schematics and breadboard PNGs crisp */
+  --bg-primary: #F8FAFC;
+  
+  /* Card / Sidebar Surface: Soft Slate Tint — Hardware BOM boxes, sidebar, quiz cards */
+  --bg-secondary: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-elevated: #F1F5F9;
+  --border-color: #E2E8F0;
+  --border-subtle: rgba(30, 41, 59, 0.08);
 
-  /* High Readability Typography Colors */
-  --text-main: #F1F5F9;         /* Slate 100 - Gentle on the eyes */
-  --text-muted: #94A3B8;        /* Slate 400 */
-  --text-dim: #64748B;          /* Slate 500 */
-  --text-heading: #FFFFFF;
+  /* Primary Text: Deep Charcoal — Long-form explanations & step-by-step instructions */
+  --text-main: #1E293B;
+  --text-muted: #475569;
+  --text-dim: #64748B;
+  --text-heading: #0F172A;
 
-  /* Educational Accents */
-  --accent-cyan: #38BDF8;       /* Sky 400 - Robotics telemetry */
-  --accent-blue: #3B82F6;       /* Blue 500 */
-  --accent-indigo: #6366F1;     /* Academic Indigo */
-  --accent-amber: #F59E0B;      /* Amber 500 - Hardware alerts */
-  --accent-gold: #FBBF24;       /* Certificate gold */
-  --accent-green: #10B981;      /* Verified / Completed */
-  --accent-red: #F43F5E;        /* Emergency / Fault */
+  /* Primary Brand (30%): Deep Cobalt / Navy — Top navigation bar, module headers, active borders */
+  --brand-primary: #1E3A8A;
+  --brand-navy: #1E3A8A;
+  --brand-navy-dark: #172554;
+  --accent-blue: #1E3A8A;
+  --accent-indigo: #2563EB;
 
-  --code-bg: #090E17;
+  /* Tech / Hardware Accent: Circuit Teal / Cyan — Links, active tabs, GPIO/I2C/PWM/CAN tags */
+  --tech-accent: #0284C7;
+  --accent-cyan: #0284C7;
+
+  /* Progress & Success: PCB Emerald — Completed labs, Code Verified badges, progress bars */
+  --progress-success: #059669;
+  --accent-green: #059669;
+
+  /* Call-to-Action (10%): LED Amber / Orange — Run Simulation, Next Lab, Download Code */
+  --cta-amber: #EA580C;
+  --accent-amber: #EA580C;
+  --accent-gold: #D97706;
+  --accent-red: #EF4444;
+
+  /* Dedicated Dark IDE Theme for Code Blocks & Pinouts (UI Rule 1) */
+  --ide-container-bg: #0F172A;
+  --ide-header-bg: #1E293B;
+  --ide-code-text: #E2E8F0;
+  --ide-border: #334155;
+  --code-bg: #0F172A;
   --code-text: #E2E8F0;
+
+  /* Color-Coded Lesson Tags (UI Rule 3) */
+  --tag-theory-bg: #E0F2FE;
+  --tag-theory-text: #0369A1;
+  --tag-wiring-bg: #FEF3C7;
+  --tag-wiring-text: #B45309;
+  --tag-coding-bg: #D1FAE5;
+  --tag-coding-text: #047857;
 
   /* Typography Scales */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -48,36 +76,41 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.2);
+  --shadow-sm: 0 1px 3px rgba(30, 41, 59, 0.05);
+  --shadow-md: 0 4px 12px rgba(30, 41, 59, 0.08);
+  --shadow-lg: 0 10px 25px rgba(30, 41, 59, 0.12);
+  --shadow-glow: 0 0 15px rgba(2, 132, 199, 0.2);
 
   --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Paper Reading Mode (Light / Focus Mode for Long Study Sessions) */
-body.light-theme {
-  --bg-primary: #F8FAFC;        /* Slate 50 */
-  --bg-secondary: #F1F5F9;      /* Slate 100 */
-  --bg-card: #FFFFFF;           /* Pure white card */
-  --bg-card-hover: #F8FAFC;
-  --bg-elevated: #EDF2F7;
-  --border-color: #E2E8F0;      /* Slate 200 */
-  --border-subtle: rgba(0, 0, 0, 0.06);
+/* Optional Dark Studio Reading Mode */
+body.dark-theme {
+  --bg-primary: #0F172A;
+  --bg-secondary: #0A1020;
+  --bg-card: #1E293B;
+  --bg-card-hover: #24344D;
+  --bg-elevated: #26354A;
+  --border-color: #334155;
+  --border-subtle: rgba(255, 255, 255, 0.08);
 
-  --text-main: #1E293B;         /* Slate 800 - Crisp readable ink */
-  --text-muted: #475569;        /* Slate 600 */
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
   --text-dim: #64748B;
-  --text-heading: #0F172A;
+  --text-heading: #FFFFFF;
 
-  --code-bg: #0F172A;
-  --code-text: #F1F5F9;
+  --brand-primary: #1E3A8A;
+  --tech-accent: #38BDF8;
+  --progress-success: #10B981;
+  --cta-amber: #EA580C;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.15);
+  --code-bg: #090E17;
+  --code-text: #E2E8F0;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.25);
 }
 
 /* -----------------------------------------------------------------------------
@@ -180,17 +213,18 @@ code, pre {
 .navbar {
   position: sticky;
   top: 0;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--brand-primary) !important; /* Deep Cobalt / Navy (#1E3A8A) */
+  color: #FFFFFF !important;
+  border-bottom: 2px solid var(--brand-navy-dark) !important;
   z-index: 40;
   height: 72px;
+  box-shadow: 0 2px 14px rgba(30, 58, 138, 0.25);
   transition: background-color 0.3s ease;
 }
 
-body.light-theme .navbar {
-  background: rgba(255, 255, 255, 0.94);
+body.dark-theme .navbar {
+  background: #0F172A !important;
+  border-bottom-color: #334155 !important;
 }
 
 .nav-wrapper {
@@ -210,12 +244,12 @@ body.light-theme .navbar {
 .brand-icon {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  background: var(--tech-accent); /* Circuit Teal (#0284C7) */
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
 }
 
 .brand-text {
@@ -227,20 +261,16 @@ body.light-theme .navbar {
   font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-heading);
+  color: #FFFFFF !important;
   letter-spacing: -0.02em;
 }
 
 .brand-sub {
   font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--accent-cyan);
+  font-weight: 700;
+  color: #38BDF8 !important; /* Circuit Cyan */
   text-transform: uppercase;
   letter-spacing: 0.06em;
-}
-
-body.light-theme .brand-sub {
-  color: var(--accent-blue);
 }
 
 .nav-links {
@@ -251,7 +281,7 @@ body.light-theme .brand-sub {
 }
 
 .nav-links a {
-  color: var(--text-muted);
+  color: #E2E8F0 !important;
   font-weight: 500;
   font-size: 0.925rem;
   padding: 0.35rem 0.2rem;
@@ -261,7 +291,7 @@ body.light-theme .brand-sub {
 
 .nav-links a:hover,
 .nav-links a.active {
-  color: var(--text-heading);
+  color: #FFFFFF !important;
 }
 
 .nav-links a.active::after {
@@ -270,8 +300,8 @@ body.light-theme .brand-sub {
   bottom: -4px;
   left: 0;
   right: 0;
-  height: 2px;
-  background: var(--accent-cyan);
+  height: 3px;
+  background: #38BDF8; /* Circuit Cyan */
   border-radius: 2px;
 }
 
@@ -320,40 +350,43 @@ body.light-theme .brand-sub {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: var(--cta-amber) !important; /* LED Amber / Orange (#EA580C) */
+  color: #FFFFFF !important;
+  border: 1px solid #C2410C !important;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28) !important;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #2563EB, #4F46E5);
-  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.45);
+  background: #F97316 !important;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.42) !important;
   transform: translateY(-1px);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
 }
 
 .btn-accent {
-  background: linear-gradient(135deg, var(--accent-amber), #D97706);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  background: var(--tech-accent) !important; /* Circuit Teal (#0284C7) */
+  color: #FFFFFF !important;
+  border: 1px solid #0369A1 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
 }
 
 .btn-accent:hover {
-  background: linear-gradient(135deg, #FBBF24, var(--accent-amber));
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+  background: #0369A1 !important;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4) !important;
   transform: translateY(-1px);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
 }
 
 .btn-outline {
-  background: var(--bg-card);
-  border-color: var(--border-color);
-  color: var(--text-main);
+  background: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: var(--text-main) !important;
 }
 
 .btn-outline:hover {
-  border-color: var(--accent-cyan);
-  color: var(--text-heading);
+  border-color: var(--tech-accent) !important;
+  color: var(--tech-accent) !important;
+  background: #F8FAFC !important;
 }
 
 .btn-sm {
@@ -673,80 +706,111 @@ body.light-theme .section-tag {
   line-height: 1.65;
 }
 
-/* Tables */
+/* ==============================================================================
+   UI RULE 1: Dedicated Dark Containers for Code & Pinout Tables
+   ============================================================================== */
 .pinout-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 1.5rem 0;
   font-size: 0.875rem;
+  background: var(--ide-container-bg) !important; /* Deep Slate (#0F172A) */
+  border: 1px solid var(--ide-border) !important;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
 }
 
 .pinout-table th {
-  background: var(--bg-primary);
-  color: var(--accent-amber);
+  background: var(--ide-header-bg) !important; /* #1E293B */
+  color: #38BDF8 !important; /* Circuit Cyan */
   font-family: var(--font-heading);
+  font-weight: 700;
   text-align: left;
-  padding: 0.75rem 1rem;
-  border-bottom: 2px solid var(--border-color);
+  padding: 0.85rem 1.15rem;
+  border-bottom: 1px solid var(--ide-border);
+  letter-spacing: 0.02em;
 }
 
 .pinout-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-muted);
+  padding: 0.85rem 1.15rem;
+  border-bottom: 1px solid #1E293B;
+  color: #CBD5E1 !important;
+  background: var(--ide-container-bg) !important;
+}
+
+.pinout-table tr:last-child td {
+  border-bottom: none;
 }
 
 .pinout-table tr:hover td {
-  background: var(--bg-elevated);
-  color: var(--text-main);
+  background: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
 .pinout-table code {
-  color: var(--accent-cyan);
-  background: rgba(56, 189, 248, 0.1);
-  padding: 0.15rem 0.4rem;
+  color: #38BDF8 !important;
+  background: rgba(2, 132, 199, 0.22) !important;
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
+  font-family: var(--font-code);
+  font-size: 0.825rem;
 }
 
 /* Callouts with Distinct Colors & Icons */
 .callout {
-  background: rgba(56, 189, 248, 0.08);
-  border-left: 5px solid var(--accent-cyan);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   padding: 1.1rem 1.35rem;
   margin: 1.5rem 0;
+  border-left: 5px solid;
 }
 
 .callout.tip, .callout.info {
-  background: rgba(56, 189, 248, 0.08);
-  border-left-color: var(--accent-cyan);
+  background: #F0F9FF;
+  border-left-color: #0284C7; /* Circuit Teal */
+}
+.callout.tip .callout-title {
+  color: #0369A1;
 }
 
 .callout.warning, .callout.amber {
-  background: rgba(245, 158, 11, 0.09);
-  border-left-color: var(--accent-amber);
+  background: #FFFBEB;
+  border-left-color: #F59E0B;
+}
+.callout.warning .callout-title {
+  color: #B45309;
 }
 
 .callout.troubleshoot, .callout.danger {
-  background: rgba(244, 63, 94, 0.09);
-  border-left-color: var(--accent-red);
+  background: #FEF2F2;
+  border-left-color: #EF4444;
+}
+.callout.troubleshoot .callout-title {
+  color: #B91C1C;
 }
 
 .callout.challenge, .callout.success {
-  background: rgba(16, 185, 129, 0.09);
-  border-left-color: var(--accent-green);
+  background: #ECFDF5;
+  border-left-color: #059669; /* PCB Emerald */
+}
+.callout.challenge .callout-title {
+  color: #047857;
 }
 
 .callout.objective {
-  background: rgba(99, 102, 241, 0.09);
-  border-left-color: var(--accent-indigo);
+  background: #EFF6FF;
+  border-left-color: #1E3A8A; /* Deep Cobalt / Navy */
+}
+.callout.objective .callout-title {
+  color: #1E3A8A;
 }
 
 .callout-title {
   font-weight: 700;
   font-size: 0.95rem;
   margin-bottom: 0.4rem;
-  color: var(--text-heading);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -767,16 +831,16 @@ body.light-theme .section-tag {
   margin-bottom: 0.35rem;
 }
 
-/* -----------------------------------------------------------------------------
-   Dr. Salameh's Reference Image Box (Red Border Requirement)
-   ----------------------------------------------------------------------------- */
+/* ==============================================================================
+   UI RULE 2: Keep Diagram Backgrounds Neutral
+   ============================================================================== */
 .ref-image-box {
-  border: 3px solid #EF4444 !important;
+  border: 3px solid #EF4444 !important; /* Dr. Salameh's placeholder tag */
   border-radius: var(--radius-md);
-  background: rgba(239, 68, 68, 0.04);
+  background: #F8FAFC !important;       /* Neutral Cool Alabaster Background */
   padding: 1.25rem;
   margin: 1.75rem 0;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
 }
 
 .ref-image-tag {
@@ -797,15 +861,85 @@ body.light-theme .section-tag {
   border-radius: var(--radius-sm);
   display: block;
   margin: 0 auto;
-  box-shadow: var(--shadow-sm);
+  background: #FFFFFF !important; /* Crisp neutral canvas keeps wire colors accurate */
+  padding: 0.5rem;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ref-image-caption {
   font-size: 0.825rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-align: center;
-  margin-top: 0.65rem;
+  margin-top: 0.75rem;
   font-style: italic;
+}
+
+/* ==============================================================================
+   UI RULE 3: Color-Code Lesson Tags Consistently
+   ============================================================================== */
+.lesson-tag,
+.lesson-tag-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.lesson-tag-mini {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.45rem;
+}
+
+/* Theory / Concepts: Soft Blue (#E0F2FE bg / #0369A1 text) */
+.lesson-tag.tag-theory,
+.lesson-tag-mini.tag-theory,
+.tag-theory {
+  background: #E0F2FE !important;
+  color: #0369A1 !important;
+  border: 1px solid rgba(3, 105, 161, 0.25) !important;
+}
+
+/* Wiring / Hardware Setup: Soft Amber (#FEF3C7 bg / #B45309 text) */
+.lesson-tag.tag-wiring,
+.lesson-tag-mini.tag-wiring,
+.tag-wiring {
+  background: #FEF3C7 !important;
+  color: #B45309 !important;
+  border: 1px solid rgba(180, 83, 9, 0.25) !important;
+}
+
+/* Coding / Firmware: Soft Emerald (#D1FAE5 bg / #047857 text) */
+.lesson-tag.tag-coding,
+.lesson-tag-mini.tag-coding,
+.tag-coding {
+  background: #D1FAE5 !important;
+  color: #047857 !important;
+  border: 1px solid rgba(4, 120, 87, 0.25) !important;
+}
+
+/* Hardware Tags (GPIO, I2C, PWM, CAN) */
+.hw-tag,
+.tag-gpio,
+.tag-i2c,
+.tag-pwm,
+.tag-can {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(2, 132, 199, 0.12); /* Circuit Teal Tint */
+  color: #0284C7;
+  border: 1px solid rgba(2, 132, 199, 0.3);
 }
 
 /* -----------------------------------------------------------------------------
@@ -1031,49 +1165,51 @@ body.light-theme .section-tag {
 }
 
 /* -----------------------------------------------------------------------------
-   Code Snippet Box
+   UI RULE 1: Code Snippet Box (Deep Slate IDE Theme Container)
    ----------------------------------------------------------------------------- */
 .code-box {
-  background: var(--code-bg);
-  border: 1px solid var(--border-color);
+  background: var(--ide-container-bg) !important; /* #0F172A */
+  border: 1px solid var(--ide-border) !important; /* #334155 */
   border-radius: var(--radius-md);
   margin: 1.5rem 0;
   overflow: hidden;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.22);
 }
 
 .code-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--border-color);
+  background: var(--ide-header-bg) !important; /* #1E293B */
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--ide-border) !important;
 }
 
 .code-title {
   font-family: var(--font-code);
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #94A3B8 !important;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .btn-copy {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: var(--text-muted);
+  background: #334155 !important;
+  border: 1px solid #475569 !important;
+  color: #E2E8F0 !important;
   font-size: 0.75rem;
   font-family: var(--font-code);
-  padding: 0.25rem 0.6rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
 }
 
 .btn-copy:hover {
-  background: var(--accent-blue);
-  color: #fff;
+  background: var(--tech-accent) !important; /* Circuit Teal */
+  border-color: var(--tech-accent) !important;
+  color: #FFFFFF !important;
 }
 
 .code-box pre {
@@ -1081,7 +1217,29 @@ body.light-theme .section-tag {
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.65;
-  color: var(--code-text);
+  color: var(--ide-code-text) !important; /* Soft Light Text #E2E8F0 */
+  background: var(--ide-container-bg) !important;
+  font-family: var(--font-code);
+}
+
+/* Inline dark IDE boxes and pre blocks */
+.dark-ide-box,
+pre.terminal-dark,
+div.terminal-dark,
+.tab-content pre,
+.lms-main pre,
+.lesson-content pre {
+  background: var(--ide-container-bg) !important;
+  border: 1px solid var(--ide-border) !important;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  color: var(--ide-code-text) !important;
+  font-family: var(--font-code);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 1rem 0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
 }
 
 /* -----------------------------------------------------------------------------
@@ -1096,8 +1254,8 @@ body.light-theme .section-tag {
 }
 
 .syllabus-sidebar {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary) !important; /* Soft Slate Tint (#F1F5F9) */
+  border: 1px solid var(--border-color) !important;
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   height: fit-content;
@@ -1105,6 +1263,7 @@ body.light-theme .section-tag {
   top: 90px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(30, 41, 59, 0.04);
 }
 
 .syllabus-header {
@@ -1128,15 +1287,15 @@ body.light-theme .section-tag {
 .progress-track {
   width: 100%;
   height: 8px;
-  background: var(--bg-primary);
+  background: #E2E8F0;
   border-radius: 9999px;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid #CBD5E1;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  background: var(--progress-success) !important; /* PCB Emerald (#059669) */
   width: 0%;
   border-radius: 9999px;
   transition: width 0.4s ease;
@@ -1152,66 +1311,73 @@ body.light-theme .section-tag {
 .module-badge-title {
   font-family: var(--font-heading);
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--accent-amber);
+  color: var(--brand-primary) !important; /* Deep Cobalt / Navy Module Header (#1E3A8A) */
   margin: 0.75rem 0 0.5rem;
-  padding-left: 0.5rem;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--brand-primary);
 }
 
 .lesson-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65rem 0.85rem;
+  padding: 0.7rem 0.85rem;
   border-radius: var(--radius-md);
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
   transition: var(--transition);
-  border: 1px solid transparent;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  margin-bottom: 0.4rem;
 }
 
 .lesson-item:hover {
-  background: var(--bg-elevated);
+  background: #F8FAFC;
   color: var(--text-heading);
+  border-color: #CBD5E1;
 }
 
 .lesson-item.active {
-  background: var(--bg-elevated);
-  color: var(--text-heading);
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-  font-weight: 600;
+  background: #FFFFFF !important;
+  color: var(--brand-primary) !important; /* Deep Cobalt text */
+  border-color: var(--brand-primary) !important; /* Deep Cobalt Active Lesson Border */
+  border-left-width: 5px !important;
+  box-shadow: 0 3px 12px rgba(30, 58, 138, 0.12) !important;
+  font-weight: 700 !important;
 }
 
 .lesson-item .check-icon {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--text-dim);
+  border: 2px solid #CBD5E1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
   flex-shrink: 0;
+  background: #F8FAFC;
+  color: #64748B;
 }
 
 .lesson-item.completed .check-icon {
-  background: var(--accent-green);
-  border-color: var(--accent-green);
-  color: #fff;
+  background: var(--progress-success) !important; /* PCB Emerald (#059669) */
+  border-color: var(--progress-success) !important;
+  color: #FFFFFF !important;
 }
 
 /* LMS Main Content Area */
 .lms-main {
-  background: var(--bg-card);
+  background: #FFFFFF;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   padding: 2.5rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 16px rgba(30, 41, 59, 0.04);
 }
 
 .lesson-header {
@@ -1228,22 +1394,6 @@ body.light-theme .section-tag {
   flex-wrap: wrap;
 }
 
-.lesson-tag {
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: var(--accent-cyan);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  text-transform: uppercase;
-}
-
-body.light-theme .lesson-tag {
-  color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.1);
-}
-
 .lesson-duration {
   font-size: 0.825rem;
   color: var(--text-dim);
@@ -1257,14 +1407,15 @@ body.light-theme .lesson-tag {
   font-weight: 600;
   padding: 0.2rem 0.65rem;
   border-radius: 9999px;
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--accent-amber);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid rgba(180, 83, 9, 0.3);
 }
 
 .lesson-title {
   font-size: 2.1rem;
   font-weight: 800;
+  color: var(--text-heading);
   margin-bottom: 0.75rem;
 }
 
@@ -1300,7 +1451,7 @@ body.light-theme .lesson-tag {
 /* Lesson Tabs */
 .lesson-tabs {
   display: flex;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   margin-bottom: 2rem;
   gap: 0.5rem;
   overflow-x: auto;
@@ -1311,11 +1462,11 @@ body.light-theme .lesson-tag {
   border: none;
   color: var(--text-muted);
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   padding: 0.75rem 1.25rem;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   transition: var(--transition);
   display: flex;
   align-items: center;
@@ -1324,17 +1475,13 @@ body.light-theme .lesson-tag {
 }
 
 .tab-btn:hover {
-  color: var(--text-heading);
+  color: var(--brand-primary);
 }
 
 .tab-btn.active {
-  color: var(--accent-cyan);
-  border-bottom-color: var(--accent-cyan);
-}
-
-body.light-theme .tab-btn.active {
-  color: var(--accent-blue);
-  border-bottom-color: var(--accent-blue);
+  color: var(--tech-accent) !important; /* Circuit Teal (#0284C7) */
+  border-bottom-color: var(--tech-accent) !important;
+  font-weight: 700;
 }
 
 .tab-content {
