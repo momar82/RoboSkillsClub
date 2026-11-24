@@ -1,6 +1,6 @@
 /**
  * RoboSkillsClub — Autonomous Mobile Robotics Training Platform
- * Powered by Studica Robotics Kits (VMX-pi & Titan Quad Controller)
+ * Autonomous Mobile Robotics Curriculum & Training Hub
  * Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM
  */
 
