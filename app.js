@@ -1652,7 +1652,7 @@ function initAuthSession() {
           role: role,
           status: "approved",
           country: "International",
-          institution: "RoboSkillsClub Institute"
+          institution: "RoboSkillsClub"
         };
         currentRole = role;
         localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
@@ -1726,7 +1726,7 @@ function quickDemoSignIn(role) {
       role: "super_admin",
       status: "approved",
       title: "Lead Robotics Scientist",
-      institution: "RoboSkillsClub Institute"
+      institution: "RoboSkillsClub"
     };
   } else if (role === "admin") {
     user = {
@@ -1744,7 +1744,7 @@ function quickDemoSignIn(role) {
       displayName: "Prof. Sarah Jenkins",
       role: "teacher",
       status: "approved",
-      organization: "Institute of Technology",
+      organization: "School of Robotics & Engineering",
       jobTitle: "Associate Professor of Robotics",
       maxStudents: 35,
       assignedCourseIds: ["course-amr-101"]

@@ -14,7 +14,7 @@ The platform provides complete hardware breakdowns, wiring schematics, ROS 2 con
 
 ---
 
-## 👨‍🏫 Academic Leadership
+## 👨‍🏫 Curriculum Leadership
 * **Lead Author & Chief Robotics Scientist:** **Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM**
 * **Super Admin Email:** `m.omar82@gmail.com`
 * **Focus:** Autonomous Navigation, Simultaneous Localization & Mapping (SLAM), Visual SLAM (VSLAM), and Embedded ROS 2 Control Systems.
