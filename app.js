@@ -1793,8 +1793,10 @@ function updateNavAuthUI() {
   updatePortalVisibility();
 
   if (currentUser) {
-    const rolePillClass = `role-${currentUser.role.replace('_', '-')}`;
-    const roleDisplay = currentUser.role === "super_admin" ? "SUPER ADMIN" :
+    const isPending = currentUser.status === "pending";
+    const rolePillClass = isPending ? 'role-teacher' : `role-${currentUser.role.replace('_', '-')}`;
+    const roleDisplay = isPending ? 'PENDING APPROVAL' :
+                        currentUser.role === "super_admin" ? "SUPER ADMIN" :
                         currentUser.role === "admin" ? "ADMIN" :
                         currentUser.role === "teacher" ? "TEACHER" : "STUDENT";
 
@@ -1933,11 +1935,6 @@ function handleUserSignIn(event) {
     return;
   }
 
-  if (user.status === "pending") {
-    showToast("Your account registration is pending review and approval by an instructor or administrator.", "warning");
-    return;
-  }
-
   if (user.status === "suspended") {
     showToast("This account is currently suspended. Please contact platform administration.", "error");
     return;
@@ -1964,7 +1961,11 @@ function handleUserSignIn(event) {
     console.error("Error loading user progress:", e);
   }
 
-  showToast(`Welcome back, ${user.displayName}!`, "success");
+  if (user.status === "pending") {
+    showToast(`Welcome ${user.displayName}! Your course enrollment is awaiting review and approval by your teacher or administrator.`, "amber");
+  } else {
+    showToast(`Welcome back, ${user.displayName}!`, "success");
+  }
 
   // First-time student profile completion check
   if (user.role === "student" && (user.needsProfileCompletion || !user.profileCompleted)) {
@@ -3329,6 +3330,10 @@ function openClassroom(lessonIndex) {
     openSignInModal();
     return;
   }
+  if (currentUser.status === "pending") {
+    showToast("Your course enrollment is awaiting approval by your instructor or administrator.", "warning");
+    return;
+  }
   const cls = document.getElementById("classroom-section");
   if (cls) {
     cls.style.display = "block";
@@ -3343,6 +3348,10 @@ function openRobotDashboard() {
   if (!currentUser) {
     showToast("Please sign in or register to use the live Robot Dashboard simulator!", "amber");
     openSignInModal();
+    return;
+  }
+  if (currentUser.status === "pending") {
+    showToast("Your course enrollment is awaiting approval by your instructor or administrator.", "warning");
     return;
   }
   const dash = document.getElementById("robot-dashboard-section");
@@ -3387,6 +3396,17 @@ function renderStudentPortal() {
     welcomeEl.textContent = `Welcome back, ${currentUser.displayName}!`;
   }
 
+  const pendingBanner = document.getElementById("student-pending-banner");
+  const teacherEl = document.getElementById("student-pending-teacher-name");
+  if (pendingBanner) {
+    if (currentUser && currentUser.status === "pending") {
+      pendingBanner.style.display = "block";
+      if (teacherEl) teacherEl.textContent = currentUser.assignedTeacherName || "Eng. M. Salameh";
+    } else {
+      pendingBanner.style.display = "none";
+    }
+  }
+
   renderStudentNotifications();
   renderStudentEnrolledCourses();
   renderStudentAvailableCourses();
@@ -3400,6 +3420,24 @@ function renderStudentNotifications() {
   const notifs = [];
 
   if (currentUser) {
+    if (currentUser.status === "pending") {
+      notifs.unshift({
+        id: "notif-pending-approval",
+        title: "⏳ Course Enrollment Awaiting Approval",
+        body: `Your enrollment application for <strong>${currentCourse.title}</strong> is currently pending review by your instructor <strong>${currentUser.assignedTeacherName || 'Eng. M. Salameh'}</strong> or platform administration. Full course player access will unlock once approved.`,
+        time: "Pending Approval",
+        icon: "⏳"
+      });
+    } else {
+      notifs.push({
+        id: "notif-welcome",
+        title: "Enrolled in Autonomous Mobile Robotics (AMR-101)",
+        body: `Welcome to the hands-on Studica kit robotics curriculum with instructor <strong>${currentUser.assignedTeacherName || 'Eng. M. Salameh'}</strong>. Enter the classroom player to begin Module 1!`,
+        time: "Active",
+        icon: "🤖"
+      });
+    }
+
     if (currentUser.needsProfileCompletion || !currentUser.profileCompleted) {
       notifs.push({
         id: "notif-profile",
@@ -3410,14 +3448,6 @@ function renderStudentNotifications() {
         actionBtn: `<button class="btn btn-primary btn-sm" style="margin-top:0.4rem;" onclick="openCompleteProfileModal()">Complete Profile Now</button>`
       });
     }
-
-    notifs.push({
-      id: "notif-welcome",
-      title: "Enrolled in Autonomous Mobile Robotics (AMR-101)",
-      body: `Welcome to the hands-on Studica kit robotics curriculum with instructor <strong>${currentUser.assignedTeacherName || 'Eng. M. Salameh'}</strong>. Enter the classroom player to begin Module 1!`,
-      time: "Active",
-      icon: "🤖"
-    });
 
     const subs = getStoredSubmissions().filter(s => s.studentEmail && s.studentEmail.toLowerCase() === currentUser.email.toLowerCase() && s.status === "Graded");
     subs.forEach(sub => {
@@ -3457,22 +3487,29 @@ function renderStudentEnrolledCourses() {
   const container = document.getElementById("student-enrolled-courses-list");
   if (!container) return;
 
+  const isPending = currentUser && currentUser.status === "pending";
   const allLessons = getAllCourseLessons();
   const total = allLessons.length;
   let completedCount = 0;
   allLessons.forEach(l => {
     if (userProgress[l.id] === true) completedCount++;
   });
-  const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+  const percentage = isPending ? 0 : (total > 0 ? Math.round((completedCount / total) * 100) : 0);
+
+  const statusBadge = isPending 
+    ? `<span class="role-pill role-teacher">⏳ PENDING APPROVAL</span>`
+    : `<span class="role-pill ${percentage === 100 ? "role-admin" : "role-student"}">${percentage === 100 ? "100% COMPLETED" : "IN PROGRESS"}</span>`;
+
+  const classroomActionBtn = isPending
+    ? `<button class="btn btn-outline btn-sm" style="flex:1; opacity:0.85;" onclick="openClassroom()"><span>🔒 Awaiting Teacher/Admin Approval</span></button>`
+    : `<button class="btn btn-primary btn-sm" style="flex:1;" onclick="openClassroom()"><span>🚀 Continue Learning (Enter Classroom) &rarr;</span></button>`;
 
   let html = `
     <div class="enrolled-card">
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <span class="role-pill role-student">${currentCourse.shortCode}</span>
-          <span class="role-pill ${percentage === 100 ? "role-admin" : "role-student"}">
-            ${percentage === 100 ? "100% COMPLETED" : "IN PROGRESS"}
-          </span>
+          ${statusBadge}
         </div>
         <h3 style="font-size:1.25rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
@@ -3498,9 +3535,7 @@ function renderStudentEnrolledCourses() {
       </div>
 
       <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="openClassroom()">
-          <span>🚀 Continue Learning (Enter Classroom) &rarr;</span>
-        </button>
+        ${classroomActionBtn}
         <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">
           <span>🛠️ Robot Dashboard</span>
         </button>
@@ -3736,11 +3771,14 @@ function renderTeacherPortal() {
   }
 
   const users = getStoredUsers();
-  const students = users.filter(u => {
+  const allStudents = users.filter(u => {
     if (u.role !== "student") return false;
     if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
     return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
   });
+
+  const approvedStudents = allStudents.filter(u => u.status === "approved" || !u.status);
+  const pendingStudents = allStudents.filter(u => u.status === "pending");
 
   const submissions = getStoredSubmissions();
   const pendingCount = submissions.filter(s => s.status === "Pending Review").length;
@@ -3750,16 +3788,21 @@ function renderTeacherPortal() {
     : "—";
 
   const statStudents = document.getElementById("teacher-stat-students");
+  const statPendingEnrollments = document.getElementById("teacher-stat-pending-enrollments");
+  const badgeEnrollments = document.getElementById("teacher-pending-badge");
   const pendingEl = document.getElementById("teacher-stat-pending");
   const statAvg = document.getElementById("teacher-stat-avg-score");
   const badgeEl = document.getElementById("teacher-marking-badge");
 
-  if (statStudents) statStudents.textContent = `${students.length} Active`;
+  if (statStudents) statStudents.textContent = `${approvedStudents.length} Active`;
+  if (statPendingEnrollments) statPendingEnrollments.textContent = `${pendingStudents.length} Requests`;
+  if (badgeEnrollments) badgeEnrollments.textContent = pendingStudents.length;
   if (pendingEl) pendingEl.textContent = `${pendingCount} Pending`;
   if (statAvg) statAvg.textContent = avgScore === "—" ? "— (No grades yet)" : `${avgScore} / 100`;
   if (badgeEl) badgeEl.textContent = pendingCount;
 
   renderTeacherCourses();
+  renderTeacherPendingEnrollments();
   renderTeacherRoster();
   renderTeacherSubmissions();
   renderTeacherFeedbackDesk();
@@ -3781,18 +3824,19 @@ function renderTeacherCourses() {
   if (!container) return;
 
   const users = getStoredUsers();
-  const students = users.filter(u => {
+  const allStudents = users.filter(u => {
     if (u.role !== "student") return false;
     if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
     return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
   });
+  const approvedStudents = allStudents.filter(u => u.status === "approved" || !u.status);
 
   container.innerHTML = `
     <div class="enrolled-card">
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <span class="role-pill role-teacher">Assigned Teaching Track</span>
-          <span class="role-pill role-student">${students.length} Active Students</span>
+          <span class="role-pill role-student">${approvedStudents.length} Active Students</span>
         </div>
         <h3 style="font-size:1.35rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
         <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
@@ -3814,9 +3858,124 @@ function renderTeacherCourses() {
         <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('roster');">
           <span>👥 View Student Roster</span>
         </button>
+        <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('approvals');">
+          <span>⏳ Review Pending Enrollments</span>
+        </button>
       </div>
     </div>
   `;
+}
+
+function renderTeacherPendingEnrollments() {
+  const container = document.getElementById("teacher-pending-enrollments-list");
+  if (!container) return;
+
+  const users = getStoredUsers();
+  const pendingStudents = users.filter(u => {
+    if (u.role !== "student") return false;
+    if (u.status !== "pending") return false;
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
+    return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
+  });
+
+  const badge = document.getElementById("teacher-pending-badge");
+  const statEl = document.getElementById("teacher-stat-pending-enrollments");
+  if (badge) badge.textContent = pendingStudents.length;
+  if (statEl) statEl.textContent = `${pendingStudents.length} Requests`;
+
+  if (pendingStudents.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:3rem 1.5rem; background:#FFFFFF; border:1px dashed #CBD5E1; border-radius:var(--radius-lg);">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">⏳</div>
+        <h4 style="font-size:1.15rem; color:var(--brand-primary); margin-bottom:0.4rem;">No Pending Student Enrollments</h4>
+        <p style="font-size:0.875rem; color:var(--text-muted); max-width:480px; margin:0 auto;">
+          All student enrollment applications have been reviewed. When new students register for your robotics course, their enrollment requests will appear here for one-click approval.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <table class="pinout-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Contact &amp; Country</th>
+          <th>Education / Institution</th>
+          <th>Course Applied</th>
+          <th>Registered Date</th>
+          <th>Approval Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  pendingStudents.forEach(s => {
+    const eduInfo = s.educationLevel === 'school' 
+      ? `School: ${s.schoolName || 'N/A'} (Grade ${s.gradeYear || 'N/A'})`
+      : `University: ${s.universityName || 'N/A'} (${s.degreeLevel || ''} · ${s.major || 'Robotics'})`;
+
+    const appliedCourse = DEFAULT_COURSES.find(c => (s.enrolledCourseIds || []).includes(c.id)) || DEFAULT_COURSES[0];
+
+    html += `
+      <tr>
+        <td>
+          <strong>${s.displayName}</strong>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${s.email}</div>
+        </td>
+        <td>
+          <div>${s.mobileNumber || 'No mobile'}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${s.country || 'N/A'}</div>
+        </td>
+        <td>
+          <div style="font-size:0.825rem;">${eduInfo}</div>
+        </td>
+        <td>
+          <span class="role-pill role-student">${appliedCourse ? appliedCourse.shortCode : 'AMR-101'}</span>
+        </td>
+        <td style="font-size:0.8rem; color:var(--text-dim);">
+          ${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'Recent'}
+        </td>
+        <td>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="approveStudentEnrollment('${s.uid}')">
+              <span>✓ Approve</span>
+            </button>
+            <button class="btn btn-outline btn-sm" style="color:var(--text-danger); border-color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">
+              <span>Decline</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function approveStudentEnrollment(uid) {
+  const users = getStoredUsers();
+  const user = users.find(u => u.uid === uid);
+  if (!user) return;
+
+  user.status = "approved";
+  if (currentUser && currentUser.role === "teacher") {
+    user.assignedTeacherId = currentUser.uid;
+    user.assignedTeacherName = currentUser.displayName;
+  }
+  saveStoredUsers(users);
+
+  if (currentUser && currentUser.uid === uid) {
+    currentUser.status = "approved";
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+    updateNavAuthUI();
+  }
+
+  renderTeacherPortal();
+  if (typeof renderAdminOversight === "function") renderAdminOversight();
+  showToast(`Student ${user.displayName} enrollment approved! Course access has been granted.`, "success");
 }
 
 function renderTeacherRoster() {
@@ -3830,8 +3989,9 @@ function renderTeacherRoster() {
     return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
   });
 
+  const approvedCount = students.filter(u => u.status === "approved" || !u.status).length;
   const statStudents = document.getElementById("teacher-stat-students");
-  if (statStudents) statStudents.textContent = `${students.length} Active`;
+  if (statStudents) statStudents.textContent = `${approvedCount} Active`;
 
   if (students.length === 0) {
     container.innerHTML = `
@@ -3855,7 +4015,7 @@ function renderTeacherRoster() {
           <th>Contact &amp; Country</th>
           <th>Course Progress</th>
           <th>Submissions</th>
-          <th>Status</th>
+          <th>Enrollment Status</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -3865,9 +4025,23 @@ function renderTeacherRoster() {
   students.forEach(s => {
     const progress = s.progress || 0;
     const submissions = s.submissions || 0;
-    const profileTag = s.profileCompleted ? 
-      `<span class="role-pill role-admin">Profile Complete</span>` : 
-      `<span class="role-pill role-teacher">Pending First Login</span>`;
+    const isPending = s.status === "pending";
+
+    const statusPill = isPending 
+      ? `<span class="role-pill role-teacher">Pending Approval</span>` 
+      : (s.profileCompleted ? `<span class="role-pill role-admin">Enrolled &amp; Active</span>` : `<span class="role-pill role-teacher">Pending First Login</span>`);
+
+    const actionButtons = isPending ? `
+      <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="approveStudentEnrollment('${s.uid}')">✓ Approve</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Reject</button>
+      </div>
+    ` : `
+      <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Submissions</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Remove</button>
+      </div>
+    `;
 
     html += `
       <tr>
@@ -3888,13 +4062,8 @@ function renderTeacherRoster() {
           </div>
         </td>
         <td><span class="role-pill role-student">${submissions} Labs</span></td>
-        <td>${profileTag}</td>
-        <td>
-          <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Submissions</button>
-            <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Remove</button>
-          </div>
-        </td>
+        <td>${statusPill}</td>
+        <td>${actionButtons}</td>
       </tr>
     `;
   });
@@ -4668,7 +4837,15 @@ function adminApproveUser(uid) {
 
   user.status = "approved";
   saveStoredUsers(users);
+
+  if (currentUser && currentUser.uid === uid) {
+    currentUser.status = "approved";
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+    updateNavAuthUI();
+  }
+
   renderAdminOversight();
+  if (typeof renderTeacherPortal === "function") renderTeacherPortal();
   showToast(`Approved registration for ${user.displayName} (${user.role.toUpperCase()})!`, "success");
 }
 

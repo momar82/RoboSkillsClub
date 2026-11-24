@@ -102,6 +102,19 @@
         </div>
       </div>
 
+      <!-- Pending Enrollment Notification Banner (Shown when student enrollment is awaiting approval) -->
+      <div id="student-pending-banner" style="display:none; margin-bottom:1.5rem; background:#FFFBEB; border:1px solid #FDE68A; border-left:5px solid #F59E0B; border-radius:var(--radius-md); padding:1.25rem 1.5rem;">
+        <div style="display:flex; align-items:flex-start; gap:0.85rem;">
+          <div style="font-size:1.75rem; line-height:1;">⏳</div>
+          <div style="flex:1;">
+            <h4 style="color:#92400E; font-size:1.05rem; margin:0 0 0.35rem; font-weight:800;">Course Enrollment Pending Approval</h4>
+            <p style="color:#78350F; font-size:0.875rem; margin:0; line-height:1.5;">
+              Your enrollment application for <strong>Autonomous Mobile Robotics (AMR-101)</strong> has been submitted. Your assigned teacher (<strong id="student-pending-teacher-name">Eng. M. Salameh</strong>) or platform administrator must approve your enrollment before you can enter the classroom and launch hardware labs.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Notification Center -->
       <div class="notification-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
@@ -155,7 +168,7 @@
       </div>
 
       <!-- Teacher Quick Stats -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:2rem;">
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Courses I Teach</div>
           <div class="stat-value" style="color:var(--brand-primary);">1 Track</div>
@@ -165,8 +178,12 @@
           <div class="stat-value" style="color:var(--tech-accent);" id="teacher-stat-students">0 Active</div>
         </div>
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
+          <div class="stat-label">Pending Enrollments</div>
+          <div class="stat-value" style="color:var(--cta-amber);" id="teacher-stat-pending-enrollments">0 Requests</div>
+        </div>
+        <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Submissions to Grade</div>
-          <div class="stat-value" style="color:var(--cta-amber);" id="teacher-stat-pending">0 Pending</div>
+          <div class="stat-value" style="color:var(--brand-primary);" id="teacher-stat-pending">0 Pending</div>
         </div>
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Average Class Score</div>
@@ -177,6 +194,7 @@
       <!-- Teacher Navigation Tabs -->
       <div class="lesson-tabs" style="margin-bottom:1.5rem;">
         <button id="btn-teach-tab-courses" class="tab-btn active" onclick="switchTeacherPortalTab('courses')">📚 Courses I Teach</button>
+        <button id="btn-teach-tab-approvals" class="tab-btn" onclick="switchTeacherPortalTab('approvals')">⏳ Pending Enrollments (<span id="teacher-pending-badge">0</span>)</button>
         <button id="btn-teach-tab-roster" class="tab-btn" onclick="switchTeacherPortalTab('roster')">👥 Student Progress &amp; Roster</button>
         <button id="btn-teach-tab-marking" class="tab-btn" onclick="switchTeacherPortalTab('marking')">📝 Assignment Marking Desk (<span id="teacher-marking-badge">0</span>)</button>
         <button id="btn-teach-tab-feedback" class="tab-btn" onclick="switchTeacherPortalTab('feedback')">🔍 Course Material &amp; Lesson Feedback</button>
@@ -186,6 +204,22 @@
       <!-- Tab 1: Courses I Teach -->
       <div id="teach-pane-courses" class="portal-tab-pane">
         <div class="enrolled-course-grid" id="teacher-assigned-courses-list"></div>
+      </div>
+
+      <!-- Tab: Pending Student Enrollments (Review & Approve) -->
+      <div id="teach-pane-approvals" class="portal-tab-pane" style="display:none;">
+        <div class="portal-card" style="padding:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <h3 style="font-size:1.15rem; margin:0;">Student Enrollment Applications</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
+                Students who registered for this course must be approved by the teacher or administrator to complete their enrollment.
+              </p>
+            </div>
+            <span class="role-pill role-teacher">Teacher Approval Desk</span>
+          </div>
+          <div style="overflow-x:auto;" id="teacher-pending-enrollments-list"></div>
+        </div>
       </div>
 
       <!-- Tab 2: Student Progress & Roster -->
