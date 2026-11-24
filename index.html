@@ -15,10 +15,10 @@
 </head>
 <body>
 
-  <!-- Academy Top Announcement Bar (Eye-Care Theme Switcher Included) -->
-  <aside class="academy-topbar" aria-label="Academy Notice">
+  <!-- Top Announcement Bar (Eye-Care Theme Switcher Included) -->
+  <aside class="top-announcement-bar" aria-label="Announcement Notice">
     <div class="announcement-content">
-      <span class="badge-lead">RoboSkills Academy</span>
+      <span class="badge-lead">RoboSkillsClub</span>
       <span>Autonomous Mobile Robotics Curriculum &amp; Training Hub &mdash; Powered by Studica Robotics Kits</span>
     </div>
     <div style="display:flex; align-items:center; gap:0.75rem;">
@@ -44,20 +44,31 @@
         </div>
         <div class="brand-text">
           <span class="brand-name">RoboSkillsClub</span>
-          <span class="brand-sub">Studica Robotics Training Academy</span>
+          <span class="brand-sub">Autonomous Mobile Robotics Hub</span>
         </div>
       </a>
 
       <nav aria-label="Main Navigation">
-        <ul class="nav-links">
-          <li><a href="#home" class="active">Home</a></li>
-          <li><a href="#hardware">Studica Kit</a></li>
-          <li><a href="#classroom-section">Classroom LMS</a></li>
-          <li><a href="#robot-dashboard-section">Robot Dashboard</a></li>
-          <li><a href="javascript:void(0)" onclick="openPinoutModal()">Pinouts</a></li>
-          <li><a href="#faculty">Faculty</a></li>
-          <li id="nav-teacher-link" style="display:none;"><a href="javascript:void(0)" onclick="openTeacherPortal()" style="color:var(--accent-cyan);">Teacher Desk</a></li>
-          <li id="nav-admin-link" style="display:none;"><a href="javascript:void(0)" onclick="openAdminConsole()" style="color:var(--accent-amber);">Admin Console</a></li>
+        <ul class="nav-links" id="main-nav-links">
+          <!-- Public / Guest Navigation (Default) -->
+          <li class="nav-guest-item"><a href="#home" class="active">Home</a></li>
+          <li class="nav-guest-item"><a href="#why-roboskills">Why RoboSkills</a></li>
+          <li class="nav-guest-item"><a href="#courses-catalog">Course Catalog</a></li>
+          <li class="nav-guest-item"><a href="#hardware-overview">Hardware</a></li>
+          <li class="nav-guest-item"><a href="#faculty">Faculty</a></li>
+
+          <!-- Logged-In Student Navigation -->
+          <li class="nav-student-item" style="display:none;"><a href="javascript:void(0)" onclick="showStudentPortal()" style="color:var(--tech-accent); font-weight:700;">My Dashboard</a></li>
+          <li class="nav-student-item" style="display:none;"><a href="javascript:void(0)" onclick="openClassroom()">Classroom Player</a></li>
+          <li class="nav-student-item" style="display:none;"><a href="javascript:void(0)" onclick="openRobotDashboard()">Robot Dashboard</a></li>
+
+          <!-- Logged-In Teacher Navigation -->
+          <li class="nav-teacher-item" style="display:none;"><a href="javascript:void(0)" onclick="showTeacherPortal()" style="color:var(--tech-accent); font-weight:700;">Teacher Desk</a></li>
+          <li class="nav-teacher-item" style="display:none;"><a href="javascript:void(0)" onclick="openClassroom()">Course Player</a></li>
+          <li class="nav-teacher-item" style="display:none;"><a href="javascript:void(0)" onclick="openRobotDashboard()">Robot Dashboard</a></li>
+
+          <!-- Admin Navigation -->
+          <li id="nav-admin-link" style="display:none;"><a href="javascript:void(0)" onclick="openAdminConsole()" style="color:var(--cta-amber); font-weight:700;">Admin Console</a></li>
         </ul>
       </nav>
 
@@ -76,13 +87,215 @@
     </div>
   </header>
 
+  <!-- Student Dashboard Portal (Visible when logged in as Student) -->
+  <section id="student-portal" class="section" style="display:none; background:#F8FAFC; border-bottom:1px solid var(--border-color); padding:2rem 0 3rem;">
+    <div class="container">
+      <div class="portal-header-row">
+        <div>
+          <div class="section-tag" style="margin-bottom:0.25rem;">Student Dashboard</div>
+          <h2 style="font-size:1.85rem; font-weight:800; color:var(--brand-primary);" id="student-portal-welcome">Welcome back, Student!</h2>
+          <p style="font-size:0.9rem; color:var(--text-muted);" id="student-portal-sub">Track your hands-on robotics progress, review teacher feedback, and launch your classroom labs.</p>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="openClassroom()">🚀 Enter Classroom Player</button>
+          <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">🛠️ Launch Robot Dashboard</button>
+        </div>
+      </div>
+
+      <!-- Notification Center -->
+      <div class="notification-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h3 style="font-size:1.05rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+            <span>🔔 Live Notifications &amp; Course Alerts</span>
+          </h3>
+          <span class="role-pill role-student" id="notif-count-badge">3 Updates</span>
+        </div>
+        <div id="student-notifications-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- My Enrolled Courses -->
+      <div style="margin-bottom:2.5rem;">
+        <div class="section-header" style="text-align:left; margin-bottom:1.25rem;">
+          <h3 style="font-size:1.35rem; color:var(--brand-primary);">My Enrolled Courses</h3>
+          <p style="font-size:0.875rem; color:var(--text-muted);">Continue your hands-on physical labs and complete challenges to unlock your verified Certificate of Achievement.</p>
+        </div>
+        <div class="enrolled-course-grid" id="student-enrolled-courses-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Available Courses in Platform -->
+      <div>
+        <div class="section-header" style="text-align:left; margin-bottom:1.25rem;">
+          <h3 style="font-size:1.35rem; color:var(--brand-primary);">Available Courses to Explore</h3>
+          <p style="font-size:0.875rem; color:var(--text-muted);">Explore additional autonomous mobile robotics specializations.</p>
+        </div>
+        <div class="course-catalog-grid" id="student-available-courses-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teacher Dashboard Portal (Visible when logged in as Teacher or Admin) -->
+  <section id="teacher-portal" class="section" style="display:none; background:#F8FAFC; border-bottom:1px solid var(--border-color); padding:2rem 0 3rem;">
+    <div class="container">
+      <div class="portal-header-row">
+        <div>
+          <div class="section-tag" style="margin-bottom:0.25rem;">Instructor Operations Hub</div>
+          <h2 style="font-size:1.85rem; font-weight:800; color:var(--brand-primary);" id="teacher-portal-welcome">Instructor Desk</h2>
+          <p style="font-size:0.9rem; color:var(--text-muted);" id="teacher-portal-sub">Oversee student progress, evaluate challenges, inspect course materials, and provide feedback on lessons.</p>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="openClassroom()">📖 View Course Player</button>
+          <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">🛠️ Launch Dashboard</button>
+        </div>
+      </div>
+
+      <!-- Teacher Quick Stats -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+        <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
+          <div class="stat-label">Courses I Teach</div>
+          <div class="stat-value" style="color:var(--brand-primary);">1 Track</div>
+        </div>
+        <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
+          <div class="stat-label">Enrolled Students</div>
+          <div class="stat-value" style="color:var(--tech-accent);" id="teacher-stat-students">18 Active</div>
+        </div>
+        <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
+          <div class="stat-label">Submissions to Grade</div>
+          <div class="stat-value" style="color:var(--cta-amber);" id="teacher-stat-pending">3 Pending</div>
+        </div>
+        <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
+          <div class="stat-label">Average Class Score</div>
+          <div class="stat-value" style="color:var(--progress-success);">91.8 / 100</div>
+        </div>
+      </div>
+
+      <!-- Teacher Navigation Tabs -->
+      <div class="lesson-tabs" style="margin-bottom:1.5rem;">
+        <button id="btn-teach-tab-courses" class="tab-btn active" onclick="switchTeacherPortalTab('courses')">📚 Courses I Teach</button>
+        <button id="btn-teach-tab-roster" class="tab-btn" onclick="switchTeacherPortalTab('roster')">👥 Student Progress &amp; Roster</button>
+        <button id="btn-teach-tab-marking" class="tab-btn" onclick="switchTeacherPortalTab('marking')">📝 Assignment Marking Desk (<span id="teacher-marking-badge">3</span>)</button>
+        <button id="btn-teach-tab-feedback" class="tab-btn" onclick="switchTeacherPortalTab('feedback')">🔍 Course Material &amp; Lesson Feedback</button>
+        <button id="btn-teach-tab-catalog" class="tab-btn" onclick="switchTeacherPortalTab('catalog')">🌐 Platform Course Catalog</button>
+      </div>
+
+      <!-- Tab 1: Courses I Teach -->
+      <div id="teach-pane-courses" class="portal-tab-pane">
+        <div class="enrolled-course-grid" id="teacher-assigned-courses-list"></div>
+      </div>
+
+      <!-- Tab 2: Student Progress & Roster -->
+      <div id="teach-pane-roster" class="portal-tab-pane" style="display:none;">
+        <div class="portal-card" style="padding:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h3 style="font-size:1.15rem;">Classroom Roster &amp; Progress</h3>
+            <span class="role-pill role-teacher">Real-time Telemetry</span>
+          </div>
+          <div style="overflow-x:auto;" id="teacher-roster-table-container"></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Assignment Marking Desk -->
+      <div id="teach-pane-marking" class="portal-tab-pane" style="display:none;">
+        <div class="portal-card" style="padding:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <div>
+              <h3 style="font-size:1.15rem;">Student Submissions Evaluation Desk</h3>
+              <p style="font-size:0.85rem; color:var(--text-muted);">Grade challenge submissions, provide constructive engineering feedback, and instantly notify your students.</p>
+            </div>
+            <span class="role-pill role-admin">Evaluator Desk</span>
+          </div>
+          <div id="teacher-submissions-list"></div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Course Material & Lesson Feedback Desk -->
+      <div id="teach-pane-feedback" class="portal-tab-pane" style="display:none;">
+        <div class="portal-card" style="padding:1.5rem;">
+          <div style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1.15rem; color:var(--brand-primary); margin-bottom:0.35rem;">Curriculum Material Inspector &amp; Lesson Feedback</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted);">
+              Inspect any lesson component in depth and submit pedagogical or technical feedback directly to Lead Curriculum Architect <strong>Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</strong>.
+            </p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
+            <div class="form-group">
+              <label>Select Lesson to Inspect:</label>
+              <select id="teacher-feedback-lesson-select" class="form-control" onchange="onTeacherLessonSelectChange()">
+                <!-- Populated by JavaScript -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Select Lesson Part:</label>
+              <select id="teacher-feedback-part-select" class="form-control" onchange="onTeacherLessonSelectChange()">
+                <option value="objective">🎯 1. Lesson Objective</option>
+                <option value="concept">📖 2. Concept &amp; Theory</option>
+                <option value="wiring">🔌 3. Wiring &amp; Mechanical Assembly</option>
+                <option value="code">💻 4. Code Snippet &amp; Scripts</option>
+                <option value="test">🧪 5. Hardware Diagnostics &amp; Test</option>
+                <option value="challenge">🎟️ 6. Challenge &amp; Exit Ticket</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Preview of the Selected Part -->
+          <div style="margin-bottom:1.5rem;">
+            <label style="font-weight:700; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem; display:block;">Live Material Preview:</label>
+            <div id="teacher-material-preview-box" style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:var(--radius-md); padding:1.25rem; max-height:280px; overflow-y:auto;">
+              <!-- Dynamic Content -->
+            </div>
+          </div>
+
+          <!-- Teacher Feedback Form -->
+          <div style="background:#F1F5F9; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:1.25rem;">
+            <h4 style="font-size:0.95rem; margin-bottom:0.75rem; color:var(--brand-primary);">Submit Your Feedback on this Lesson Part:</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.75rem;">
+              <div class="form-group">
+                <label>Feedback Category:</label>
+                <select id="teacher-feedback-category" class="form-control">
+                  <option value="clarity">Pedagogical Clarity &amp; Pacing</option>
+                  <option value="hardware">Hardware / Tool Compatibility</option>
+                  <option value="code">Code / Script Adjustment</option>
+                  <option value="typo">Clarification or Correction</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Recommended Improvement Level:</label>
+                <select id="teacher-feedback-severity" class="form-control">
+                  <option value="suggestion">💡 Helpful Suggestion</option>
+                  <option value="important">⚠️ Important Enhancement</option>
+                  <option value="critical">🚨 Critical Lab Fix</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Detailed Notes for Dr. Salameh:</label>
+              <textarea id="teacher-feedback-notes" class="form-control" rows="3" placeholder="Explain your feedback or recommended update for this lesson component..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="submitTeacherCurriculumFeedback()">Submit Feedback to Lead Author (Dr. Salameh)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Available Catalog -->
+      <div id="teach-pane-catalog" class="portal-tab-pane" style="display:none;">
+        <div class="course-catalog-grid" id="teacher-catalog-grid"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Hero Section -->
   <section id="home" class="hero-section">
     <div class="container">
       <div class="hero-grid">
         <div class="hero-content">
           <div class="hero-tag">
-            <span>🤖 Premier Autonomous Mobile Robotics Academy</span>
+            <span>🤖 Premier Autonomous Mobile Robotics Training Hub</span>
           </div>
           <h1 class="hero-title">
             Master Industrial <span class="highlight-gradient">Mobile Robotics</span> with Studica VMX &amp; Titan
@@ -91,31 +304,31 @@
             Comprehensive hands-on training for the Studica VMX-pi controller and Titan Quad motor driver, featuring step-by-step wiring guides, live Robot Dashboard telemetry, ROS 2 autonomy, and verified Certificates of Achievement.
           </p>
           <div class="hero-ctas">
-            <a href="#classroom-section" class="btn btn-primary">
+            <a href="#courses-catalog" class="btn btn-primary">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span>Enter Online Classroom</span>
+              <span>Explore Course Catalog &darr;</span>
             </a>
-            <button class="btn btn-outline" onclick="openPinoutModal()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-              <span>Hardware Pinouts</span>
+            <button class="btn btn-outline" onclick="openRegisterModal('student')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+              <span>Student Registration</span>
             </button>
-            <a href="#robot-dashboard-section" class="btn btn-accent">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-              <span>Robot Dashboard</span>
-            </a>
+            <button class="btn btn-accent" onclick="openRegisterModal('teacher')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span>Educator &amp; School Pilot</span>
+            </button>
           </div>
           <div class="hero-metrics">
             <div class="metric-item">
-              <div class="metric-value">8 Lessons</div>
-              <div class="metric-label">Module 1 (90m Each)</div>
+              <div class="metric-value">100% Practical</div>
+              <div class="metric-label">Physical Hardware First</div>
             </div>
             <div class="metric-item">
-              <div class="metric-value">6 Tabs</div>
-              <div class="metric-label">Robot Dashboard</div>
+              <div class="metric-value">2 Modules</div>
+              <div class="metric-label">10 Hands-on Labs</div>
             </div>
             <div class="metric-item">
               <div class="metric-value">Certificates</div>
-              <div class="metric-label">Verifiable Achievement</div>
+              <div class="metric-label">Verified Achievement</div>
             </div>
           </div>
         </div>
@@ -170,12 +383,150 @@
     </div>
   </section>
 
-  <!-- Hardware Showcase -->
-  <section id="hardware" class="section" style="background:var(--bg-secondary);">
+  <!-- Why RoboSkillsClub: 4 Core Engineering Pillars -->
+  <section id="why-roboskills" class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Engineering Pedagogy</div>
+        <h2 class="section-title">Why RoboSkillsClub?</h2>
+        <p class="section-desc">
+          A rigorous, physical-first learning methodology designed for autonomous robotics excellence. We do not stop at simulation—students construct, calibrate, and program physical machines.
+        </p>
+      </div>
+
+      <div class="grid-2" style="gap:1.75rem;">
+        <div class="card" style="border-left:4px solid var(--brand-primary);">
+          <div class="card-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          </div>
+          <h3 class="card-title">1. Mechanical Rigidity &amp; Fastener Safety</h3>
+          <p class="card-text">
+            High-frequency motor vibrations shake standard nuts loose in 10 minutes. Students learn structural engineering using 6061-T6 aluminum U-channels, diagonal caliper squaring within ±0.5 mm, and vibration-proof Nyloc locknuts. A software algorithm cannot compensate for a loose motor mount!
+          </p>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--tech-accent);">
+          <div class="card-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          </div>
+          <h3 class="card-title">2. Distributed Dual-Brain Architecture</h3>
+          <p class="card-text">
+            Why bottleneck a small onboard robot computer with 3D point cloud graphics? Our architecture divides duties: high-level SLAM mapping, RViz2 3D views, and PyQt5 telemetry run on an Ubuntu student workstation, linked over Gigabit Ethernet (< 0.5 ms latency) to the onboard real-time FPGA and Titan motor controllers.
+          </p>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--cta-amber);">
+          <div class="card-icon amber">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <h3 class="card-title">3. Industrial Sensor Fusion &amp; CAN Bus</h3>
+          <p class="card-text">
+            Hands-on integration with 360° 2D planar LiDAR laser scanners, Orbbec 3D RGB-D depth perception, factory-calibrated navX 9-axis IMU yaw tracking, and 1 Mbps CAN bus motor telemetry (ID 42) reading high-resolution optical quadrature encoders.
+          </p>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--progress-success);">
+          <div class="card-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          </div>
+          <h3 class="card-title">4. Real-Time ROS 2 Autonomy &amp; SLAM</h3>
+          <p class="card-text">
+            From gamepad joy teleoperation and velocity commands to CycloneDDS multicast network isolation, costmap 2D obstacle inflation, and SLAM mapping. Students progress from raw hardware drivers to complete autonomous mission navigation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Course Catalog & Learning Paths -->
+  <section id="courses-catalog" class="section" style="background:var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Academic Course Catalog</div>
+        <h2 class="section-title">Autonomous Mobile Robotics Tracks</h2>
+        <p class="section-desc">
+          Comprehensive curriculum developed by <strong>Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</strong>.
+        </p>
+      </div>
+
+      <div class="course-catalog-grid">
+        <!-- Track 1: AMR-101 -->
+        <div class="catalog-card">
+          <div class="catalog-card-header">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <span class="role-pill role-student" style="background:rgba(255,255,255,0.2); color:#fff; border-color:rgba(255,255,255,0.4);">AMR-101</span>
+              <span class="role-pill role-admin" style="background:var(--progress-success); color:#fff;">Available Now</span>
+            </div>
+            <h3 style="font-size:1.45rem; color:#fff; margin-bottom:0.4rem;">Autonomous Mobile Robotics (Studica Kit Masterclass)</h3>
+            <div style="font-size:0.85rem; color:#E0F2FE;">Lead Author: Dr. Mohammed Salameh · Assigned: Prof. Sarah Jenkins</div>
+          </div>
+          <div class="catalog-card-body">
+            <div>
+              <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom:1.25rem;">
+                The complete foundational curriculum for hands-on mobile robotics. Covers aluminum frame construction, vibration-resistant Nyloc fastening, dual-brain Gigabit networking, Titan CAN driver telemetry, teleoperation slalom, and live diagnostics.
+              </p>
+              <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.5rem;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase; margin-bottom:0.4rem;">Included Modules:</div>
+                <div style="font-size:0.85rem; margin-bottom:0.35rem;">✔ <strong>Module 1:</strong> Build Your First Robot (5 Labs · Fasteners, Wiring, Motors)</div>
+                <div style="font-size:0.85rem;">✔ <strong>Module 2:</strong> Connect, Drive &amp; Hardware Experience (5 Labs · Dual-Brain, Teleop)</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; font-size:0.85rem; color:var(--text-dim);">
+                <span>⏱️ 15+ Lab Hours</span>
+                <span>🛠️ Studica VMX-pi &amp; Titan</span>
+                <span>🎓 Certificate Included</span>
+              </div>
+              <button class="btn btn-primary" style="width:100%;" onclick="openClassroom(0)">
+                <span>Enter Course Classroom &rarr;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Track 2: AMR-201 -->
+        <div class="catalog-card">
+          <div class="catalog-card-header" style="background:linear-gradient(135deg, #1E293B, #0F172A);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <span class="role-pill role-student" style="background:rgba(255,255,255,0.2); color:#fff; border-color:rgba(255,255,255,0.4);">AMR-201</span>
+              <span class="role-pill role-teacher">Upcoming Track</span>
+            </div>
+            <h3 style="font-size:1.45rem; color:#fff; margin-bottom:0.4rem;">3D SLAM, LiDAR Mapping &amp; VSLAM Autonomy</h3>
+            <div style="font-size:0.85rem; color:#CBD5E1;">Lead Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</div>
+          </div>
+          <div class="catalog-card-body">
+            <div>
+              <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom:1.25rem;">
+                Advanced autonomy track: 2D planar LiDAR mapping, 3D point cloud filtering with PCL, Visual SLAM (VSLAM) using depth cameras, Extended Kalman Filter (EKF) sensor fusion, and ROS 2 Nav2 path planning.
+              </p>
+              <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.5rem;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-heading); text-transform:uppercase; margin-bottom:0.4rem;">Upcoming Modules:</div>
+                <div style="font-size:0.85rem; margin-bottom:0.35rem;">○ <strong>Module 3:</strong> 2D &amp; 3D SLAM Spatial Mapping</div>
+                <div style="font-size:0.85rem;">○ <strong>Module 4:</strong> Autonomous Nav2 Waypoint Navigation &amp; Vision</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; font-size:0.85rem; color:var(--text-dim);">
+                <span>⏱️ 20+ Lab Hours</span>
+                <span>📡 3D LiDAR &amp; RGB-D</span>
+                <span>🎓 Advanced Certificate</span>
+              </div>
+              <button class="btn btn-outline" style="width:100%;" onclick="showToast('AMR-201 is opening soon! Complete AMR-101 prerequisites first.', 'amber')">
+                <span>View Track Details &amp; Notify Me</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hardware Platform Showcase -->
+  <section id="hardware-overview" class="section">
     <div class="container">
       <div class="section-header">
         <div class="section-tag">Industry Leading Hardware</div>
-        <h2 class="section-title">Studica Robotics Kits</h2>
+        <h2 class="section-title">Studica Robotics Architecture</h2>
         <p class="section-desc">
           Studica Robotics provides the industry-leading hardware platform for hands-on Autonomous Mobile Robotics education and research.
         </p>
@@ -211,15 +562,68 @@
           </div>
           <h3 class="card-title">Multi-Modal Perception Suite</h3>
           <p class="card-text">
-            360° 2D RPLiDAR for SLAM navigation, SR Pro camera for marker/AprilTag tracking, Sharp GP2Y IR sensors (10–80 cm), HC-SR04 ultrasonic sonar (2–400 cm), contrast light sensors, and dual-layer safety interlocks.
+            360° 2D planar LiDAR for SLAM navigation, Orbbec 3D RGB-D depth camera for spatial mapping, Sharp GP2Y IR sensors (10–80 cm), optical motor encoders, and dual-layer safety interlocks.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Interactive LMS Classroom / Course Player -->
-  <section id="classroom-section" class="section">
+  <!-- The Hands-On Engineering Journey -->
+  <section id="engineering-journey" class="section" style="background:var(--bg-secondary);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Learning Progression</div>
+        <h2 class="section-title">The 5-Step Student Engineering Journey</h2>
+        <p class="section-desc">
+          Every student starts with raw aluminum channels and graduates with a fully autonomous robot capable of LiDAR SLAM.
+        </p>
+      </div>
+
+      <div class="journey-roadmap">
+        <div class="journey-step-card">
+          <div class="journey-step-num">1</div>
+          <strong style="display:block; margin-bottom:0.35rem; color:var(--brand-primary);">Chassis &amp; Nyloc Mechanics</strong>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Assemble rigid aluminum frame; verify diagonal squareness within 0.5 mm tolerance.</span>
+        </div>
+        <div class="journey-step-card">
+          <div class="journey-step-num">2</div>
+          <strong style="display:block; margin-bottom:0.35rem; color:var(--brand-primary);">Dual-Brain Commissioning</strong>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Set static Gigabit network, exchange SSH keys, and configure CycloneDDS multicast.</span>
+        </div>
+        <div class="journey-step-card">
+          <div class="journey-step-num">3</div>
+          <strong style="display:block; margin-bottom:0.35rem; color:var(--brand-primary);">Titan CAN Bus Telemetry</strong>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Drive motors via CAN ID 42, monitor real-time battery voltage, and calibrate encoders.</span>
+        </div>
+        <div class="journey-step-card">
+          <div class="journey-step-num">4</div>
+          <strong style="display:block; margin-bottom:0.35rem; color:var(--brand-primary);">LiDAR &amp; 3D Vision</strong>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Stream 360° planar laser scans and process depth point clouds for obstacle avoidance.</span>
+        </div>
+        <div class="journey-step-card">
+          <div class="journey-step-num">5</div>
+          <strong style="display:block; margin-bottom:0.35rem; color:var(--brand-primary);">Telemetry Dashboard</strong>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Execute precision courses, evaluate telemetry, and earn your verified certificate.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Interactive LMS Classroom / Course Player (Hidden on public homepage, opened on-demand) -->
+  <section id="classroom-section" class="section" style="display:none; padding-top:2rem;">
+    <div class="container" style="margin-bottom:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:var(--radius-lg); padding:0.75rem 1.25rem; box-shadow:var(--shadow-sm); flex-wrap:wrap; gap:0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="backToPortal()">
+          <span>&larr; Back to My Portal / Dashboard</span>
+        </button>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <span class="role-pill role-student">Autonomous Mobile Robotics (AMR-101)</span>
+          <button class="btn btn-accent btn-sm" onclick="openRobotDashboard()">Launch Dashboard Simulator</button>
+        </div>
+      </div>
+    </div>
     <div class="container">
       <div class="section-header" style="margin-bottom:2rem;">
         <div class="section-tag">Interactive Classroom LMS</div>
@@ -376,6 +780,9 @@
               <div id="challenge-feedback-container" style="display:none;"></div>
             </div>
 
+            <!-- Interactive Lesson Evaluation & Quality Rating Widget -->
+            <div id="lesson-evaluation-card-container"></div>
+
             <!-- Bottom Lesson Navigation -->
             <div class="lesson-nav-footer" style="display:flex; justify-content:space-between; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">
               <button id="btn-prev-lesson" class="btn btn-outline" onclick="navigatePrevLesson()">
@@ -391,8 +798,18 @@
     </div>
   </section>
 
-  <!-- 6-Tab Robot Dashboard Simulator -->
-  <section id="robot-dashboard-section" class="section" style="background:var(--bg-secondary);">
+  <!-- 6-Tab Robot Dashboard Simulator (Hidden on public homepage, opened on-demand) -->
+  <section id="robot-dashboard-section" class="section" style="background:var(--bg-secondary); display:none; padding-top:2rem;">
+    <div class="container" style="margin-bottom:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:var(--radius-lg); padding:0.75rem 1.25rem; box-shadow:var(--shadow-sm); flex-wrap:wrap; gap:0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="backToPortal()">
+          <span>&larr; Back to My Portal / Dashboard</span>
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openClassroom()">
+          <span>Return to Classroom Player &rarr;</span>
+        </button>
+      </div>
+    </div>
     <div class="container">
       <div class="section-header">
         <div class="section-tag">Interactive Hardware Simulator</div>
@@ -810,7 +1227,7 @@
             <span class="role-pill role-super-admin">FULL ACCESS</span>
           </button>
           <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('teacher')">
-            <span>🎓 <strong>Teacher</strong> (sarah.jenkins@academy.org)</span>
+            <span>🎓 <strong>Teacher</strong> (sarah.jenkins@roboskills.org)</span>
             <span class="role-pill role-teacher">GRADING</span>
           </button>
           <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('student')">
@@ -870,13 +1287,16 @@
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country *</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-student-country" class="form-control" placeholder="Search country (e.g. UAE, Saudi, Germany)..." autocomplete="off" oninput="filterCountries('student')" onfocus="showCountryList('student')" required>
+              <div id="reg-student-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
           <div class="form-group">
             <label>Mobile Number *</label>
             <input type="tel" id="reg-student-mobile" class="form-control" placeholder="+1 555-0192" required>
-          </div>
-          <div class="form-group">
-            <label>Country *</label>
-            <input type="text" id="reg-student-country" class="form-control" placeholder="e.g. Canada, Germany, UAE" required>
           </div>
         </div>
 
@@ -930,7 +1350,7 @@
             <option value="course-amr-101">AMR-101: Autonomous Mobile Robotics Foundations (Instructor: Prof. Sarah Jenkins)</option>
           </select>
           <span style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem; display:block;">
-            ℹ️ If the course has an assigned instructor, they will review and approve your account. Otherwise, academy admin will approve.
+            ℹ️ If the course has an assigned instructor, they will review and approve your account. Otherwise, platform admin will approve.
           </span>
         </div>
 
@@ -951,13 +1371,16 @@
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country *</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-teacher-country" class="form-control" placeholder="Search country (e.g. UAE, Saudi, Germany)..." autocomplete="off" oninput="filterCountries('teacher')" onfocus="showCountryList('teacher')" required>
+              <div id="reg-teacher-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
           <div class="form-group">
             <label>Mobile Number *</label>
             <input type="tel" id="reg-teacher-mobile" class="form-control" placeholder="+1 555-0184" required>
-          </div>
-          <div class="form-group">
-            <label>Country *</label>
-            <input type="text" id="reg-teacher-country" class="form-control" placeholder="e.g. Canada" required>
           </div>
         </div>
 
@@ -974,7 +1397,7 @@
         <div class="callout amber" style="margin:1rem 0;">
           <div class="callout-title">Teacher Approval Policy:</div>
           <div class="callout-body">
-            Once submitted, Academy Administration reviews your application and sets your maximum student enrollment quota. You can then directly add students and grade their coursework.
+            Once submitted, Platform Administration reviews your application and sets your maximum student enrollment quota. You can then directly add students and grade their coursework.
           </div>
         </div>
 
@@ -1169,7 +1592,7 @@
         <div class="certificate-header-seal">
           <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
         </div>
-        <div class="certificate-academy-title">RoboSkillsClub Robotics Academy</div>
+        <div class="certificate-institute-title">RoboSkillsClub Training Institute</div>
         <h2 class="certificate-main-title">Certificate of Achievement</h2>
         <div class="certificate-awarded-to">This is to officially certify that</div>
         <div class="certificate-recipient-name" id="cert-student-name">Alex Rivera</div>

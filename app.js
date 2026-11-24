@@ -1652,7 +1652,7 @@ function initAuthSession() {
           role: role,
           status: "approved",
           country: "International",
-          institution: "Robotics Academy"
+          institution: "RoboSkillsClub Institute"
         };
         currentRole = role;
         localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
@@ -1662,6 +1662,7 @@ function initAuthSession() {
       }
     });
   }
+  updatePortalVisibility();
 }
 
 function toggleTheme() {
@@ -1678,6 +1679,7 @@ function toggleTheme() {
 function updateNavAuthUI() {
   const authContainer = document.getElementById("nav-auth-container");
   if (!authContainer) return;
+  updatePortalVisibility();
 
   if (currentUser) {
     const rolePillClass = `role-${currentUser.role.replace('_', '-')}`;
@@ -1724,7 +1726,7 @@ function quickDemoSignIn(role) {
       role: "super_admin",
       status: "approved",
       title: "Lead Robotics Scientist",
-      institution: "RoboSkillsClub Academy"
+      institution: "RoboSkillsClub Institute"
     };
   } else if (role === "admin") {
     user = {
@@ -1738,7 +1740,7 @@ function quickDemoSignIn(role) {
   } else if (role === "teacher") {
     user = {
       uid: "teacher_sarah",
-      email: "sarah.jenkins@academy.org",
+      email: "sarah.jenkins@roboskills.org",
       displayName: "Prof. Sarah Jenkins",
       role: "teacher",
       status: "approved",
@@ -1834,7 +1836,7 @@ async function handleStudentRegistration(event) {
   // Otherwise -> admin approves
   const selectedCourse = DEFAULT_COURSES.find(c => c.id === courseId);
   const assignedTeacherId = selectedCourse ? selectedCourse.assignedTeacherId : null;
-  const approvalRoute = assignedTeacherId ? `Assigned Teacher (${selectedCourse.assignedTeacherName})` : "Academy Administrator";
+  const approvalRoute = assignedTeacherId ? `Assigned Teacher (${selectedCourse.assignedTeacherName})` : "Platform Administrator";
 
   const newUser = {
     uid: "student_" + Date.now(),
@@ -2113,6 +2115,7 @@ function loadLesson(index) {
   }
 
   switchLessonTab("concept");
+  renderLessonEvaluationWidget(lesson);
 }
 
 function getAssignmentDueDate(lessonId) {
@@ -2846,3 +2849,923 @@ document.addEventListener("DOMContentLoaded", () => {
   initRobotDashboard();
   generateDynamicParamsYaml();
 });
+
+
+// =============================================================================
+// 7. Searchable Country Picker & Dynamic Phone Code Auto-Prefixing
+// =============================================================================
+const COUNTRIES_DATA = [
+  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪" },
+  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦" },
+  { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦" },
+  { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼" },
+  { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭" },
+  { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲" },
+  { name: "Egypt", code: "EG", dial: "+20", flag: "🇪🇬" },
+  { name: "Jordan", code: "JO", dial: "+962", flag: "🇯🇴" },
+  { name: "Lebanon", code: "LB", dial: "+961", flag: "🇱🇧" },
+  { name: "Iraq", code: "IQ", dial: "+964", flag: "🇮🇶" },
+  { name: "Morocco", code: "MA", dial: "+212", flag: "🇲🇦" },
+  { name: "Algeria", code: "DZ", dial: "+213", flag: "🇩🇿" },
+  { name: "Tunisia", code: "TN", dial: "+216", flag: "🇹🇳" },
+  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸" },
+  { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦" },
+  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧" },
+  { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪" },
+  { name: "France", code: "FR", dial: "+33", flag: "🇫🇷" },
+  { name: "Italy", code: "IT", dial: "+39", flag: "🇮🇹" },
+  { name: "Spain", code: "ES", dial: "+34", flag: "🇪🇸" },
+  { name: "Netherlands", code: "NL", dial: "+31", flag: "🇳🇱" },
+  { name: "Switzerland", code: "CH", dial: "+41", flag: "🇨🇭" },
+  { name: "Austria", code: "AT", dial: "+43", flag: "🇦🇹" },
+  { name: "Sweden", code: "SE", dial: "+46", flag: "🇸🇪" },
+  { name: "Norway", code: "NO", dial: "+47", flag: "🇳🇴" },
+  { name: "Denmark", code: "DK", dial: "+45", flag: "🇩🇰" },
+  { name: "Finland", code: "FI", dial: "+358", flag: "🇫🇮" },
+  { name: "Poland", code: "PL", dial: "+48", flag: "🇵🇱" },
+  { name: "Ireland", code: "IE", dial: "+353", flag: "🇮🇪" },
+  { name: "Belgium", code: "BE", dial: "+32", flag: "🇧🇪" },
+  { name: "Portugal", code: "PT", dial: "+351", flag: "🇵🇹" },
+  { name: "Greece", code: "GR", dial: "+30", flag: "🇬🇷" },
+  { name: "Turkey", code: "TR", dial: "+90", flag: "🇹🇷" },
+  { name: "Japan", code: "JP", dial: "+81", flag: "🇯🇵" },
+  { name: "South Korea", code: "KR", dial: "+82", flag: "🇰🇷" },
+  { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬" },
+  { name: "Malaysia", code: "MY", dial: "+60", flag: "🇲🇾" },
+  { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩" },
+  { name: "India", code: "IN", dial: "+91", flag: "🇮🇳" },
+  { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰" },
+  { name: "China", code: "CN", dial: "+86", flag: "🇨🇳" },
+  { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺" },
+  { name: "New Zealand", code: "NZ", dial: "+64", flag: "🇳🇿" },
+  { name: "Brazil", code: "BR", dial: "+55", flag: "🇧🇷" },
+  { name: "Mexico", code: "MX", dial: "+52", flag: "🇲🇽" },
+  { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦" }
+];
+
+function showCountryList(type) {
+  renderCountryDropdown(type, COUNTRIES_DATA);
+  const dd = document.getElementById(`reg-${type}-country-dropdown`);
+  if (dd) dd.style.display = "block";
+}
+
+function filterCountries(type) {
+  const input = document.getElementById(`reg-${type}-country`);
+  const q = (input ? input.value : "").trim().toLowerCase();
+  const filtered = COUNTRIES_DATA.filter(c => 
+    c.name.toLowerCase().includes(q) || 
+    c.dial.includes(q) || 
+    c.code.toLowerCase().includes(q)
+  );
+  renderCountryDropdown(type, filtered);
+  const dd = document.getElementById(`reg-${type}-country-dropdown`);
+  if (dd) dd.style.display = "block";
+}
+
+function renderCountryDropdown(type, list) {
+  const dd = document.getElementById(`reg-${type}-country-dropdown`);
+  if (!dd) return;
+
+  if (list.length === 0) {
+    dd.innerHTML = `<div style="padding:0.75rem; font-size:0.8rem; color:var(--text-dim); text-align:center;">No matching countries</div>`;
+    return;
+  }
+
+  let html = "";
+  list.forEach(c => {
+    html += `
+      <div class="country-dropdown-item" onclick="selectCountry('${type}', '${c.name.replace(/'/g, "\\'")}', '${c.dial}')">
+        <div style="display:flex; align-items:center;">
+          <span class="country-item-flag">${c.flag}</span>
+          <span style="font-weight:600;">${c.name}</span>
+        </div>
+        <span class="country-item-code">${c.dial}</span>
+      </div>
+    `;
+  });
+  dd.innerHTML = html;
+}
+
+function selectCountry(type, countryName, dialCode) {
+  const countryInput = document.getElementById(`reg-${type}-country`);
+  const mobileInput = document.getElementById(`reg-${type}-mobile`);
+  const dropdown = document.getElementById(`reg-${type}-country-dropdown`);
+
+  if (countryInput) countryInput.value = countryName;
+  if (dropdown) dropdown.style.display = "none";
+
+  if (mobileInput) {
+    const curVal = mobileInput.value.trim();
+    if (!curVal || curVal.startsWith("+")) {
+      const parts = curVal.split(" ");
+      const remainder = parts.length > 1 ? parts.slice(1).join(" ") : "";
+      mobileInput.value = `${dialCode} ${remainder}`.trim() + " ";
+    } else {
+      mobileInput.value = `${dialCode} ${curVal}`;
+    }
+    mobileInput.focus();
+  }
+}
+
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".country-picker-wrapper")) {
+    const d1 = document.getElementById("reg-student-country-dropdown");
+    const d2 = document.getElementById("reg-teacher-country-dropdown");
+    if (d1) d1.style.display = "none";
+    if (d2) d2.style.display = "none";
+  }
+});
+
+// =============================================================================
+// 8. Dynamic Portal Visibility & View Management
+// =============================================================================
+function updatePortalVisibility() {
+  const studentPortal = document.getElementById("student-portal");
+  const teacherPortal = document.getElementById("teacher-portal");
+  const classroomSection = document.getElementById("classroom-section");
+  const dashboardSection = document.getElementById("robot-dashboard-section");
+
+  const guestNavItems = document.querySelectorAll(".nav-guest-item");
+  const studentNavItems = document.querySelectorAll(".nav-student-item");
+  const teacherNavItems = document.querySelectorAll(".nav-teacher-item");
+  const adminNavItems = document.getElementById("nav-admin-link");
+
+  if (!currentUser) {
+    // Public / Guest
+    if (studentPortal) studentPortal.style.display = "none";
+    if (teacherPortal) teacherPortal.style.display = "none";
+    if (classroomSection) classroomSection.style.display = "none";
+    if (dashboardSection) dashboardSection.style.display = "none";
+
+    guestNavItems.forEach(el => el.style.display = "list-item");
+    studentNavItems.forEach(el => el.style.display = "none");
+    teacherNavItems.forEach(el => el.style.display = "none");
+    if (adminNavItems) adminNavItems.style.display = "none";
+  } else if (currentUser.role === "student") {
+    // Logged in as Student
+    if (studentPortal) studentPortal.style.display = "block";
+    if (teacherPortal) teacherPortal.style.display = "none";
+
+    guestNavItems.forEach(el => el.style.display = "none");
+    studentNavItems.forEach(el => el.style.display = "list-item");
+    teacherNavItems.forEach(el => el.style.display = "none");
+    if (adminNavItems) adminNavItems.style.display = "none";
+
+    renderStudentPortal();
+  } else if (currentUser.role === "teacher") {
+    // Logged in as Teacher
+    if (studentPortal) studentPortal.style.display = "none";
+    if (teacherPortal) teacherPortal.style.display = "block";
+
+    guestNavItems.forEach(el => el.style.display = "none");
+    studentNavItems.forEach(el => el.style.display = "none");
+    teacherNavItems.forEach(el => el.style.display = "list-item");
+    if (adminNavItems) adminNavItems.style.display = "none";
+
+    renderTeacherPortal();
+  } else {
+    // Super Admin / Admin
+    if (studentPortal) studentPortal.style.display = "none";
+    if (teacherPortal) teacherPortal.style.display = "block";
+
+    guestNavItems.forEach(el => el.style.display = "none");
+    studentNavItems.forEach(el => el.style.display = "list-item");
+    teacherNavItems.forEach(el => el.style.display = "list-item");
+    if (adminNavItems) adminNavItems.style.display = "list-item";
+
+    renderTeacherPortal();
+  }
+}
+
+function openClassroom(lessonIndex) {
+  if (!currentUser) {
+    showToast("Please sign in or register to enter the online classroom!", "amber");
+    openSignInModal();
+    return;
+  }
+  const cls = document.getElementById("classroom-section");
+  if (cls) {
+    cls.style.display = "block";
+    if (lessonIndex !== undefined && lessonIndex !== null) {
+      loadLesson(lessonIndex);
+    }
+    cls.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function openRobotDashboard() {
+  if (!currentUser) {
+    showToast("Please sign in or register to use the live Robot Dashboard simulator!", "amber");
+    openSignInModal();
+    return;
+  }
+  const dash = document.getElementById("robot-dashboard-section");
+  if (dash) {
+    dash.style.display = "block";
+    dash.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function showStudentPortal() {
+  const p = document.getElementById("student-portal");
+  if (p) {
+    p.style.display = "block";
+    p.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function showTeacherPortal() {
+  const p = document.getElementById("teacher-portal");
+  if (p) {
+    p.style.display = "block";
+    p.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function backToPortal() {
+  if (currentUser && currentUser.role === "student") {
+    showStudentPortal();
+  } else if (currentUser && (currentUser.role === "teacher" || currentUser.role === "admin" || currentUser.role === "super_admin")) {
+    showTeacherPortal();
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+// =============================================================================
+// 9. Student Portal Engine: Notifications & Achievement Percentage
+// =============================================================================
+let studentNotifications = [
+  {
+    id: "notif-1",
+    title: "Assignment Evaluated & Graded",
+    body: "Your submission for Lesson 1.2 (Understanding the Robot Controller) has been marked by Prof. Sarah Jenkins! Score: 95/100 · Feedback: 'Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation.'",
+    time: "2 hours ago",
+    icon: "📝",
+    type: "grade"
+  },
+  {
+    id: "notif-2",
+    title: "New Module Live in Your Course",
+    body: "Module 2: Connect, Drive & Hardware Experience is now live with 5 hands-on labs and automated commissioning scripts (setup_student_laptop.sh & setup_robot_from_laptop.sh)!",
+    time: "1 day ago",
+    icon: "🚀",
+    type: "content"
+  },
+  {
+    id: "notif-3",
+    title: "Upcoming Challenge Due Date",
+    body: "Lesson 1.3 Precision Chassis Caliper Audit challenge is due in 5 days.",
+    time: "2 days ago",
+    icon: "📅",
+    type: "deadline"
+  }
+];
+
+function renderStudentPortal() {
+  const welcomeEl = document.getElementById("student-portal-welcome");
+  if (welcomeEl && currentUser) {
+    welcomeEl.textContent = `Welcome back, ${currentUser.displayName}!`;
+  }
+
+  renderStudentNotifications();
+  renderStudentEnrolledCourses();
+  renderStudentAvailableCourses();
+}
+
+function renderStudentNotifications() {
+  const listEl = document.getElementById("student-notifications-list");
+  const countBadge = document.getElementById("notif-count-badge");
+  if (!listEl) return;
+
+  if (countBadge) countBadge.textContent = `${studentNotifications.length} Updates`;
+
+  let html = "";
+  studentNotifications.forEach((n) => {
+    html += `
+      <div class="notification-item">
+        <div class="notification-icon">${n.icon}</div>
+        <div class="notification-body">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:var(--brand-primary);">${n.title}</strong>
+            <span class="notification-time">${n.time}</span>
+          </div>
+          <div style="color:var(--text-main); margin-top:0.25rem;">${n.body}</div>
+        </div>
+      </div>
+    `;
+  });
+  listEl.innerHTML = html;
+}
+
+function renderStudentEnrolledCourses() {
+  const container = document.getElementById("student-enrolled-courses-list");
+  if (!container) return;
+
+  const allLessons = getAllCourseLessons();
+  const total = allLessons.length;
+  let completedCount = 0;
+  allLessons.forEach(l => {
+    if (userProgress[l.id] === true) completedCount++;
+  });
+  const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+  let html = `
+    <div class="enrolled-card">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <span class="role-pill role-student">${currentCourse.shortCode}</span>
+          <span class="role-pill ${percentage === 100 ? "role-admin" : "role-student"}">
+            ${percentage === 100 ? "100% COMPLETED" : "IN PROGRESS"}
+          </span>
+        </div>
+        <h3 style="font-size:1.25rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          Instructor: ${currentCourse.assignedTeacherName} · Author: ${currentCourse.author}
+        </p>
+
+        <!-- Achievement Percentage -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; font-weight:700; margin-bottom:0.4rem;">
+            <span style="color:var(--brand-primary);">Achievement Progress</span>
+            <span style="color:var(--progress-success); font-size:1rem;">${percentage}% (${completedCount}/${total} Labs)</span>
+          </div>
+          <div style="width:100%; height:10px; background:#E2E8F0; border-radius:9999px; overflow:hidden;">
+            <div style="width:${percentage}%; height:100%; background:var(--progress-success); border-radius:9999px; transition:width 0.4s ease;"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; font-size:0.8rem; color:var(--text-dim);">
+          <span style="background:#F1F5F9; padding:0.25rem 0.5rem; border-radius:4px;">⏱️ 15+ Lab Hours</span>
+          <span style="background:#F1F5F9; padding:0.25rem 0.5rem; border-radius:4px;">🛠️ Studica VMX-pi &amp; Titan</span>
+          <span style="background:#F1F5F9; padding:0.25rem 0.5rem; border-radius:4px;">📊 Average Score: 95/100</span>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="openClassroom()">
+          <span>🚀 Continue Learning (Enter Classroom) &rarr;</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">
+          <span>🛠️ Robot Dashboard</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="openCertificateModal()" style="${percentage === 100 ? "" : "opacity:0.75;"}">
+          <span>🎓 Certificate ${percentage === 100 ? "Ready!" : "(Locked)"}</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function renderStudentAvailableCourses() {
+  const container = document.getElementById("student-available-courses-list");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="catalog-card">
+      <div class="catalog-card-header" style="background:linear-gradient(135deg, #1E293B, #0F172A);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <span class="role-pill role-student" style="background:rgba(255,255,255,0.2); color:#fff; border-color:rgba(255,255,255,0.4);">AMR-201</span>
+          <span class="role-pill role-teacher">Upcoming Specialization</span>
+        </div>
+        <h3 style="font-size:1.35rem; color:#fff; margin-bottom:0.4rem;">3D SLAM, LiDAR Mapping &amp; VSLAM Autonomy</h3>
+        <div style="font-size:0.825rem; color:#CBD5E1;">Lead Author: Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM</div>
+      </div>
+      <div class="catalog-card-body">
+        <div>
+          <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:1rem;">
+            Advanced track covering 3D point cloud filtering with PCL, Visual SLAM (VSLAM) using RGB-D depth cameras, EKF multi-sensor fusion, and Nav2 autonomous path navigation.
+          </p>
+        </div>
+        <div>
+          <button class="btn btn-outline" style="width:100%;" onclick="showToast('You will be notified as soon as AMR-201 unlocks!', 'success')">
+            <span>Notify Me When Open</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// =============================================================================
+// 10. Interactive Lesson Evaluation & Rating Widget
+// =============================================================================
+let userLessonEvaluations = JSON.parse(localStorage.getItem("roboskills_lesson_evaluations") || "{}");
+let currentEvalRating = 5;
+let currentEvalStatus = "understood";
+let currentEvalCodeWorking = true;
+
+function renderLessonEvaluationWidget(lesson) {
+  const container = document.getElementById("lesson-evaluation-card-container");
+  if (!container || !lesson) return;
+
+  // Restore saved evaluation if exists
+  const saved = userLessonEvaluations[lesson.id];
+  if (saved) {
+    currentEvalRating = saved.rating || 5;
+    currentEvalStatus = saved.status || "understood";
+    currentEvalCodeWorking = saved.codeWorking !== undefined ? saved.codeWorking : true;
+  } else {
+    currentEvalRating = 5;
+    currentEvalStatus = "understood";
+    currentEvalCodeWorking = true;
+  }
+
+  container.innerHTML = `
+    <div class="lesson-eval-widget" id="lesson-eval-container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+        <div>
+          <h4 style="font-size:1.1rem; color:var(--brand-primary); display:flex; align-items:center; gap:0.5rem; margin:0;">
+            <span>⭐ Lesson Evaluation &amp; Quality Feedback</span>
+          </h4>
+          <p style="font-size:0.825rem; color:var(--text-muted); margin-top:0.2rem;">
+            Help Dr. Mohammed Salameh and your instructor evaluate your learning experience for Lesson ${lesson.number}:
+          </p>
+        </div>
+        <span class="role-pill role-student">Lesson ${lesson.number}</span>
+      </div>
+
+      <!-- Question 1: Rating out of 5 -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-weight:700; font-size:0.9rem; color:var(--text-heading); display:block; margin-bottom:0.35rem;">
+          1. How clear and easy was this lesson to understand? (Rate 1 to 5):
+        </label>
+        <div class="eval-star-group" id="eval-star-group">
+          ${[1, 2, 3, 4, 5].map(star => `
+            <button type="button" class="star-btn ${star <= currentEvalRating ? "active" : ""}" onclick="setEvalRating(${star})" title="${star} Star${star > 1 ? "s" : ""}">★</button>
+          `).join("")}
+          <span id="eval-rating-label" style="font-size:0.85rem; font-weight:700; margin-left:0.5rem; color:var(--cta-amber);">
+            ${getStarRatingLabel(currentEvalRating)}
+          </span>
+        </div>
+      </div>
+
+      <!-- Question 2: Completion & Understanding Status -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-weight:700; font-size:0.9rem; color:var(--text-heading); display:block; margin-bottom:0.35rem;">
+          2. What is your comprehension and completion status?
+        </label>
+        <div class="eval-pill-group">
+          <div class="eval-pill-opt ${currentEvalStatus === "understood" ? "selected" : ""}" id="opt-status-understood" onclick="setEvalStatus('understood')">
+            <span>🟢 Completed &amp; Fully Understood</span>
+          </div>
+          <div class="eval-pill-opt ${currentEvalStatus === "difficult" ? "selected" : ""}" id="opt-status-difficult" onclick="setEvalStatus('difficult')">
+            <span>🟡 Completed but Found Difficult</span>
+          </div>
+          <div class="eval-pill-opt ${currentEvalStatus === "partial" ? "selected" : ""}" id="opt-status-partial" onclick="setEvalStatus('partial')">
+            <span>⏳ Partially Completed</span>
+          </div>
+          <div class="eval-pill-opt ${currentEvalStatus === "stuck" ? "selected" : ""}" id="opt-status-stuck" onclick="setEvalStatus('stuck')">
+            <span>❓ Stuck / Need Instructor Help</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3: Is code working? Yes or No -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-weight:700; font-size:0.9rem; color:var(--text-heading); display:block; margin-bottom:0.35rem;">
+          3. Did the code snippet or setup script run successfully on your robot/laptop?
+        </label>
+        <div class="code-status-toggle">
+          <button type="button" id="eval-code-yes" class="code-toggle-btn btn-yes ${currentEvalCodeWorking ? "selected" : ""}" onclick="setEvalCodeWorking(true)">
+            <span style="font-size:1.1rem;">✅</span>
+            <span>Yes, Ran Successfully</span>
+          </button>
+          <button type="button" id="eval-code-no" class="code-toggle-btn btn-no ${!currentEvalCodeWorking ? "selected" : ""}" onclick="setEvalCodeWorking(false)">
+            <span style="font-size:1.1rem;">❌</span>
+            <span>No, Encountered Error / Bug</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Question 4: Notes / Comments -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-weight:700; font-size:0.9rem; color:var(--text-heading); display:block; margin-bottom:0.35rem;">
+          4. Any notes, questions, or suggestions for Dr. Salameh or your instructor? (Optional):
+        </label>
+        <textarea id="eval-comments-input" class="form-control" rows="2" placeholder="Tell us what was easy or what caused confusion in this lab...">${saved ? (saved.feedback || "") : ""}</textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitLessonEvaluation('${lesson.id}', '${lesson.number}')">
+        <span>Submit Lesson Evaluation</span>
+      </button>
+
+      <div id="eval-submitted-msg" style="${saved ? "display:block;" : "display:none;"} margin-top:1rem; padding:0.85rem; background:#ECFDF5; border:1px solid #059669; border-radius:var(--radius-md); color:#047857; font-weight:600; font-size:0.875rem;">
+        ✓ Thank you! Your evaluation (${saved ? saved.rating : 5}/5 · Code Working: ${saved && saved.codeWorking ? "Yes" : "Yes"}) has been recorded and submitted to Dr. Mohammed Salameh and your instructor.
+      </div>
+    </div>
+  `;
+}
+
+function getStarRatingLabel(rating) {
+  switch (rating) {
+    case 1: return "1/5 - Very Difficult / Unclear";
+    case 2: return "2/5 - Challenging";
+    case 3: return "3/5 - Average / Moderate";
+    case 4: return "4/5 - Clear & Easy to Follow";
+    case 5: return "5/5 - Crystal Clear & Intuitive!";
+    default: return "Select Rating";
+  }
+}
+
+function setEvalRating(rating) {
+  currentEvalRating = rating;
+  const starBtns = document.querySelectorAll("#eval-star-group .star-btn");
+  starBtns.forEach((btn, idx) => {
+    btn.classList.toggle("active", idx < rating);
+  });
+  const label = document.getElementById("eval-rating-label");
+  if (label) label.textContent = getStarRatingLabel(rating);
+}
+
+function setEvalStatus(status) {
+  currentEvalStatus = status;
+  document.querySelectorAll(".eval-pill-opt").forEach(p => p.classList.remove("selected"));
+  const el = document.getElementById(`opt-status-${status}`);
+  if (el) el.classList.add("selected");
+}
+
+function setEvalCodeWorking(isWorking) {
+  currentEvalCodeWorking = isWorking;
+  const yesBtn = document.getElementById("eval-code-yes");
+  const noBtn = document.getElementById("eval-code-no");
+  if (yesBtn) yesBtn.classList.toggle("selected", isWorking);
+  if (noBtn) noBtn.classList.toggle("selected", !isWorking);
+}
+
+function submitLessonEvaluation(lessonId, lessonNumber) {
+  const comment = document.getElementById("eval-comments-input")?.value.trim() || "";
+
+  userLessonEvaluations[lessonId] = {
+    rating: currentEvalRating,
+    status: currentEvalStatus,
+    codeWorking: currentEvalCodeWorking,
+    feedback: comment,
+    evaluatedAt: new Date().toISOString()
+  };
+
+  localStorage.setItem("roboskills_lesson_evaluations", JSON.stringify(userLessonEvaluations));
+
+  const msg = document.getElementById("eval-submitted-msg");
+  if (msg) {
+    msg.style.display = "block";
+    msg.innerHTML = `✓ Thank you! Your evaluation (${currentEvalRating}/5 · Code Working: ${currentEvalCodeWorking ? "Yes" : "No"}) has been recorded and submitted to Dr. Mohammed Salameh and your instructor.`;
+  }
+
+  showToast(`Lesson ${lessonNumber} evaluation saved (${currentEvalRating}/5)!`, "success");
+}
+
+// =============================================================================
+// 11. Teacher Portal: Student Progress, Marking Desk & Curriculum Feedback
+// =============================================================================
+let teacherSubmissions = [
+  {
+    id: "sub-1",
+    studentName: "Alex Rivera",
+    studentEmail: "alex.student@university.edu",
+    country: "United States",
+    countryFlag: "🇺🇸",
+    lessonId: "lesson-1-2",
+    lessonNumber: "1.2",
+    lessonTitle: "Understanding the Robot Controller",
+    submissionText: "Verified navX SPI link and Titan CAN bus ID 42. Confirmed 1 Mbps baud rate and 120-ohm termination switch set to ON.",
+    terminalOutput: "ip link show can0\ncan0: <NOARP,UP,LOWER_UP> mtu 16 qdisc pfifo_fast state UP mode DEFAULT\ncandump can0 -n 10\ncan0 02A [8] 00 00 00 00 00 00 00 00",
+    dueDate: "Nov 30, 2026",
+    submittedAt: "Nov 23, 2026",
+    score: 95,
+    feedback: "Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation.",
+    status: "Graded"
+  },
+  {
+    id: "sub-2",
+    studentName: "Chen Wei",
+    studentEmail: "chen.wei@polytech.edu",
+    country: "Singapore",
+    countryFlag: "🇸🇬",
+    lessonId: "lesson-1-3",
+    lessonNumber: "1.3",
+    lessonTitle: "Building the Robot Chassis",
+    submissionText: "Assembled 240mm x 180mm frame. Diagonals measured D1: 300.1mm, D2: 299.9mm. Zero rocking sound on marble test block.",
+    terminalOutput: "Target Diagonal = 300.00 mm\nMeasured D1: 300.1 mm, D2: 299.9 mm\nDifference = 0.20 mm <= 0.50 mm (PASSED)",
+    dueDate: "Nov 30, 2026",
+    submittedAt: "Nov 23, 2026",
+    score: 92,
+    feedback: "Precise squareness measurement! Frame is rigid and Nyloc locknuts properly seated.",
+    status: "Graded"
+  },
+  {
+    id: "sub-3",
+    studentName: "Tariq Mansoor",
+    studentEmail: "tariq.m@stem.qa",
+    country: "Qatar",
+    countryFlag: "🇶🇦",
+    lessonId: "lesson-2-1",
+    lessonNumber: "2.1",
+    lessonTitle: "Automated Setup & Dual-Brain Network",
+    submissionText: "Executed ./setup_student_laptop.sh and ./setup_robot_from_laptop.sh. Configured static IP 172.22.11.247. Passwordless SSH verified with ssh vmx@172.22.11.2.",
+    terminalOutput: "PING 172.22.11.2 (172.22.11.2) 56(84) bytes of data.\n64 bytes from 172.22.11.2: icmp_seq=1 ttl=64 time=0.342 ms\nMaster Robot Dashboard launched successfully.",
+    dueDate: "Dec 02, 2026",
+    submittedAt: "Nov 24, 2026",
+    score: null,
+    feedback: "",
+    status: "Pending Review"
+  }
+];
+
+function renderTeacherPortal() {
+  const welcome = document.getElementById("teacher-portal-welcome");
+  if (welcome && currentUser) {
+    welcome.textContent = `Instructor Desk · ${currentUser.displayName}`;
+  }
+
+  const pendingCount = teacherSubmissions.filter(s => s.status === "Pending Review").length;
+  const pendingEl = document.getElementById("teacher-stat-pending");
+  const badgeEl = document.getElementById("teacher-marking-badge");
+  if (pendingEl) pendingEl.textContent = `${pendingCount} Pending`;
+  if (badgeEl) badgeEl.textContent = pendingCount;
+
+  renderTeacherCourses();
+  renderTeacherRoster();
+  renderTeacherSubmissions();
+  renderTeacherFeedbackDesk();
+  renderTeacherCatalog();
+}
+
+function switchTeacherPortalTab(tabName) {
+  document.querySelectorAll(".lesson-tabs .tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".portal-tab-pane").forEach(p => p.style.display = "none");
+
+  const btn = document.getElementById(`btn-teach-tab-${tabName}`);
+  const pane = document.getElementById(`teach-pane-${tabName}`);
+  if (btn) btn.classList.add("active");
+  if (pane) pane.style.display = "block";
+}
+
+function renderTeacherCourses() {
+  const container = document.getElementById("teacher-assigned-courses-list");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="enrolled-card">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <span class="role-pill role-teacher">Assigned Teaching Track</span>
+          <span class="role-pill role-student">18 Active Students</span>
+        </div>
+        <h3 style="font-size:1.35rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
+        <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          ${currentCourse.description}
+        </p>
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase; margin-bottom:0.35rem;">Curriculum Breakdown:</div>
+          <div style="font-size:0.85rem; margin-bottom:0.25rem;">• Module 1: Build Your First Robot (5 Labs · Mechanics, Fasteners, Wiring)</div>
+          <div style="font-size:0.85rem;">• Module 2: Connect, Drive &amp; Hardware Experience (5 Labs · Gigabit Setup, Teleop)</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="openClassroom()">
+          <span>📖 View Course Curriculum (Classroom) &rarr;</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">
+          <span>🛠️ Open Robot Dashboard Simulator</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('roster');">
+          <span>👥 View Student Roster</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTeacherRoster() {
+  const container = document.getElementById("teacher-roster-table-container");
+  if (!container) return;
+
+  const mockStudents = [
+    { name: "Alex Rivera", email: "alex.student@university.edu", mobile: "+1 555-0192", country: "United States 🇺🇸", progress: 100, submissions: 5, score: 98, status: "Completed & Verified" },
+    { name: "Chen Wei", email: "chen.wei@polytech.edu", mobile: "+65 8123-4567", country: "Singapore 🇸🇬", progress: 80, submissions: 4, score: 92, status: "In Progress" },
+    { name: "Elena Rostova", email: "elena.r@robotics.ac.at", mobile: "+43 664-12345", country: "Austria 🇦🇹", progress: 60, submissions: 3, score: 88, status: "In Progress" },
+    { name: "Tariq Mansoor", email: "tariq.m@stem.qa", mobile: "+974 5512-3456", country: "Qatar 🇶🇦", progress: 40, submissions: 2, score: 85, status: "In Progress" },
+    { name: "Fatima Al-Zahra", email: "fatima@hct.ac.ae", mobile: "+971 50-1234567", country: "United Arab Emirates 🇦🇪", progress: 20, submissions: 1, score: 95, status: "In Progress" }
+  ];
+
+  let html = `
+    <table class="pinout-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Contact &amp; Country</th>
+          <th>Course Progress</th>
+          <th>Submissions</th>
+          <th>Average Score</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  mockStudents.forEach(s => {
+    html += `
+      <tr>
+        <td><strong>${s.name}</strong></td>
+        <td>
+          <div>${s.email}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${s.mobile} · ${s.country}</div>
+        </td>
+        <td>
+          <div style="display:flex; align-items:center; gap:0.5rem; min-width:120px;">
+            <div style="flex:1; height:7px; background:#E2E8F0; border-radius:4px; overflow:hidden;">
+              <div style="width:${s.progress}%; height:100%; background:var(--progress-success);"></div>
+            </div>
+            <span style="font-size:0.75rem; font-weight:700;">${s.progress}%</span>
+          </div>
+        </td>
+        <td><span class="role-pill role-student">${s.submissions} Labs</span></td>
+        <td><strong style="color:var(--cta-amber);">${s.score} / 100</strong></td>
+        <td><span class="role-pill ${s.progress === 100 ? "role-admin" : "role-student"}">${s.status}</span></td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Inspect Work</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function renderTeacherSubmissions() {
+  const container = document.getElementById("teacher-submissions-list");
+  if (!container) return;
+
+  let html = "";
+  teacherSubmissions.forEach(sub => {
+    const isGraded = sub.status === "Graded";
+    html += `
+      <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <h4 style="font-size:1.05rem; color:var(--brand-primary); margin:0;">${sub.studentName}</h4>
+              <span class="role-pill role-student">${sub.country} ${sub.countryFlag}</span>
+              <span class="role-pill ${isGraded ? "role-admin" : "role-teacher"}">${sub.status}</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.25rem;">
+              Lesson ${sub.lessonNumber}: ${sub.lessonTitle} · Submitted: ${sub.submittedAt} (Due: ${sub.dueDate})
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.85rem; font-weight:700; color:var(--text-dim);">Grade:</span>
+            <span style="font-size:1.15rem; font-weight:800; color:var(--cta-amber); margin-left:0.35rem;">
+              ${sub.score !== null ? `${sub.score} / 100` : "Ungraded"}
+            </span>
+          </div>
+        </div>
+
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1rem;">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.25rem;">Student Observation:</div>
+          <p style="font-size:0.875rem; color:var(--text-main); margin:0;">${sub.submissionText}</p>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.25rem;">Terminal Logs Output:</div>
+          <pre style="margin:0; padding:0.75rem 1rem; font-size:0.8rem; background:#0F172A; color:#E2E8F0; border-radius:var(--radius-md); overflow-x:auto;">${sub.terminalOutput}</pre>
+        </div>
+
+        <!-- Instructor Grading Input Controls -->
+        <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:var(--radius-md); padding:1rem;">
+          <div style="display:grid; grid-template-columns:160px 1fr; gap:1rem; margin-bottom:0.75rem;">
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.8rem; font-weight:700;">Score (0 - 100):</label>
+              <input type="number" id="grade-score-${sub.id}" class="form-control" value="${sub.score !== null ? sub.score : 95}" min="0" max="100">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.8rem; font-weight:700;">Instructor Written Feedback:</label>
+              <input type="text" id="grade-feedback-${sub.id}" class="form-control" value="${sub.feedback || "Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation."}" placeholder="Enter constructive feedback for the student...">
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <button class="btn btn-primary btn-sm" onclick="gradeTeacherSubmission('${sub.id}')">
+              <span>💾 Save Grade &amp; Notify Student</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function gradeTeacherSubmission(subId) {
+  const sub = teacherSubmissions.find(s => s.id === subId);
+  if (!sub) return;
+
+  const scoreInput = document.getElementById(`grade-score-${subId}`);
+  const feedbackInput = document.getElementById(`grade-feedback-${subId}`);
+
+  const score = parseInt(scoreInput?.value || "95", 10);
+  const feedback = feedbackInput?.value.trim() || "Good work!";
+
+  sub.score = score;
+  sub.feedback = feedback;
+  sub.status = "Graded";
+
+  // Dispatch student notification
+  studentNotifications.unshift({
+    id: `notif-${Date.now()}`,
+    title: `Assignment Evaluated: Lesson ${sub.lessonNumber}`,
+    body: `Your submission for Lesson ${sub.lessonNumber} (${sub.lessonTitle}) has been marked! Score: ${score}/100 — "${feedback}"`,
+    time: "Just now",
+    icon: "📝",
+    type: "grade",
+    score: score
+  });
+
+  renderTeacherPortal();
+  showToast(`Graded submission for ${sub.studentName} (${score}/100). Notification sent!`, "success");
+}
+
+function renderTeacherFeedbackDesk() {
+  const lessonSelect = document.getElementById("teacher-feedback-lesson-select");
+  if (!lessonSelect) return;
+
+  const allLessons = getAllCourseLessons();
+  let html = "";
+  allLessons.forEach((l, idx) => {
+    html += `<option value="${idx}">Lesson ${l.number}: ${l.title}</option>`;
+  });
+  lessonSelect.innerHTML = html;
+
+  onTeacherLessonSelectChange();
+}
+
+function onTeacherLessonSelectChange() {
+  const lessonSelect = document.getElementById("teacher-feedback-lesson-select");
+  const partSelect = document.getElementById("teacher-feedback-part-select");
+  const previewBox = document.getElementById("teacher-material-preview-box");
+  if (!lessonSelect || !partSelect || !previewBox) return;
+
+  const lessonIdx = parseInt(lessonSelect.value, 10) || 0;
+  const part = partSelect.value;
+  const allLessons = getAllCourseLessons();
+  const lesson = allLessons[lessonIdx];
+  if (!lesson) return;
+
+  let content = "";
+  if (part === "objective") {
+    content = `<div class="callout objective"><div class="callout-title">🎯 Lesson Objective</div><div class="callout-body">${lesson.objective || ""}</div></div>`;
+  } else if (part === "concept") {
+    content = lesson.concept;
+  } else if (part === "wiring") {
+    content = lesson.wiring;
+  } else if (part === "code") {
+    content = `<pre style="background:#0F172A; color:#E2E8F0; padding:1rem; border-radius:var(--radius-md); font-family:var(--font-code);">${lesson.codeSnippet}</pre>`;
+  } else if (part === "test") {
+    content = lesson.test;
+  } else if (part === "challenge") {
+    content = `${lesson.challenge}<div style="margin-top:0.75rem;"><strong>Exit Ticket Questions:</strong><ol>${(lesson.exitTicket || []).map(q => `<li>${q}</li>`).join("")}</ol></div>`;
+  }
+
+  previewBox.innerHTML = content;
+}
+
+function submitTeacherCurriculumFeedback() {
+  const lessonSelect = document.getElementById("teacher-feedback-lesson-select");
+  const partSelect = document.getElementById("teacher-feedback-part-select");
+  const categorySelect = document.getElementById("teacher-feedback-category");
+  const severitySelect = document.getElementById("teacher-feedback-severity");
+  const notesText = document.getElementById("teacher-feedback-notes");
+
+  const notes = (notesText ? notesText.value : "").trim();
+  if (!notes) {
+    showToast("Please provide your feedback notes before submitting", "amber");
+    return;
+  }
+
+  if (notesText) notesText.value = "";
+  showToast("Feedback submitted to Dr. Mohammed Salameh! Thank you for enhancing the curriculum.", "success");
+}
+
+function renderTeacherCatalog() {
+  const container = document.getElementById("teacher-catalog-grid");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="catalog-card">
+      <div class="catalog-card-header">
+        <h3 style="font-size:1.35rem; color:#fff;">AMR-101: Autonomous Mobile Robotics (Studica Kit Masterclass)</h3>
+        <div style="font-size:0.85rem; color:#E0F2FE;">Lead Author: Dr. Mohammed Salameh · Assigned to You</div>
+      </div>
+      <div class="catalog-card-body">
+        <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:1rem;">
+          Active 2-module curriculum with 10 hands-on hardware labs.
+        </p>
+        <button class="btn btn-primary" onclick="openClassroom()">Open Course Player &rarr;</button>
+      </div>
+    </div>
+  `;
+}

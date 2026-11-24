@@ -178,9 +178,9 @@ code, pre {
 }
 
 /* -----------------------------------------------------------------------------
-   Academy Top Bar & Navigation
+   Top Announcement Bar & Navigation
    ----------------------------------------------------------------------------- */
-.academy-topbar {
+.top-announcement-bar {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   padding: 0.45rem 1rem;
@@ -193,14 +193,14 @@ code, pre {
   z-index: 50;
 }
 
-.academy-topbar .announcement-content {
+.top-announcement-bar .announcement-content {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   margin: 0 auto;
 }
 
-.academy-topbar .badge-lead {
+.top-announcement-bar .badge-lead {
   background: var(--accent-indigo);
   color: #FFFFFF;
   font-size: 0.75rem;
@@ -1672,7 +1672,7 @@ canvas.radar-canvas {
   box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
 }
 
-.certificate-academy-title {
+.certificate-institute-title {
   font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 800;
@@ -1938,4 +1938,390 @@ canvas.radar-canvas {
   .hero-title { font-size: 2.25rem; }
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
+}
+
+/* ==============================================================================
+   Country Picker Searchable Dropdown
+   ============================================================================== */
+.country-picker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.country-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 230px;
+  overflow-y: auto;
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15);
+  z-index: 9999;
+  margin-top: 4px;
+}
+
+body.dark-theme .country-dropdown-list {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.country-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+body.dark-theme .country-dropdown-item {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.country-dropdown-item:hover {
+  background: #F1F5F9;
+  color: var(--brand-primary);
+}
+
+body.dark-theme .country-dropdown-item:hover {
+  background: #24344D;
+  color: #38BDF8;
+}
+
+.country-item-flag {
+  font-size: 1.15rem;
+  margin-right: 0.5rem;
+}
+
+.country-item-code {
+  font-family: var(--font-code);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tech-accent);
+  background: rgba(2, 132, 199, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+/* ==============================================================================
+   Student & Teacher Portals
+   ============================================================================== */
+.portal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.portal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+/* Notification Center */
+.notification-box {
+  background: #F8FAFC;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+body.dark-theme .notification-box {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.65rem;
+  box-shadow: 0 1px 3px rgba(30, 41, 59, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.dark-theme .notification-item {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.notification-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.08);
+}
+
+.notification-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notification-body {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+}
+
+/* Enrolled Courses Cards */
+.enrolled-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.enrolled-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 4px solid var(--brand-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.dark-theme .enrolled-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.enrolled-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ==============================================================================
+   Lesson Evaluation & Quality Rating Widget
+   ============================================================================== */
+.lesson-eval-widget {
+  background: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 16px rgba(30, 41, 59, 0.05);
+}
+
+body.dark-theme .lesson-eval-widget {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.eval-star-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.star-btn {
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #CBD5E1;
+  transition: transform 0.15s ease, color 0.15s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.star-btn.active,
+.star-btn:hover {
+  color: #F59E0B;
+  transform: scale(1.2);
+}
+
+.eval-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 0.65rem 0 1.25rem;
+}
+
+.eval-pill-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-muted);
+}
+
+body.dark-theme .eval-pill-opt {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.eval-pill-opt:hover {
+  border-color: var(--brand-primary);
+  color: var(--text-heading);
+}
+
+.eval-pill-opt.selected {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  color: #1E3A8A;
+}
+
+body.dark-theme .eval-pill-opt.selected {
+  background: #1E3A8A;
+  border-color: #38BDF8;
+  color: #FFFFFF;
+}
+
+.code-status-toggle {
+  display: flex;
+  gap: 1rem;
+  margin: 0.65rem 0 1.25rem;
+}
+
+.code-toggle-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #FFFFFF;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+body.dark-theme .code-toggle-btn {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+.code-toggle-btn.btn-yes.selected {
+  background: #ECFDF5;
+  border-color: #059669;
+  color: #047857;
+}
+
+.code-toggle-btn.btn-no.selected {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+
+/* ==============================================================================
+   Course Catalog Cards on Public Homepage
+   ============================================================================== */
+.course-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 2rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+.catalog-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.dark-theme .catalog-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.catalog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.catalog-card-header {
+  padding: 1.75rem;
+  background: linear-gradient(135deg, #1E3A8A, #172554);
+  color: #FFFFFF;
+}
+
+.catalog-card-body {
+  padding: 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Step-by-Step Engineering Journey Roadmap */
+.journey-roadmap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin: 2.5rem 0;
+}
+
+.journey-step-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  position: relative;
+}
+
+body.dark-theme .journey-step-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+.journey-step-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+  font-size: 1rem;
 }
