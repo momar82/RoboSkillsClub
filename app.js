@@ -372,6 +372,71 @@ const DEFAULT_COURSES = [
         ]
       }
     ]
+  },
+  {
+    "id": "course-amr-201",
+    "title": "3D SLAM, LiDAR Mapping & VSLAM Autonomy",
+    "shortCode": "AMR-201",
+    "description": "Advanced robotics engineering course covering 2D/3D LiDAR SLAM (Cartographer, RTAB-Map), Visual SLAM (ORB-SLAM3, RealSense RGB-D), sensor fusion via Extended Kalman Filter (EKF), and autonomous path planning (Nav2, TEB Local Planner).",
+    "author": "Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM",
+    "assignedTeacherId": "teacher_salameh",
+    "assignedTeacherName": "Eng. M. Salameh",
+    "modules": [
+      {
+        "id": "module-201-1",
+        "number": 1,
+        "title": "Module 1: 2D & 3D LiDAR SLAM (LaserScan, Cartographer)",
+        "lessons": [
+          {
+            "id": "lesson-201-1-1",
+            "number": "1.1",
+            "title": "2D LiDAR Point Cloud Filtering & LaserScan Processing",
+            "duration": "60 min",
+            "objective": "Process raw 2D LiDAR scans, apply median range filtering, and compute real-time obstacle vectors in ROS 2.",
+            "codeSnippet": "# LiDAR node initialization\nros2 launch sllidar_ros2 view_sllidar_a1_launch.py\n# Inspect LaserScan messages:\nros2 topic echo /scan --once",
+            "githubLink": "https://github.com/momar82/RoboSkillsClub",
+            "downloads": []
+          },
+          {
+            "id": "lesson-201-1-2",
+            "number": "1.2",
+            "title": "Occupancy Grid Mapping with Google Cartographer",
+            "duration": "90 min",
+            "objective": "Build accurate 2D submaps using Cartographer scan-matching and loop closure optimization.",
+            "codeSnippet": "ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=False",
+            "githubLink": "https://github.com/momar82/RoboSkillsClub",
+            "downloads": []
+          }
+        ]
+      },
+      {
+        "id": "module-201-2",
+        "number": 2,
+        "title": "Module 2: Visual SLAM & Multi-Sensor Fusion (EKF)",
+        "lessons": [
+          {
+            "id": "lesson-201-2-1",
+            "number": "2.1",
+            "title": "ORB-SLAM3 Real-Time Feature Tracking & Keyframe Graphs",
+            "duration": "90 min",
+            "objective": "Calibrate stereo / RGB-D cameras, extract FAST features with ORB descriptors, and optimize camera poses via Bundle Adjustment.",
+            "codeSnippet": "./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM1.yaml",
+            "githubLink": "https://github.com/momar82/RoboSkillsClub",
+            "downloads": []
+          },
+          {
+            "id": "lesson-201-2-2",
+            "number": "2.2",
+            "title": "Sensor Fusion using robot_localization EKF (IMU + Encoders + VSLAM)",
+            "duration": "90 min",
+            "objective": "Fuse high-frequency wheel odometry, 9-DOF NavX IMU, and visual poses to produce drift-free pose estimation.",
+            "codeSnippet": "ros2 launch robot_localization dual_ekf_navsat_example.launch.py",
+            "githubLink": "https://github.com/momar82/RoboSkillsClub",
+            "downloads": []
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -3831,39 +3896,55 @@ function renderTeacherCourses() {
   });
   const approvedStudents = allStudents.filter(u => u.status === "approved" || !u.status);
 
-  container.innerHTML = `
-    <div class="enrolled-card">
-      <div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-          <span class="role-pill role-teacher">Assigned Teaching Track</span>
-          <span class="role-pill role-student">${approvedStudents.length} Active Students</span>
+  // Get courses assigned to current teacher
+  const assignedIds = (currentUser && Array.isArray(currentUser.assignedCourseIds) && currentUser.assignedCourseIds.length > 0)
+    ? currentUser.assignedCourseIds
+    : ["course-amr-101"];
+
+  const teacherCourses = DEFAULT_COURSES.filter(c => assignedIds.includes(c.id));
+  const coursesToRender = teacherCourses.length > 0 ? teacherCourses : [DEFAULT_COURSES[0]];
+
+  let html = `<div style="display:flex; flex-direction:column; gap:1.5rem;">`;
+
+  coursesToRender.forEach(course => {
+    const courseStudents = approvedStudents.filter(s => (s.enrolledCourseIds || []).includes(course.id));
+
+    html += `
+      <div class="enrolled-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <span class="role-pill role-teacher">Assigned Teaching Track · ${course.shortCode}</span>
+            <span class="role-pill role-student">${courseStudents.length} Active Students</span>
+          </div>
+          <h3 style="font-size:1.35rem; color:var(--text-heading); margin-bottom:0.4rem;">${course.title}</h3>
+          <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
+            ${course.description}
+          </p>
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.5rem;">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase; margin-bottom:0.35rem;">Curriculum Modules:</div>
+            ${course.modules.map(m => `<div style="font-size:0.85rem; margin-bottom:0.25rem;">• <strong>${m.title}</strong> (${(m.lessons || []).length} Labs)</div>`).join("")}
+          </div>
         </div>
-        <h3 style="font-size:1.35rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
-        <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
-          ${currentCourse.description}
-        </p>
-        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1.5rem;">
-          <div style="font-size:0.8rem; font-weight:700; color:var(--brand-primary); text-transform:uppercase; margin-bottom:0.35rem;">Curriculum Breakdown:</div>
-          <div style="font-size:0.85rem; margin-bottom:0.25rem;">• Module 1: Build Your First Robot (5 Labs · Mechanics, Fasteners, Wiring)</div>
-          <div style="font-size:0.85rem;">• Module 2: Connect, Drive &amp; Hardware Experience (5 Labs · Gigabit Setup, Teleop)</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="openClassroom()">
+            <span>📖 View Course Curriculum (Classroom) &rarr;</span>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openTeacherAssignCourseModal(null, '${course.id}')">
+            <span>➕ Assign ${course.shortCode} to Student</span>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">
+            <span>🛠️ Robot Dashboard Simulator</span>
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('roster');">
+            <span>👥 Class Roster</span>
+          </button>
         </div>
       </div>
-      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-        <button class="btn btn-primary btn-sm" onclick="openClassroom()">
-          <span>📖 View Course Curriculum (Classroom) &rarr;</span>
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="openRobotDashboard()">
-          <span>🛠️ Open Robot Dashboard Simulator</span>
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('roster');">
-          <span>👥 View Student Roster</span>
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="showTeacherPortal(); switchTeacherPortalTab('approvals');">
-          <span>⏳ Review Pending Enrollments</span>
-        </button>
-      </div>
-    </div>
-  `;
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
 }
 
 function renderTeacherPendingEnrollments() {
@@ -3938,9 +4019,15 @@ function renderTeacherPendingEnrollments() {
           ${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'Recent'}
         </td>
         <td>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
             <button class="btn btn-primary btn-sm" onclick="approveStudentEnrollment('${s.uid}')">
               <span>✓ Approve</span>
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="openTeacherViewStudent('${s.uid}')">
+              <span>👁️ View Profile</span>
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="openTeacherAssignCourseModal('${s.uid}')">
+              <span>➕ Assign Course</span>
             </button>
             <button class="btn btn-outline btn-sm" style="color:var(--text-danger); border-color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">
               <span>Decline</span>
@@ -4034,10 +4121,14 @@ function renderTeacherRoster() {
     const actionButtons = isPending ? `
       <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
         <button class="btn btn-primary btn-sm" onclick="approveStudentEnrollment('${s.uid}')">✓ Approve</button>
+        <button class="btn btn-outline btn-sm" onclick="openTeacherViewStudent('${s.uid}')">👁️ View Profile</button>
+        <button class="btn btn-outline btn-sm" onclick="openTeacherAssignCourseModal('${s.uid}')">➕ Assign Course</button>
         <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Reject</button>
       </div>
     ` : `
       <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="openTeacherViewStudent('${s.uid}')">👁️ View Profile</button>
+        <button class="btn btn-outline btn-sm" onclick="openTeacherAssignCourseModal('${s.uid}')">➕ Assign Course</button>
         <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Submissions</button>
         <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Remove</button>
       </div>
@@ -4236,20 +4327,44 @@ function renderTeacherCatalog() {
   const container = document.getElementById("teacher-catalog-grid");
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="catalog-card">
-      <div class="catalog-card-header">
-        <h3 style="font-size:1.35rem; color:#fff;">AMR-101: Autonomous Mobile Robotics (Studica Kit Masterclass)</h3>
-        <div style="font-size:0.85rem; color:#E0F2FE;">Lead Author: Dr. Mohammed Salameh · Assigned to You</div>
+  const assignedIds = (currentUser && Array.isArray(currentUser.assignedCourseIds) && currentUser.assignedCourseIds.length > 0)
+    ? currentUser.assignedCourseIds
+    : ["course-amr-101"];
+
+  let html = "";
+  DEFAULT_COURSES.forEach(course => {
+    const isAssigned = assignedIds.includes(course.id);
+    const badgeText = isAssigned ? "✓ Authorized Course (Assigned to You)" : "Catalog Offering";
+    const badgeColor = isAssigned ? "rgba(5, 150, 105, 0.25)" : "rgba(2, 132, 199, 0.25)";
+
+    html += `
+      <div class="catalog-card">
+        <div class="catalog-card-header">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <span style="background:${badgeColor}; color:#fff; font-size:0.75rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px;">
+              ${badgeText}
+            </span>
+            <span style="font-family:var(--font-code); font-size:0.8rem; color:#E0F2FE;">${course.shortCode}</span>
+          </div>
+          <h3 style="font-size:1.25rem; color:#fff; margin-bottom:0.25rem;">${course.title}</h3>
+          <div style="font-size:0.8rem; color:#E0F2FE;">Author: ${course.author}</div>
+        </div>
+        <div class="catalog-card-body">
+          <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:1.25rem;">
+            ${course.description}
+          </p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="openClassroom()">Open Course Player &rarr;</button>
+            <button class="btn btn-outline btn-sm" onclick="openTeacherAssignCourseModal(null, '${course.id}')">
+              <span>➕ Assign to Student</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="catalog-card-body">
-        <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:1rem;">
-          Active 2-module curriculum with 10 hands-on hardware labs.
-        </p>
-        <button class="btn btn-primary" onclick="openClassroom()">Open Course Player &rarr;</button>
-      </div>
-    </div>
-  `;
+    `;
+  });
+
+  container.innerHTML = html;
 }
 
 
@@ -4658,6 +4773,9 @@ function renderAdminUserDirectory() {
         <td>
           <strong style="color:var(--brand-primary);">${u.displayName || 'No Name'}</strong>
           <div style="font-size:0.75rem; color:var(--text-dim); font-family:var(--font-code);">${u.email}</div>
+          <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:600; margin-top:0.2rem;">
+            ${u.role === 'teacher' ? 'Teaching: ' + (u.assignedCourseIds || ['course-amr-101']).map(c=>c.replace('course-','').toUpperCase()).join(', ') : (u.role === 'student' ? 'Course: ' + (u.enrolledCourseIds || ['course-amr-101']).map(c=>c.replace('course-','').toUpperCase()).join(', ') : 'Platform Admin')}
+          </div>
         </td>
         <td><span class="role-pill ${rolePillClass}">${(u.role || '').toUpperCase()}</span></td>
         <td><span class="role-pill ${statusPillClass}">${(u.status || '').toUpperCase()}</span></td>
@@ -4668,9 +4786,9 @@ function renderAdminUserDirectory() {
         <td><div style="font-size:0.8rem;">${u.organization || u.universityName || u.schoolName || '—'}</div></td>
         <td><div style="font-size:0.75rem;">${profileCompletedTag}</div></td>
         <td>
-          <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-outline btn-sm" onclick="openAdminEditUserModal('${u.uid}')">Edit User</button>
-            ${u.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="adminApproveUser('${u.uid}')">Approve</button>` : ''}
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openAdminEditUserModal('${u.uid}')">✏️ View &amp; Edit Profile</button>
+            ${u.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="adminApproveUser('${u.uid}')">✓ Approve</button>` : ''}
             <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${u.uid}')">Delete</button>
           </div>
         </td>
@@ -4680,6 +4798,51 @@ function renderAdminUserDirectory() {
 
   html += `</tbody></table>`;
   container.innerHTML = html;
+}
+
+function updateAdminEditCourseVisibility(role, user) {
+  const teacherSection = document.getElementById("admin-edit-teacher-courses");
+  const studentSection = document.getElementById("admin-edit-student-courses");
+  const courseSection = document.getElementById("admin-edit-course-section");
+  if (!courseSection) return;
+
+  if (role === "teacher") {
+    courseSection.style.display = "block";
+    if (teacherSection) teacherSection.style.display = "block";
+    if (studentSection) studentSection.style.display = "none";
+
+    const assigned = user && Array.isArray(user.assignedCourseIds) ? user.assignedCourseIds : ["course-amr-101"];
+    const chk101 = document.getElementById("admin-course-check-amr101");
+    const chk201 = document.getElementById("admin-course-check-amr201");
+    if (chk101) chk101.checked = assigned.includes("course-amr-101");
+    if (chk201) chk201.checked = assigned.includes("course-amr-201");
+  } else if (role === "student") {
+    courseSection.style.display = "block";
+    if (teacherSection) teacherSection.style.display = "none";
+    if (studentSection) studentSection.style.display = "block";
+
+    const courseSelect = document.getElementById("admin-edit-student-course-select");
+    const teacherSelect = document.getElementById("admin-edit-student-teacher-select");
+
+    if (courseSelect) {
+      courseSelect.value = (user && user.enrolledCourseIds && user.enrolledCourseIds[0]) ? user.enrolledCourseIds[0] : "course-amr-101";
+    }
+
+    if (teacherSelect) {
+      const allUsers = getStoredUsers();
+      const teachers = allUsers.filter(u => u.role === "teacher");
+      let optHtml = teachers.map(t => `<option value="${t.uid}">${t.displayName} (${t.email})</option>`).join("");
+      if (!optHtml) {
+        optHtml = `<option value="teacher_salameh">Eng. M. Salameh (m.salameh1301@education.qa)</option>`;
+      }
+      teacherSelect.innerHTML = optHtml;
+      if (user && user.assignedTeacherId) {
+        teacherSelect.value = user.assignedTeacherId;
+      }
+    }
+  } else {
+    courseSection.style.display = "none";
+  }
 }
 
 function openAdminEditUserModal(uid) {
@@ -4703,6 +4866,15 @@ function openAdminEditUserModal(uid) {
   document.getElementById("admin-edit-max-students").value = user.maxStudents || 35;
   document.getElementById("admin-edit-password").value = "";
   document.getElementById("admin-edit-profile-completed").checked = !!user.profileCompleted;
+
+  updateAdminEditCourseVisibility(user.role || "student", user);
+
+  const roleEl = document.getElementById("admin-edit-role");
+  if (roleEl) {
+    roleEl.onchange = () => {
+      updateAdminEditCourseVisibility(roleEl.value, user);
+    };
+  }
 
   modal.classList.add("active");
 }
@@ -4743,6 +4915,26 @@ function handleAdminSaveUser(event) {
     users[idx].password = newPass;
   }
 
+  // Course assignments
+  if (role === "teacher") {
+    const assignedCourses = [];
+    const chk101 = document.getElementById("admin-course-check-amr101");
+    const chk201 = document.getElementById("admin-course-check-amr201");
+    if (chk101 && chk101.checked) assignedCourses.push("course-amr-101");
+    if (chk201 && chk201.checked) assignedCourses.push("course-amr-201");
+    users[idx].assignedCourseIds = assignedCourses.length > 0 ? assignedCourses : ["course-amr-101"];
+  } else if (role === "student") {
+    const courseSel = document.getElementById("admin-edit-student-course-select");
+    const teacherSel = document.getElementById("admin-edit-student-teacher-select");
+    const assignedCourse = courseSel ? courseSel.value : "course-amr-101";
+    const assignedTeacher = teacherSel ? teacherSel.value : "teacher_salameh";
+    const mentorObj = users.find(u => u.uid === assignedTeacher);
+
+    users[idx].enrolledCourseIds = [assignedCourse];
+    users[idx].assignedTeacherId = assignedTeacher;
+    users[idx].assignedTeacherName = mentorObj ? mentorObj.displayName : "Assigned Instructor";
+  }
+
   saveStoredUsers(users);
 
   if (currentUser && currentUser.uid === uid) {
@@ -4753,7 +4945,255 @@ function handleAdminSaveUser(event) {
 
   closeAllModals();
   openAdminConsole();
+  if (typeof renderTeacherPortal === "function") renderTeacherPortal();
   showToast(`Account for ${name} (${email}) updated successfully!`, "success");
+}
+
+// =============================================================================
+// Teacher View Student Profile (Read-Only Dossier, NO PASSWORD) & Course Assignment
+// =============================================================================
+let currentViewingStudentUid = null;
+
+function openTeacherViewStudent(uid) {
+  const users = getStoredUsers();
+  const student = users.find(u => u.uid === uid);
+  if (!student) {
+    showToast("Student profile not found", "error");
+    return;
+  }
+
+  currentViewingStudentUid = uid;
+  closeAllModals();
+
+  const modal = document.getElementById("teacher-view-student-modal");
+  if (!modal) return;
+
+  const initials = (student.displayName || "ST")
+    .split(" ")
+    .map(p => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  const avatarEl = document.getElementById("teach-view-avatar");
+  const nameEl = document.getElementById("teach-view-name");
+  const emailEl = document.getElementById("teach-view-email");
+  const statusEl = document.getElementById("teach-view-status");
+  const profileStatusEl = document.getElementById("teach-view-profile-status");
+  const mobileEl = document.getElementById("teach-view-mobile");
+  const countryEl = document.getElementById("teach-view-country");
+  const eduTrackEl = document.getElementById("teach-view-edutrack");
+  const schoolEl = document.getElementById("teach-view-school");
+  const levelEl = document.getElementById("teach-view-level");
+  const majorEl = document.getElementById("teach-view-major");
+  const coursesEl = document.getElementById("teach-view-courses");
+  const teacherEl = document.getElementById("teach-view-teacher");
+  const progressBadgeEl = document.getElementById("teach-view-progress-badge");
+  const submissionsEl = document.getElementById("teach-view-submissions");
+  const scoreEl = document.getElementById("teach-view-score");
+  const createdEl = document.getElementById("teach-view-created");
+
+  if (avatarEl) avatarEl.textContent = initials || "ST";
+  if (nameEl) nameEl.textContent = student.displayName || "Student";
+  if (emailEl) emailEl.textContent = student.email || "—";
+
+  const isPending = student.status === "pending";
+  if (statusEl) {
+    statusEl.className = isPending ? "role-pill role-teacher" : "role-pill role-admin";
+    statusEl.textContent = isPending ? "Pending Enrollment Approval" : "Enrolled & Active";
+  }
+
+  if (profileStatusEl) {
+    profileStatusEl.textContent = student.profileCompleted 
+      ? "✔ Profile Completed" 
+      : "⚠️ Incomplete (First login setup pending)";
+    profileStatusEl.style.color = student.profileCompleted ? "var(--progress-success)" : "var(--cta-amber)";
+  }
+
+  if (mobileEl) mobileEl.textContent = student.mobileNumber || "No mobile registered";
+  if (countryEl) countryEl.textContent = student.country || "Not specified";
+
+  const isSchool = student.educationLevel === "school";
+  if (eduTrackEl) eduTrackEl.textContent = isSchool ? "K-12 School Student" : "University / Higher Education";
+  if (schoolEl) schoolEl.textContent = isSchool 
+    ? (student.schoolName || student.organization || "School not specified")
+    : (student.universityName || student.organization || "University not specified");
+  if (levelEl) levelEl.textContent = isSchool
+    ? (student.gradeYear ? `Grade ${student.gradeYear}` : "School Level")
+    : (student.degreeLevel || "Bachelor Degree");
+  if (majorEl) majorEl.textContent = student.major || student.jobTitle || "Autonomous Mobile Robotics";
+
+  const enrolledIds = student.enrolledCourseIds || [];
+  const courseNames = enrolledIds.map(cId => {
+    const found = DEFAULT_COURSES.find(c => c.id === cId);
+    return found ? `${found.shortCode}: ${found.title}` : cId;
+  });
+  if (coursesEl) {
+    coursesEl.textContent = courseNames.length > 0 ? courseNames.join(", ") : "AMR-101: Autonomous Mobile Robotics";
+  }
+
+  if (teacherEl) teacherEl.textContent = student.assignedTeacherName || "Dr. Mohammed Salameh";
+  const progressVal = student.progress || 0;
+  if (progressBadgeEl) progressBadgeEl.textContent = `${progressVal}% Completed`;
+  if (submissionsEl) submissionsEl.textContent = `${student.submissions || 0} Labs Submitted`;
+  if (scoreEl) scoreEl.textContent = student.score ? `${student.score} / 100` : "— (No grades yet)";
+  if (createdEl) {
+    createdEl.textContent = student.createdAt ? new Date(student.createdAt).toLocaleDateString() : "Active Session";
+  }
+
+  modal.classList.add("active");
+}
+
+function openTeacherAssignCourseFromDossier() {
+  if (currentViewingStudentUid) {
+    openTeacherAssignCourseModal(currentViewingStudentUid);
+  }
+}
+
+function openTeacherAssignCourseModal(studentUid, preselectedCourseId) {
+  const users = getStoredUsers();
+  closeAllModals();
+  const modal = document.getElementById("teacher-assign-course-modal");
+  if (!modal) return;
+
+  const targetBox = document.getElementById("teacher-assign-student-box");
+  const selectWrapper = document.getElementById("teacher-assign-student-select-wrapper");
+  const studentSelect = document.getElementById("teacher-assign-student-select");
+
+  if (studentUid) {
+    const student = users.find(u => u.uid === studentUid);
+    if (!student) {
+      showToast("Student account not found", "error");
+      return;
+    }
+    if (targetBox) targetBox.style.display = "block";
+    if (selectWrapper) selectWrapper.style.display = "none";
+
+    document.getElementById("teacher-assign-student-uid").value = student.uid;
+    const nameEl = document.getElementById("teacher-assign-student-name");
+    const emailEl = document.getElementById("teacher-assign-student-email");
+    const curCoursesEl = document.getElementById("teacher-assign-student-current-courses");
+
+    if (nameEl) nameEl.textContent = student.displayName || "Student";
+    if (emailEl) emailEl.textContent = student.email || "";
+
+    const enrolledIds = student.enrolledCourseIds || [];
+    const currentNames = enrolledIds.map(id => {
+      const c = DEFAULT_COURSES.find(crs => crs.id === id);
+      return c ? c.shortCode : id;
+    });
+    if (curCoursesEl) {
+      curCoursesEl.textContent = currentNames.length > 0 
+        ? `Currently enrolled in: ${currentNames.join(", ")}` 
+        : "No courses enrolled currently";
+    }
+  } else {
+    // No specific student preselected: teacher can pick any student from dropdown
+    if (targetBox) targetBox.style.display = "none";
+    if (selectWrapper) selectWrapper.style.display = "block";
+    document.getElementById("teacher-assign-student-uid").value = "";
+
+    const students = users.filter(u => u.role === "student");
+    if (studentSelect) {
+      if (students.length === 0) {
+        studentSelect.innerHTML = `<option value="">No students registered yet</option>`;
+      } else {
+        studentSelect.innerHTML = students.map(s => {
+          const courses = (s.enrolledCourseIds || []).map(cid => {
+            const fc = DEFAULT_COURSES.find(c => c.id === cid);
+            return fc ? fc.shortCode : cid;
+          }).join(", ");
+          return `<option value="${s.uid}">${s.displayName} (${s.email}) — [${courses || 'No Course'}]</option>`;
+        }).join("");
+      }
+    }
+  }
+
+  // Populate course dropdown with courses taught by this teacher
+  const courseSelect = document.getElementById("teacher-assign-course-select");
+  if (courseSelect) {
+    const teachAssignedIds = (currentUser && Array.isArray(currentUser.assignedCourseIds) && currentUser.assignedCourseIds.length > 0)
+      ? currentUser.assignedCourseIds
+      : ["course-amr-101", "course-amr-201"];
+
+    let eligibleCourses = DEFAULT_COURSES.filter(c => teachAssignedIds.includes(c.id));
+    if (eligibleCourses.length === 0) eligibleCourses = DEFAULT_COURSES;
+
+    courseSelect.innerHTML = eligibleCourses.map(c => `
+      <option value="${c.id}">${c.shortCode}: ${c.title}</option>
+    `).join("");
+
+    if (preselectedCourseId && eligibleCourses.some(c => c.id === preselectedCourseId)) {
+      courseSelect.value = preselectedCourseId;
+    }
+  }
+
+  const autoApprove = document.getElementById("teacher-assign-auto-approve");
+  if (autoApprove) autoApprove.checked = true;
+
+  modal.classList.add("active");
+}
+
+function handleTeacherAssignCourse(event) {
+  event.preventDefault();
+  let studentUid = document.getElementById("teacher-assign-student-uid").value;
+  if (!studentUid) {
+    const studentSelect = document.getElementById("teacher-assign-student-select");
+    studentUid = studentSelect ? studentSelect.value : null;
+  }
+
+  if (!studentUid) {
+    showToast("Please select a student to assign the course to.", "error");
+    return;
+  }
+
+  const courseId = document.getElementById("teacher-assign-course-select").value;
+  const autoApproveEl = document.getElementById("teacher-assign-auto-approve");
+  const autoApprove = autoApproveEl ? autoApproveEl.checked : true;
+
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.uid === studentUid);
+  if (idx === -1) {
+    showToast("Student account not found in database.", "error");
+    return;
+  }
+
+  const courseObj = DEFAULT_COURSES.find(c => c.id === courseId);
+  const courseName = courseObj ? `${courseObj.shortCode} (${courseObj.title})` : courseId;
+
+  // Add course to student's enrolled courses if not already present
+  if (!Array.isArray(users[idx].enrolledCourseIds)) {
+    users[idx].enrolledCourseIds = [];
+  }
+  if (!users[idx].enrolledCourseIds.includes(courseId)) {
+    users[idx].enrolledCourseIds.push(courseId);
+  }
+
+  // Assign current teacher as mentor
+  if (currentUser) {
+    users[idx].assignedTeacherId = currentUser.uid;
+    users[idx].assignedTeacherName = currentUser.displayName;
+  }
+
+  if (autoApprove) {
+    users[idx].status = "approved";
+  }
+
+  saveStoredUsers(users);
+
+  // If current logged in user is this student, update session
+  if (currentUser && currentUser.uid === studentUid) {
+    currentUser = { ...users[idx] };
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+    updateNavAuthUI();
+  }
+
+  closeAllModals();
+  renderTeacherPortal();
+  if (typeof renderAdminOversight === "function") renderAdminOversight();
+
+  showToast(`Course ${courseName} successfully assigned to ${users[idx].displayName}!`, "success");
 }
 
 function adminDeleteUser(uid) {
