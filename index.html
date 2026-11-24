@@ -191,9 +191,15 @@
       <!-- Tab 2: Student Progress & Roster -->
       <div id="teach-pane-roster" class="portal-tab-pane" style="display:none;">
         <div class="portal-card" style="padding:1.5rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h3 style="font-size:1.15rem;">Classroom Roster &amp; Progress</h3>
-            <span class="role-pill role-teacher">Real-time Telemetry</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <h3 style="font-size:1.15rem; margin:0;">Classroom Roster &amp; Progress</h3>
+              <p style="font-size:0.825rem; color:var(--text-muted); margin:0.25rem 0 0;">Monitor student achievements, quiz completions, and lab progress.</p>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span class="role-pill role-teacher">Live Roster</span>
+              <button class="btn btn-primary btn-sm" onclick="openTeacherAddStudentModal()">+ Enroll New Student</button>
+            </div>
           </div>
           <div style="overflow-x:auto;" id="teacher-roster-table-container"></div>
         </div>
@@ -458,7 +464,7 @@
               <span class="role-pill role-admin" style="background:var(--progress-success); color:#fff;">Available Now</span>
             </div>
             <h3 style="font-size:1.45rem; color:#fff; margin-bottom:0.4rem;">Autonomous Mobile Robotics (Studica Kit Masterclass)</h3>
-            <div style="font-size:0.85rem; color:#E0F2FE;">Lead Author: Dr. Mohammed Salameh · Assigned: Prof. Sarah Jenkins</div>
+            <div style="font-size:0.85rem; color:#E0F2FE;">Lead Author: Dr. Mohammed Salameh · Instructor: Eng. M. Salameh</div>
           </div>
           <div class="catalog-card-body">
             <div>
@@ -1183,12 +1189,12 @@
         </div>
 
         <div class="footer-col">
-          <h5>Evaluation Quick-Sign In</h5>
+          <h5>Platform Portals</h5>
           <ul class="footer-links">
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('super_admin')">Super Admin Mode</a></li>
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('admin')">Admin Mode</a></li>
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('teacher')">Teacher Mode</a></li>
-            <li><a href="javascript:void(0)" onclick="quickDemoSignIn('student')">Student Mode</a></li>
+            <li><a href="javascript:void(0)" onclick="openSignInModal()">Sign In to Account</a></li>
+            <li><a href="javascript:void(0)" onclick="openProfileModal()">Edit Profile &amp; Password</a></li>
+            <li><a href="javascript:void(0)" onclick="openClassroom()">Classroom Player</a></li>
+            <li><a href="javascript:void(0)" onclick="openRobotDashboard()">Robot Dashboard</a></li>
           </ul>
         </div>
       </div>
@@ -1216,37 +1222,23 @@
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
       </div>
 
-      <!-- Quick Switcher -->
-      <div style="background:var(--bg-primary); padding:0.85rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border:1px solid var(--border-color);">
-        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700; margin-bottom:0.5rem;">
-          ⚡ Instant Evaluation One-Click Access:
-        </div>
-        <div style="display:flex; flex-direction:column; gap:0.4rem;">
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('super_admin')">
-            <span>👑 <strong>Super Admin</strong> (${SUPER_ADMIN_EMAIL})</span>
-            <span class="role-pill role-super-admin">FULL ACCESS</span>
-          </button>
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('teacher')">
-            <span>🎓 <strong>Teacher</strong> (sarah.jenkins@roboskills.org)</span>
-            <span class="role-pill role-teacher">GRADING</span>
-          </button>
-          <button class="btn btn-outline btn-sm" style="justify-content:space-between;" onclick="quickDemoSignIn('student')">
-            <span>🤖 <strong>Student</strong> (alex.student@university.edu)</span>
-            <span class="role-pill role-student">CLASSROOM</span>
-          </button>
-        </div>
-      </div>
-
-      <form onsubmit="event.preventDefault(); quickDemoSignIn('super_admin');">
+      <form id="signin-form" onsubmit="handleUserSignIn(event)">
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" class="form-control" value="m.omar82@gmail.com" required>
+          <input type="text" id="signin-email" class="form-control" placeholder="admin@admin or your registered email" required autocomplete="username">
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" class="form-control" value="••••••••" required>
+          <input type="password" id="signin-password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Sign In</button>
+
+        <div style="margin-bottom:1.25rem; font-size:0.8rem; color:var(--text-dim); background:var(--bg-secondary); padding:0.65rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-color); line-height:1.5;">
+          <div style="font-weight:700; color:var(--brand-primary); margin-bottom:0.25rem;">Default Authorized Credentials:</div>
+          <div>👑 <strong>Admin:</strong> <code>admin@admin</code> &nbsp;|&nbsp; <strong>Password:</strong> <code>Admin@22#33</code></div>
+          <div>🎓 <strong>Teacher:</strong> <code>m.salameh1301@education.qa</code> &nbsp;|&nbsp; <strong>Password:</strong> <code>passme</code></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">Sign In</button>
       </form>
 
       <div style="font-size:0.85rem; color:var(--text-dim); text-align:center; margin-top:1.25rem;">
@@ -1278,11 +1270,22 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
           <div class="form-group">
             <label>Full Name *</label>
-            <input type="text" id="reg-student-name" class="form-control" placeholder="e.g. Alex Rivera" required>
+            <input type="text" id="reg-student-name" class="form-control" placeholder="e.g. Student Full Name" required>
           </div>
           <div class="form-group">
             <label>Email Address *</label>
-            <input type="email" id="reg-student-email" class="form-control" placeholder="alex@university.edu" required>
+            <input type="email" id="reg-student-email" class="form-control" placeholder="student@example.edu" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Create Password *</label>
+            <input type="password" id="reg-student-password" class="form-control" placeholder="Minimum 6 characters" required>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password *</label>
+            <input type="password" id="reg-student-password-confirm" class="form-control" placeholder="Repeat password" required>
           </div>
         </div>
 
@@ -1347,7 +1350,7 @@
         <div class="form-group">
           <label>Course to Enroll *</label>
           <select id="reg-student-course" class="form-control">
-            <option value="course-amr-101">AMR-101: Autonomous Mobile Robotics Foundations (Instructor: Prof. Sarah Jenkins)</option>
+            <option value="course-amr-101">AMR-101: Autonomous Mobile Robotics Foundations (Instructor: Eng. M. Salameh)</option>
           </select>
           <span style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem; display:block;">
             ℹ️ If the course has an assigned instructor, they will review and approve your account. Otherwise, platform admin will approve.
@@ -1362,11 +1365,22 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
           <div class="form-group">
             <label>Full Name *</label>
-            <input type="text" id="reg-teacher-name" class="form-control" placeholder="e.g. Prof. Sarah Jenkins" required>
+            <input type="text" id="reg-teacher-name" class="form-control" placeholder="e.g. Teacher Full Name" required>
           </div>
           <div class="form-group">
             <label>Official Email Address *</label>
-            <input type="email" id="reg-teacher-email" class="form-control" placeholder="sarah@organization.org" required>
+            <input type="email" id="reg-teacher-email" class="form-control" placeholder="teacher@organization.org" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Create Password *</label>
+            <input type="password" id="reg-teacher-password" class="form-control" placeholder="Minimum 6 characters" required>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password *</label>
+            <input type="password" id="reg-teacher-password-confirm" class="form-control" placeholder="Repeat password" required>
           </div>
         </div>
 
@@ -1408,39 +1422,91 @@
 
   <!-- Modal: Super Admin & Admin Console -->
   <div id="admin-modal" class="modal-overlay" onclick="closeAllModals()">
-    <div class="modal-card" style="max-width:800px;" onclick="event.stopPropagation()">
+    <div class="modal-card" style="max-width:960px; width:95vw;" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem;">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
           <span>👑 RoboSkillsClub Administration Console</span>
         </h3>
         <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; margin-bottom:1.5rem;">
-        <div class="telemetry-stat">
-          <div class="stat-label">Active Students</div>
-          <div class="stat-value">142</div>
+      <!-- Real-time User & System Telemetry -->
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+        <div class="telemetry-stat" style="background:var(--bg-secondary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" id="admin-stat-total" style="font-size:1.5rem; font-weight:800; color:var(--brand-primary);">3</div>
         </div>
-        <div class="telemetry-stat">
-          <div class="stat-label">Certified Teachers</div>
-          <div class="stat-value" style="color:var(--accent-cyan);">14</div>
+        <div class="telemetry-stat" style="background:var(--bg-secondary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div class="stat-label">Enrolled Students</div>
+          <div class="stat-value" id="admin-stat-students" style="font-size:1.5rem; font-weight:800; color:var(--progress-success);">0</div>
         </div>
-        <div class="telemetry-stat">
-          <div class="stat-label">Course Completion</div>
-          <div class="stat-value" style="color:var(--accent-green);">78.4%</div>
+        <div class="telemetry-stat" style="background:var(--bg-secondary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div class="stat-label">Instructors</div>
+          <div class="stat-value" id="admin-stat-teachers" style="font-size:1.5rem; font-weight:800; color:var(--tech-accent);">1</div>
+        </div>
+        <div class="telemetry-stat" style="background:var(--bg-secondary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <div class="stat-label">Pending Approvals</div>
+          <div class="stat-value" id="admin-stat-pending" style="font-size:1.5rem; font-weight:800; color:var(--cta-amber);">0</div>
         </div>
       </div>
 
-      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Pending Teacher &amp; Student Registrations:</h4>
-      <div id="admin-approvals-list" style="max-height:260px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+      <!-- Admin Desk Tabs -->
+      <div class="teacher-desk-tabs" style="margin-bottom:1.25rem;">
+        <button class="teacher-tab-btn active" id="btn-admintab-users" onclick="switchAdminTab('users')">
+          <span>👥 User Directory &amp; Management</span>
+        </button>
+        <button class="teacher-tab-btn" id="btn-admintab-approvals" onclick="switchAdminTab('approvals')">
+          <span>⏳ Pending Approvals (<span id="admin-tab-pending-count">0</span>)</span>
+        </button>
+        <button class="teacher-tab-btn" id="btn-admintab-curriculum" onclick="switchAdminTab('curriculum')">
+          <span>📚 Curriculum &amp; Courses</span>
+        </button>
+      </div>
 
-      <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Course &amp; Curriculum Builder:</h4>
-      <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <strong>AMR-101: Autonomous Mobile Robotics Foundations</strong>
-          <div style="font-size:0.8rem; color:var(--text-dim);">1 Module · 8 Lessons · Assigned: Prof. Sarah Jenkins</div>
+      <!-- Tab 1: User Directory & Management Desk (View & Edit ANY User) -->
+      <div id="admintab-pane-users" class="admin-tab-pane">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div style="display:flex; gap:0.5rem; align-items:center; flex:1; min-width:240px;">
+            <input type="text" id="admin-user-search" class="form-control" placeholder="Search user by name, email, or role..." oninput="filterAdminUserDirectory()" style="margin:0;">
+          </div>
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            <button class="btn btn-outline btn-sm active" id="admin-filter-all" onclick="filterAdminUserRole('all')">All</button>
+            <button class="btn btn-outline btn-sm" id="admin-filter-student" onclick="filterAdminUserRole('student')">Students</button>
+            <button class="btn btn-outline btn-sm" id="admin-filter-teacher" onclick="filterAdminUserRole('teacher')">Teachers</button>
+            <button class="btn btn-outline btn-sm" id="admin-filter-admin" onclick="filterAdminUserRole('admin')">Admins</button>
+            <button class="btn btn-primary btn-sm" onclick="openAdminAddUserModal()">+ Add New User</button>
+          </div>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="showToast('Module & lesson editing active', 'success')">Manage Lessons</button>
+
+        <div id="admin-users-table-container" style="max-height:360px; overflow-y:auto; border:1px solid var(--border-color); border-radius:var(--radius-md);">
+          <!-- Dynamic Users Directory Table -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Pending Registrations Queue -->
+      <div id="admintab-pane-approvals" class="admin-tab-pane" style="display:none;">
+        <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Pending Teacher &amp; Student Registrations:</h4>
+        <div id="admin-approvals-list" style="max-height:320px; overflow-y:auto; margin-bottom:1.5rem;">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tab 3: Curriculum Oversight -->
+      <div id="admintab-pane-curriculum" class="admin-tab-pane" style="display:none;">
+        <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Active Robotics Tracks &amp; Instructor Allocations:</h4>
+        <div style="background:var(--bg-primary); padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+              <strong style="font-size:1.05rem;">AMR-101: Autonomous Mobile Robotics Foundations</strong>
+              <span class="role-pill role-student">Studica VMX-pi</span>
+              <span class="role-pill role-admin">Active</span>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-dim);">
+              Lead Author: Dr. Mohammed Salameh · Assigned Instructor: <strong>Eng. M. Salameh</strong> (m.salameh1301@education.qa) · 2 Modules · 10 Labs
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="openClassroom()">Launch Track</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1478,7 +1544,7 @@
             <strong>Course: AMR-101 Autonomous Mobile Robotics (Studica Kit)</strong>
             <div style="font-size:0.8rem; color:var(--text-dim);" id="teacher-quota-display">Student Quota: 3 / 35 Enrolled</div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="teacherAddStudent()">+ Add Student Directly</button>
+          <button class="btn btn-primary btn-sm" onclick="openTeacherAddStudentModal()">+ Enroll New Student</button>
         </div>
 
         <h4 style="margin-bottom:0.75rem; font-size:1.05rem;">Assigned Student Submissions &amp; Grades:</h4>
@@ -1595,7 +1661,7 @@
         <div class="certificate-brand-title">RoboSkillsClub Robotics Training</div>
         <h2 class="certificate-main-title">Certificate of Achievement</h2>
         <div class="certificate-awarded-to">This is to officially certify that</div>
-        <div class="certificate-recipient-name" id="cert-student-name">Alex Rivera</div>
+        <div class="certificate-recipient-name" id="cert-student-name">Student Full Name</div>
         <div class="certificate-statement">
           has successfully completed all rigorous coursework, wiring assessments, ROS 2 parameters tuning, and practical challenges in
           <br><strong id="cert-course-title" style="color:#0F172A; font-size:1.15rem;">Autonomous Mobile Robotics Foundations</strong><br>
@@ -1659,6 +1725,394 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: User Profile & Password Editor (For Any User) -->
+  <div id="profile-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:620px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+          <span>👤 My Profile &amp; Account Settings</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Account Email &amp; Role</div>
+          <div style="font-weight:700; color:var(--brand-primary); font-size:1.05rem;" id="profile-display-email">user@roboskills.org</div>
+        </div>
+        <span class="role-pill role-student" id="profile-role-badge">STUDENT</span>
+      </div>
+
+      <form id="profile-edit-form" onsubmit="handleSaveProfile(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Display Name *</label>
+            <input type="text" id="profile-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Mobile Contact Number</label>
+            <input type="tel" id="reg-profile-mobile" class="form-control" placeholder="+974 5512 3456">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country *</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-profile-country" class="form-control" placeholder="Search country..." autocomplete="off" oninput="filterCountries('profile')" onfocus="showCountryList('profile')">
+              <div id="reg-profile-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Organization / University / School</label>
+            <input type="text" id="profile-org" class="form-control" placeholder="e.g. University / High School">
+          </div>
+        </div>
+
+        <div class="form-group" id="profile-extra-group">
+          <label id="profile-extra-label">Major / Department / Job Title</label>
+          <input type="text" id="profile-subfield" class="form-control" placeholder="e.g. Robotics &amp; Automation">
+        </div>
+
+        <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-top:1.25rem;">
+          <h4 style="font-size:1rem; color:var(--brand-primary); margin-bottom:0.75rem;">🔐 Change Account Password:</h4>
+          <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:0.75rem;">Leave password fields empty if you do not want to change your current password.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="profile-new-password" class="form-control" placeholder="New secure password">
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="profile-confirm-password" class="form-control" placeholder="Repeat new password">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: First-Time Student Profile Completion (Prompted upon teacher enrollment) -->
+  <div id="complete-profile-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width:640px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+          <span>📋 Complete Your Student Profile</span>
+        </h3>
+      </div>
+
+      <div class="callout tip" style="margin-bottom:1.25rem;">
+        <div class="callout-title">👋 Welcome to RoboSkillsClub!</div>
+        <div class="callout-body" id="complete-profile-welcome-msg">
+          Your robotics instructor has enrolled you in the course. Please complete your contact details, education background, and set your personal password before accessing the classroom.
+        </div>
+      </div>
+
+      <form id="complete-profile-form" onsubmit="handleCompleteProfile(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="complete-student-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Registered Email (Read-Only)</label>
+            <input type="email" id="complete-student-email" class="form-control" readonly style="background:#F1F5F9; color:#64748B;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country *</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-complete-country" class="form-control" placeholder="Search country..." autocomplete="off" oninput="filterCountries('complete')" onfocus="showCountryList('complete')" required>
+              <div id="reg-complete-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number *</label>
+            <input type="tel" id="reg-complete-mobile" class="form-control" placeholder="+974 5512 3456" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Education Level *</label>
+          <select id="complete-edu-level" class="form-control" onchange="toggleCompleteEduSubfields()">
+            <option value="university">University / Higher Education</option>
+            <option value="school">School / K-12</option>
+          </select>
+        </div>
+
+        <div id="complete-uni-fields">
+          <div class="form-group">
+            <label>University / College Name *</label>
+            <input type="text" id="complete-uni-name" class="form-control" placeholder="e.g. University of Doha for Science &amp; Technology">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Degree Level</label>
+              <select id="complete-uni-degree" class="form-control">
+                <option value="BSc">Bachelor's (BSc / BEng)</option>
+                <option value="MSc">Master's (MSc / MEng)</option>
+                <option value="PhD">Doctorate (PhD)</option>
+                <option value="Diploma">Diploma / Associate</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Major / Field of Study *</label>
+              <input type="text" id="complete-uni-major" class="form-control" placeholder="e.g. Mechatronics, Robotics, CS">
+            </div>
+          </div>
+        </div>
+
+        <div id="complete-school-fields" style="display:none;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>School Name *</label>
+              <input type="text" id="complete-school-name" class="form-control" placeholder="e.g. Qatar STEM Secondary School">
+            </div>
+            <div class="form-group">
+              <label>Grade / Year *</label>
+              <input type="text" id="complete-school-grade" class="form-control" placeholder="e.g. Grade 11">
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-top:1.25rem;">
+          <h4 style="font-size:1rem; color:var(--brand-primary); margin-bottom:0.5rem;">🔐 Set Your Personal Account Password:</h4>
+          <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:0.75rem;">Create a password to securely sign in to your courses and dashboard.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>New Password *</label>
+              <input type="password" id="complete-password" class="form-control" placeholder="Minimum 6 characters" required>
+            </div>
+            <div class="form-group">
+              <label>Confirm Password *</label>
+              <input type="password" id="complete-password-confirm" class="form-control" placeholder="Repeat password" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1.5rem;">Complete Profile &amp; Enter Classroom</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Teacher Add Student Directly -->
+  <div id="teacher-add-student-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:540px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+          <span>➕ Enroll New Student into Course</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <div class="callout tip" style="margin-bottom:1.25rem;">
+        <div class="callout-title">ℹ️ First-Time Login Notice:</div>
+        <div class="callout-body">
+          If the student does not already have an account, the platform automatically provisions them. Upon their first sign-in, they will be prompted to complete their full profile (contact phone, school/university, and personal password).
+        </div>
+      </div>
+
+      <form id="teacher-add-student-form" onsubmit="handleTeacherAddStudent(event)">
+        <div class="form-group">
+          <label>Student Full Name *</label>
+          <input type="text" id="teacher-add-name" class="form-control" placeholder="e.g. Tariq Mansoor" required>
+        </div>
+
+        <div class="form-group">
+          <label>Student Email Address *</label>
+          <input type="email" id="teacher-add-email" class="form-control" placeholder="tariq@student.edu" required>
+        </div>
+
+        <div class="form-group">
+          <label>Initial Temporary Password *</label>
+          <input type="text" id="teacher-add-password" class="form-control" value="Student@123" required>
+          <span style="font-size:0.75rem; color:var(--text-dim); margin-top:0.25rem; display:block;">Student will be asked to change this password on their first login.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Assign to Course *</label>
+          <select id="teacher-add-course" class="form-control">
+            <option value="course-amr-101">AMR-101: Autonomous Mobile Robotics (Studica Kit)</option>
+          </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Enroll Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin View & Edit ANY User Account -->
+  <div id="admin-edit-user-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:680px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+          <span>✏️ Admin User Inspector &amp; Editor</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <form id="admin-edit-user-form" onsubmit="handleAdminSaveUser(event)">
+        <input type="hidden" id="admin-edit-uid">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Display Name *</label>
+            <input type="text" id="admin-edit-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" id="admin-edit-email" class="form-control" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Platform Role *</label>
+            <select id="admin-edit-role" class="form-control">
+              <option value="student">Student</option>
+              <option value="teacher">Teacher / Instructor</option>
+              <option value="admin">Administrator</option>
+              <option value="super_admin">Super Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Account Status *</label>
+            <select id="admin-edit-status" class="form-control">
+              <option value="approved">Approved &amp; Active</option>
+              <option value="pending">Pending Approval</option>
+              <option value="suspended">Suspended / Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-admin-edit-country" class="form-control" placeholder="Search country..." autocomplete="off" oninput="filterCountries('admin-edit')" onfocus="showCountryList('admin-edit')">
+              <div id="reg-admin-edit-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" id="reg-admin-edit-mobile" class="form-control" placeholder="+974 5512 3456">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Organization / University / School</label>
+            <input type="text" id="admin-edit-org" class="form-control" placeholder="Institution or School">
+          </div>
+          <div class="form-group">
+            <label>Job Title / Major</label>
+            <input type="text" id="admin-edit-subfield" class="form-control" placeholder="Job Title or Major">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Max Student Quota (For Teachers)</label>
+            <input type="number" id="admin-edit-max-students" class="form-control" value="35" min="1" max="500">
+          </div>
+          <div class="form-group">
+            <label>Reset Account Password</label>
+            <input type="text" id="admin-edit-password" class="form-control" placeholder="Enter new password to reset">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+            <input type="checkbox" id="admin-edit-profile-completed" style="width:18px; height:18px;">
+            <span>Profile Marked Completed (User does not need first-time profile setup)</span>
+          </label>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; border-top:1px solid var(--border-color); padding-top:1rem;">
+          <button type="button" class="btn btn-outline" style="color:var(--text-danger);" onclick="adminDeleteUserFromModal()">Delete User</button>
+          <div style="display:flex; gap:0.75rem;">
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save User Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Add New User Directly -->
+  <div id="admin-add-user-modal" class="modal-overlay" onclick="closeAllModals()">
+    <div class="modal-card" style="max-width:580px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:1.35rem; display:flex; align-items:center; gap:0.5rem; margin:0;">
+          <span>➕ Admin: Create New User Account</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeAllModals()">&times;</button>
+      </div>
+
+      <form id="admin-add-user-form" onsubmit="handleAdminAddUser(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Full Display Name *</label>
+            <input type="text" id="admin-new-name" class="form-control" placeholder="e.g. John Doe" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" id="admin-new-email" class="form-control" placeholder="user@domain.com" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Account Password *</label>
+            <input type="text" id="admin-new-password" class="form-control" value="User@123" required>
+          </div>
+          <div class="form-group">
+            <label>User Role *</label>
+            <select id="admin-new-role" class="form-control">
+              <option value="student">Student</option>
+              <option value="teacher">Teacher / Instructor</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="position:relative;">
+            <label>Country</label>
+            <div class="country-picker-wrapper">
+              <input type="text" id="reg-admin-add-country" class="form-control" placeholder="Search country..." autocomplete="off" oninput="filterCountries('admin-add')" onfocus="showCountryList('admin-add')">
+              <div id="reg-admin-add-country-dropdown" class="country-dropdown-list" style="display:none;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" id="reg-admin-add-mobile" class="form-control" placeholder="+974 5512 3456">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Organization / University / School</label>
+          <input type="text" id="admin-new-org" class="form-control" placeholder="e.g. Ministry of Education / University">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+      </form>
     </div>
   </div>
 

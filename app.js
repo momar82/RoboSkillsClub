@@ -47,8 +47,8 @@ const DEFAULT_COURSES = [
     "shortCode": "AMR-101",
     "description": "Professional step-by-step training curriculum for Autonomous Mobile Robotics using the Studica Robotics Kit (VMX-pi FPGA, Titan Quad CAN Motor Controller, NavX IMU, and Robot Dashboard).",
     "author": "Dr. Mohammed Salameh, PhD in Robotics, SLAM and VSLAM",
-    "assignedTeacherId": "teacher_sarah",
-    "assignedTeacherName": "Prof. Sarah Jenkins",
+    "assignedTeacherId": "teacher_salameh",
+    "assignedTeacherName": "Eng. M. Salameh",
     "modules": [
       {
         "id": "module-1",
@@ -1609,12 +1609,109 @@ let currentCourse = DEFAULT_COURSES[0];
 let activeLessonIndex = 0;
 
 // =============================================================================
-// 3. User & RBAC State Management
+// 3. User & RBAC State Management (Production Authentication & Profile Store)
 // =============================================================================
 let currentUser = null;
 let currentRole = "guest"; // guest, student, teacher, admin, super_admin
 let userProgress = {};     // { [lessonId]: boolean }
 let assignmentDueDates = {}; // { [lessonId]: ISOString }
+
+const DEFAULT_SYSTEM_USERS = [
+  {
+    uid: "super_admin_omar",
+    email: "m.omar82@gmail.com",
+    password: "Admin@22#33",
+    displayName: "Dr. Mohammed Salameh",
+    role: "super_admin",
+    status: "approved",
+    title: "Lead Robotics Scientist, PhD in Robotics, SLAM and VSLAM",
+    organization: "RoboSkillsClub",
+    country: "Qatar",
+    mobileNumber: "+974 5500 0000",
+    profileCompleted: true,
+    createdAt: "2026-01-01T00:00:00.000Z"
+  },
+  {
+    uid: "admin_default",
+    email: "admin@admin",
+    password: "Admin@22#33",
+    displayName: "Administrator",
+    role: "admin",
+    status: "approved",
+    organization: "RoboSkillsClub Administration",
+    country: "International",
+    mobileNumber: "+974 4400 0000",
+    profileCompleted: true,
+    createdAt: "2026-01-01T00:00:00.000Z"
+  },
+  {
+    uid: "teacher_salameh",
+    email: "m.salameh1301@education.qa",
+    password: "passme",
+    displayName: "Eng. M. Salameh",
+    role: "teacher",
+    status: "approved",
+    organization: "Ministry of Education & Higher Education - Qatar",
+    jobTitle: "Robotics Instructor",
+    country: "Qatar",
+    mobileNumber: "+974 5512 3456",
+    maxStudents: 50,
+    assignedCourseIds: ["course-amr-101"],
+    profileCompleted: true,
+    createdAt: "2026-01-01T00:00:00.000Z"
+  }
+];
+
+function getStoredUsers() {
+  let users = [];
+  try {
+    const raw = localStorage.getItem("roboskills_users_db");
+    if (raw) users = JSON.parse(raw);
+  } catch (e) {
+    console.error("Error reading users database", e);
+  }
+
+  // Purge any legacy mock users (Alex Rivera, Sarah Jenkins, David, etc.)
+  users = users.filter(u => {
+    const email = (u.email || "").toLowerCase();
+    const name = (u.displayName || "").toLowerCase();
+    return !email.includes("alex.student") && 
+           !email.includes("chen.wei") && 
+           !email.includes("elena.r") && 
+           !email.includes("tariq.m@stem.qa") && 
+           !email.includes("fatima@hct") && 
+           !email.includes("admin.david") && 
+           !email.includes("sarah.jenkins") &&
+           !name.includes("alex rivera") &&
+           !name.includes("sarah jenkins");
+  });
+
+  // Ensure default system accounts exist
+  DEFAULT_SYSTEM_USERS.forEach(defUser => {
+    const idx = users.findIndex(u => (u.email || "").toLowerCase() === defUser.email.toLowerCase());
+    if (idx === -1) {
+      users.unshift({ ...defUser });
+    } else {
+      // Sync password if default user
+      if (defUser.email === "admin@admin" && users[idx].password !== "Admin@22#33") {
+        users[idx].password = "Admin@22#33";
+      }
+      if (defUser.email === "m.salameh1301@education.qa" && users[idx].password !== "passme") {
+        users[idx].password = "passme";
+      }
+      if (defUser.email === "m.omar82@gmail.com" && users[idx].password !== "Admin@22#33") {
+        users[idx].password = "Admin@22#33";
+      }
+    }
+  });
+
+  localStorage.setItem("roboskills_users_db", JSON.stringify(users));
+  return users;
+}
+
+function saveStoredUsers(users) {
+  localStorage.setItem("roboskills_users_db", JSON.stringify(users));
+}
 
 function initAuthSession() {
   // Theme initialization (Default: "Modern Hardware Lab" Palette)
@@ -1623,20 +1720,32 @@ function initAuthSession() {
     document.body.classList.add("dark-theme");
   }
 
+  // Initialize and seed users DB
+  const users = getStoredUsers();
+
   // Restore user session
   const savedUser = localStorage.getItem("roboskills_user");
   if (savedUser) {
     try {
-      currentUser = JSON.parse(savedUser);
-      currentRole = currentUser.role || "student";
-      updateNavAuthUI();
-      loadUserProgress();
+      const parsed = JSON.parse(savedUser);
+      // Validate that the saved user still exists and is approved
+      const freshUser = users.find(u => (u.email || "").toLowerCase() === (parsed.email || "").toLowerCase());
+      if (freshUser && freshUser.status !== "suspended") {
+        currentUser = freshUser;
+        currentRole = freshUser.role || "student";
+        updateNavAuthUI();
+        loadUserProgress();
+      } else {
+        currentUser = null;
+        currentRole = "guest";
+        localStorage.removeItem("roboskills_user");
+      }
     } catch (e) {
       console.error("Failed to restore session", e);
     }
   }
 
-  // Firebase Auth listener
+  // Firebase Auth listener fallback
   if (auth) {
     auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
@@ -1651,14 +1760,14 @@ function initAuthSession() {
           displayName: firebaseUser.displayName || firebaseUser.email.split('@')[0],
           role: role,
           status: "approved",
-          country: "International",
-          institution: "RoboSkillsClub"
+          country: "Qatar",
+          organization: "RoboSkillsClub",
+          profileCompleted: true
         };
         currentRole = role;
         localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
         updateNavAuthUI();
         loadUserProgress();
-        showToast(`Welcome back, ${currentUser.displayName}!`, "success");
       }
     });
   }
@@ -1688,10 +1797,11 @@ function updateNavAuthUI() {
                         currentUser.role === "teacher" ? "TEACHER" : "STUDENT";
 
     authContainer.innerHTML = `
-      <div class="user-badge-container" onclick="openProfileModal()">
+      <div class="user-badge-container" onclick="openProfileModal()" title="Click to view & edit your profile">
         <span class="role-pill ${rolePillClass}">${roleDisplay}</span>
         <span style="font-size:0.85rem; font-weight:600;">${currentUser.displayName}</span>
       </div>
+      <button class="btn btn-outline btn-sm" onclick="openProfileModal()" title="Edit Profile & Password">⚙️ Edit Profile</button>
       <button class="btn btn-outline btn-sm" onclick="signOutUser()">Sign Out</button>
     `;
 
@@ -1716,62 +1826,71 @@ function updateNavAuthUI() {
   }
 }
 
-function quickDemoSignIn(role) {
-  let user = {};
-  if (role === "super_admin") {
-    user = {
-      uid: "super_admin_omar",
-      email: SUPER_ADMIN_EMAIL,
-      displayName: "Dr. Mohammed Salameh",
-      role: "super_admin",
-      status: "approved",
-      title: "Lead Robotics Scientist",
-      institution: "RoboSkillsClub"
-    };
-  } else if (role === "admin") {
-    user = {
-      uid: "admin_david",
-      email: "admin.david@roboskills.org",
-      displayName: "Admin David",
-      role: "admin",
-      status: "approved",
-      institution: "RoboSkillsClub Administration"
-    };
-  } else if (role === "teacher") {
-    user = {
-      uid: "teacher_sarah",
-      email: "sarah.jenkins@roboskills.org",
-      displayName: "Prof. Sarah Jenkins",
-      role: "teacher",
-      status: "approved",
-      organization: "School of Robotics & Engineering",
-      jobTitle: "Associate Professor of Robotics",
-      maxStudents: 35,
-      assignedCourseIds: ["course-amr-101"]
-    };
-  } else {
-    user = {
-      uid: "student_alex_20",
-      email: "alex.student@university.edu",
-      displayName: "Alex Rivera",
-      role: "student",
-      status: "approved",
-      educationLevel: "university",
-      universityName: "National Robotics University",
-      degreeLevel: "BSc",
-      major: "Mechatronics Engineering",
-      enrolledCourseIds: ["course-amr-101"],
-      assignedTeacherId: "teacher_sarah"
-    };
+function handleUserSignIn(event) {
+  if (event) event.preventDefault();
+  const emailInput = document.getElementById("signin-email");
+  const passInput = document.getElementById("signin-password");
+  if (!emailInput || !passInput) return;
+
+  const email = emailInput.value.trim().toLowerCase();
+  const password = passInput.value;
+
+  const users = getStoredUsers();
+  const user = users.find(u => (u.email || "").toLowerCase() === email);
+
+  if (!user || user.password !== password) {
+    showToast("Invalid email or password. Please verify your credentials.", "error");
+    return;
   }
 
-  currentUser = user;
+  if (user.status === "pending") {
+    showToast("Your account registration is pending review and approval by an instructor or administrator.", "warning");
+    return;
+  }
+
+  if (user.status === "suspended") {
+    showToast("This account is currently suspended. Please contact platform administration.", "error");
+    return;
+  }
+
+  currentUser = { ...user };
   currentRole = user.role;
-  localStorage.setItem("roboskills_user", JSON.stringify(user));
+  localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
   updateNavAuthUI();
   loadUserProgress();
   closeAllModals();
-  showToast(`Signed in as ${user.displayName} (${user.role.toUpperCase()})`, "success");
+
+  showToast(`Welcome back, ${user.displayName}!`, "success");
+
+  // First-time student profile completion check
+  if (user.role === "student" && (user.needsProfileCompletion || !user.profileCompleted)) {
+    setTimeout(() => {
+      openCompleteProfileModal();
+    }, 350);
+  } else {
+    if (user.role === "student") {
+      showStudentPortal();
+    } else if (user.role === "teacher") {
+      showTeacherPortal();
+    } else if (user.role === "admin" || user.role === "super_admin") {
+      openAdminConsole();
+    }
+  }
+}
+
+function quickDemoSignIn(role) {
+  // Legacy handler redirecting to authorized accounts
+  if (role === "admin") {
+    document.getElementById("signin-email").value = "admin@admin";
+    document.getElementById("signin-password").value = "Admin@22#33";
+  } else if (role === "teacher") {
+    document.getElementById("signin-email").value = "m.salameh1301@education.qa";
+    document.getElementById("signin-password").value = "passme";
+  } else {
+    document.getElementById("signin-email").value = "m.omar82@gmail.com";
+    document.getElementById("signin-password").value = "Admin@22#33";
+  }
+  handleUserSignIn();
 }
 
 function signOutUser() {
@@ -1780,7 +1899,7 @@ function signOutUser() {
   currentRole = "guest";
   localStorage.removeItem("roboskills_user");
   updateNavAuthUI();
-  showToast("Signed out", "amber");
+  showToast("Successfully signed out of RoboSkillsClub", "amber");
 }
 
 // =============================================================================
@@ -1810,11 +1929,31 @@ function toggleEducationSubfields() {
 async function handleStudentRegistration(event) {
   event.preventDefault();
   const name = document.getElementById("reg-student-name").value.trim();
-  const email = document.getElementById("reg-student-email").value.trim();
+  const email = document.getElementById("reg-student-email").value.trim().toLowerCase();
+  const passEl = document.getElementById("reg-student-password");
+  const confirmEl = document.getElementById("reg-student-password-confirm");
   const mobile = document.getElementById("reg-student-mobile").value.trim();
   const country = document.getElementById("reg-student-country").value.trim();
   const eduLevel = document.getElementById("reg-edu-level").value;
   const courseId = document.getElementById("reg-student-course").value;
+
+  const password = passEl ? passEl.value : "Student@123";
+  const confirm = confirmEl ? confirmEl.value : "Student@123";
+
+  if (password.length < 6) {
+    showToast("Password must be at least 6 characters long.", "error");
+    return;
+  }
+  if (password !== confirm) {
+    showToast("Passwords do not match. Please verify.", "error");
+    return;
+  }
+
+  const users = getStoredUsers();
+  if (users.some(u => (u.email || "").toLowerCase() === email)) {
+    showToast("An account with this email already exists. Please sign in.", "error");
+    return;
+  }
 
   let schoolName = "";
   let gradeYear = "";
@@ -1831,21 +1970,19 @@ async function handleStudentRegistration(event) {
     major = document.getElementById("reg-uni-major").value.trim();
   }
 
-  // Determine approval route
-  // If student enrolls in a course with an assigned teacher -> teacher approves
-  // Otherwise -> admin approves
   const selectedCourse = DEFAULT_COURSES.find(c => c.id === courseId);
-  const assignedTeacherId = selectedCourse ? selectedCourse.assignedTeacherId : null;
-  const approvalRoute = assignedTeacherId ? `Assigned Teacher (${selectedCourse.assignedTeacherName})` : "Platform Administrator";
+  const assignedTeacherId = selectedCourse ? selectedCourse.assignedTeacherId : "teacher_salameh";
+  const approvalRoute = "Assigned Instructor (Eng. M. Salameh)";
 
   const newUser = {
     uid: "student_" + Date.now(),
     displayName: name,
     email: email,
+    password: password,
     mobileNumber: mobile,
     country: country,
     role: "student",
-    status: "pending", // Requires approval
+    status: "pending", // Requires teacher/admin approval
     educationLevel: eduLevel,
     schoolName,
     gradeYear,
@@ -1854,44 +1991,73 @@ async function handleStudentRegistration(event) {
     major,
     enrolledCourseIds: [courseId],
     assignedTeacherId: assignedTeacherId,
+    assignedTeacherName: "Eng. M. Salameh",
+    profileCompleted: true,
+    needsProfileCompletion: false,
+    progress: 0,
+    submissions: 0,
     createdAt: new Date().toISOString()
   };
 
-  // Save to pending registrations
-  savePendingUser(newUser);
+  users.push(newUser);
+  saveStoredUsers(users);
 
   closeAllModals();
-  showToast(`Registration submitted! Awaiting approval from ${approvalRoute}.`, "success");
+  showToast(`Student registration submitted! Awaiting review and approval from ${approvalRoute}.`, "success");
 }
 
 async function handleTeacherRegistration(event) {
   event.preventDefault();
   const name = document.getElementById("reg-teacher-name").value.trim();
-  const email = document.getElementById("reg-teacher-email").value.trim();
+  const email = document.getElementById("reg-teacher-email").value.trim().toLowerCase();
+  const passEl = document.getElementById("reg-teacher-password");
+  const confirmEl = document.getElementById("reg-teacher-password-confirm");
   const mobile = document.getElementById("reg-teacher-mobile").value.trim();
   const country = document.getElementById("reg-teacher-country").value.trim();
   const organization = document.getElementById("reg-teacher-org").value.trim();
   const jobTitle = document.getElementById("reg-teacher-job").value.trim();
 
+  const password = passEl ? passEl.value : "Teacher@123";
+  const confirm = confirmEl ? confirmEl.value : "Teacher@123";
+
+  if (password.length < 6) {
+    showToast("Password must be at least 6 characters long.", "error");
+    return;
+  }
+  if (password !== confirm) {
+    showToast("Passwords do not match. Please verify.", "error");
+    return;
+  }
+
+  const users = getStoredUsers();
+  if (users.some(u => (u.email || "").toLowerCase() === email)) {
+    showToast("An account with this email already exists. Please sign in.", "error");
+    return;
+  }
+
   const newTeacher = {
     uid: "teacher_" + Date.now(),
     displayName: name,
     email: email,
+    password: password,
     mobileNumber: mobile,
     country: country,
     role: "teacher",
     status: "pending", // Administrator must approve and set maxStudents
     organization: organization,
     jobTitle: jobTitle,
-    maxStudents: 25, // default proposed quota
+    maxStudents: 35,
     assignedCourseIds: ["course-amr-101"],
+    profileCompleted: true,
+    needsProfileCompletion: false,
     createdAt: new Date().toISOString()
   };
 
-  savePendingUser(newTeacher);
+  users.push(newTeacher);
+  saveStoredUsers(users);
 
   closeAllModals();
-  showToast("Teacher application submitted! Administrator has been notified to review and set student quota.", "success");
+  showToast("Teacher application submitted! Platform Administrator has been notified to review and approve your account.", "success");
 }
 
 function savePendingUser(userObj) {
@@ -2265,7 +2431,7 @@ function openCertificateModal() {
   const modal = document.getElementById("certificate-modal");
   if (!modal) return;
 
-  const recipientName = currentUser ? currentUser.displayName : "Alex Rivera";
+  const recipientName = currentUser ? currentUser.displayName : "Student Full Name";
   const dateStr = new Date().toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' });
   const certId = "RSC-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-2026";
 
@@ -2573,38 +2739,54 @@ function renderTeacherDashboard() {
   const rosterContainer = document.getElementById("teacher-student-roster");
   if (!rosterContainer) return;
 
-  const mockStudents = [
-    { name: "Alex Rivera", email: "alex.student@university.edu", progress: 100, submissions: 5, score: 98, status: "Completed & Verified" },
-    { name: "Chen Wei", email: "chen.wei@polytech.edu", progress: 80, submissions: 4, score: 92, status: "In Progress" },
-    { name: "Elena Rostova", email: "elena.r@robotics.ac.at", progress: 60, submissions: 3, score: 88, status: "In Progress" },
-    { name: "Tariq Mansoor", email: "tariq.m@stem.qa", progress: 40, submissions: 2, score: 85, status: "In Progress" }
-  ];
+  const users = getStoredUsers();
+  const students = users.filter(u => {
+    if (u.role !== "student") return false;
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
+    return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
+  });
+
+  const quotaDisplay = document.getElementById("teacher-quota-display");
+  if (quotaDisplay) {
+    const max = currentUser ? (currentUser.maxStudents || 50) : 50;
+    quotaDisplay.textContent = `Student Quota: ${students.length} / ${max} Enrolled`;
+  }
+
+  if (students.length === 0) {
+    rosterContainer.innerHTML = `
+      <div style="text-align:center; padding:2rem; background:var(--bg-primary); border:1px dashed var(--border-color); border-radius:var(--radius-md);">
+        <p style="color:var(--text-muted); margin-bottom:1rem;">No students enrolled in your course yet.</p>
+        <button class="btn btn-primary btn-sm" onclick="openTeacherAddStudentModal()">+ Enroll New Student</button>
+      </div>
+    `;
+    return;
+  }
 
   let html = `
     <table class="pinout-table" style="margin:0;">
       <thead>
-        <tr><th>Student Name</th><th>Email</th><th>Course Progress</th><th>Score</th><th>Status</th><th>Instructor Action</th></tr>
+        <tr><th>Student Name</th><th>Email</th><th>Course Progress</th><th>Status</th><th>Instructor Action</th></tr>
       </thead>
       <tbody>
   `;
-  mockStudents.forEach(s => {
+  students.forEach(s => {
+    const progress = s.progress || 0;
     html += `
       <tr>
-        <td><strong>${s.name}</strong></td>
+        <td><strong>${s.displayName}</strong></td>
         <td>${s.email}</td>
         <td>
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <div style="flex:1; height:6px; background:var(--bg-primary); border-radius:3px; overflow:hidden;">
-              <div style="width:${s.progress}%; height:100%; background:var(--accent-green);"></div>
+              <div style="width:${progress}%; height:100%; background:var(--progress-success);"></div>
             </div>
-            <span style="font-size:0.75rem; font-weight:700;">${s.progress}%</span>
+            <span style="font-size:0.75rem; font-weight:700;">${progress}%</span>
           </div>
         </td>
-        <td><span class="role-pill role-student">${s.score}/100</span></td>
-        <td><span class="role-pill ${s.progress === 100 ? 'role-student' : 'role-teacher'}">${s.status}</span></td>
+        <td><span class="role-pill ${s.profileCompleted ? 'role-student' : 'role-teacher'}">${s.profileCompleted ? 'Verified' : 'Pending First Login'}</span></td>
         <td>
           <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-outline btn-sm" onclick="gradeStudentSubmission('${s.name}')">Review &amp; Grade</button>
+            <button class="btn btn-outline btn-sm" onclick="gradeStudentSubmission('${s.displayName}')">Review &amp; Grade</button>
             <button class="btn btn-outline btn-sm" onclick="promptEditDueDate()">Extend Due Date</button>
           </div>
         </td>
@@ -2815,10 +2997,6 @@ function openPinoutModal() {
   if (modal) modal.classList.add("active");
 }
 
-function openProfileModal() {
-  if (!currentUser) return;
-  alert(`User Profile:\nName: ${currentUser.displayName}\nEmail: ${currentUser.email}\nRole: ${currentUser.role.toUpperCase()}\nStatus: ${currentUser.status}`);
-}
 
 function closeAllModals() {
   document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
@@ -3095,33 +3273,6 @@ function backToPortal() {
 // =============================================================================
 // 9. Student Portal Engine: Notifications & Achievement Percentage
 // =============================================================================
-let studentNotifications = [
-  {
-    id: "notif-1",
-    title: "Assignment Evaluated & Graded",
-    body: "Your submission for Lesson 1.2 (Understanding the Robot Controller) has been marked by Prof. Sarah Jenkins! Score: 95/100 · Feedback: 'Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation.'",
-    time: "2 hours ago",
-    icon: "📝",
-    type: "grade"
-  },
-  {
-    id: "notif-2",
-    title: "New Module Live in Your Course",
-    body: "Module 2: Connect, Drive & Hardware Experience is now live with 5 hands-on labs and automated commissioning scripts (setup_student_laptop.sh & setup_robot_from_laptop.sh)!",
-    time: "1 day ago",
-    icon: "🚀",
-    type: "content"
-  },
-  {
-    id: "notif-3",
-    title: "Upcoming Challenge Due Date",
-    body: "Lesson 1.3 Precision Chassis Caliper Audit challenge is due in 5 days.",
-    time: "2 days ago",
-    icon: "📅",
-    type: "deadline"
-  }
-];
-
 function renderStudentPortal() {
   const welcomeEl = document.getElementById("student-portal-welcome");
   if (welcomeEl && currentUser) {
@@ -3138,10 +3289,44 @@ function renderStudentNotifications() {
   const countBadge = document.getElementById("notif-count-badge");
   if (!listEl) return;
 
-  if (countBadge) countBadge.textContent = `${studentNotifications.length} Updates`;
+  const notifs = [];
+
+  if (currentUser) {
+    if (currentUser.needsProfileCompletion || !currentUser.profileCompleted) {
+      notifs.push({
+        id: "notif-profile",
+        title: "Complete Your Profile Details",
+        body: "Your instructor enrolled you in the course. Please complete your mobile number, education details, and set a personal password.",
+        time: "Action Required",
+        icon: "⚠️",
+        actionBtn: `<button class="btn btn-primary btn-sm" style="margin-top:0.4rem;" onclick="openCompleteProfileModal()">Complete Profile Now</button>`
+      });
+    }
+
+    notifs.push({
+      id: "notif-welcome",
+      title: "Enrolled in Autonomous Mobile Robotics (AMR-101)",
+      body: `Welcome to the hands-on Studica kit robotics curriculum with instructor <strong>${currentUser.assignedTeacherName || 'Eng. M. Salameh'}</strong>. Enter the classroom player to begin Module 1!`,
+      time: "Active",
+      icon: "🤖"
+    });
+
+    const subs = getStoredSubmissions().filter(s => s.studentEmail && s.studentEmail.toLowerCase() === currentUser.email.toLowerCase() && s.status === "Graded");
+    subs.forEach(sub => {
+      notifs.push({
+        id: `notif-grade-${sub.id}`,
+        title: `Lesson ${sub.lessonNumber} Graded: ${sub.score}/100`,
+        body: `Feedback from instructor: "${sub.feedback || 'Great work on this lab!'}"`,
+        time: sub.submittedAt || "Recent",
+        icon: "⭐"
+      });
+    });
+  }
+
+  if (countBadge) countBadge.textContent = `${notifs.length} Updates`;
 
   let html = "";
-  studentNotifications.forEach((n) => {
+  notifs.forEach(n => {
     html += `
       <div class="notification-item">
         <div class="notification-icon">${n.icon}</div>
@@ -3151,12 +3336,14 @@ function renderStudentNotifications() {
             <span class="notification-time">${n.time}</span>
           </div>
           <div style="color:var(--text-main); margin-top:0.25rem;">${n.body}</div>
+          ${n.actionBtn || ''}
         </div>
       </div>
     `;
   });
   listEl.innerHTML = html;
 }
+
 
 function renderStudentEnrolledCourses() {
   const container = document.getElementById("student-enrolled-courses-list");
@@ -3420,59 +3607,19 @@ function submitLessonEvaluation(lessonId, lessonNumber) {
 // =============================================================================
 // 11. Teacher Portal: Student Progress, Marking Desk & Curriculum Feedback
 // =============================================================================
-let teacherSubmissions = [
-  {
-    id: "sub-1",
-    studentName: "Alex Rivera",
-    studentEmail: "alex.student@university.edu",
-    country: "United States",
-    countryFlag: "🇺🇸",
-    lessonId: "lesson-1-2",
-    lessonNumber: "1.2",
-    lessonTitle: "Understanding the Robot Controller",
-    submissionText: "Verified navX SPI link and Titan CAN bus ID 42. Confirmed 1 Mbps baud rate and 120-ohm termination switch set to ON.",
-    terminalOutput: "ip link show can0\ncan0: <NOARP,UP,LOWER_UP> mtu 16 qdisc pfifo_fast state UP mode DEFAULT\ncandump can0 -n 10\ncan0 02A [8] 00 00 00 00 00 00 00 00",
-    dueDate: "Nov 30, 2026",
-    submittedAt: "Nov 23, 2026",
-    score: 95,
-    feedback: "Solid implementation. Motor encoder counts and VMX pin allocations accurately validated against Studica hardware documentation.",
-    status: "Graded"
-  },
-  {
-    id: "sub-2",
-    studentName: "Chen Wei",
-    studentEmail: "chen.wei@polytech.edu",
-    country: "Singapore",
-    countryFlag: "🇸🇬",
-    lessonId: "lesson-1-3",
-    lessonNumber: "1.3",
-    lessonTitle: "Building the Robot Chassis",
-    submissionText: "Assembled 240mm x 180mm frame. Diagonals measured D1: 300.1mm, D2: 299.9mm. Zero rocking sound on marble test block.",
-    terminalOutput: "Target Diagonal = 300.00 mm\nMeasured D1: 300.1 mm, D2: 299.9 mm\nDifference = 0.20 mm <= 0.50 mm (PASSED)",
-    dueDate: "Nov 30, 2026",
-    submittedAt: "Nov 23, 2026",
-    score: 92,
-    feedback: "Precise squareness measurement! Frame is rigid and Nyloc locknuts properly seated.",
-    status: "Graded"
-  },
-  {
-    id: "sub-3",
-    studentName: "Tariq Mansoor",
-    studentEmail: "tariq.m@stem.qa",
-    country: "Qatar",
-    countryFlag: "🇶🇦",
-    lessonId: "lesson-2-1",
-    lessonNumber: "2.1",
-    lessonTitle: "Automated Setup & Dual-Brain Network",
-    submissionText: "Executed ./setup_student_laptop.sh and ./setup_robot_from_laptop.sh. Configured static IP 172.22.11.247. Passwordless SSH verified with ssh vmx@172.22.11.2.",
-    terminalOutput: "PING 172.22.11.2 (172.22.11.2) 56(84) bytes of data.\n64 bytes from 172.22.11.2: icmp_seq=1 ttl=64 time=0.342 ms\nMaster Robot Dashboard launched successfully.",
-    dueDate: "Dec 02, 2026",
-    submittedAt: "Nov 24, 2026",
-    score: null,
-    feedback: "",
-    status: "Pending Review"
+function getStoredSubmissions() {
+  try {
+    const raw = localStorage.getItem("roboskills_submissions");
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.error(e);
   }
-];
+  return [];
+}
+
+function saveStoredSubmissions(subs) {
+  localStorage.setItem("roboskills_submissions", JSON.stringify(subs));
+}
 
 function renderTeacherPortal() {
   const welcome = document.getElementById("teacher-portal-welcome");
@@ -3543,13 +3690,29 @@ function renderTeacherRoster() {
   const container = document.getElementById("teacher-roster-table-container");
   if (!container) return;
 
-  const mockStudents = [
-    { name: "Alex Rivera", email: "alex.student@university.edu", mobile: "+1 555-0192", country: "United States 🇺🇸", progress: 100, submissions: 5, score: 98, status: "Completed & Verified" },
-    { name: "Chen Wei", email: "chen.wei@polytech.edu", mobile: "+65 8123-4567", country: "Singapore 🇸🇬", progress: 80, submissions: 4, score: 92, status: "In Progress" },
-    { name: "Elena Rostova", email: "elena.r@robotics.ac.at", mobile: "+43 664-12345", country: "Austria 🇦🇹", progress: 60, submissions: 3, score: 88, status: "In Progress" },
-    { name: "Tariq Mansoor", email: "tariq.m@stem.qa", mobile: "+974 5512-3456", country: "Qatar 🇶🇦", progress: 40, submissions: 2, score: 85, status: "In Progress" },
-    { name: "Fatima Al-Zahra", email: "fatima@hct.ac.ae", mobile: "+971 50-1234567", country: "United Arab Emirates 🇦🇪", progress: 20, submissions: 1, score: 95, status: "In Progress" }
-  ];
+  const users = getStoredUsers();
+  const students = users.filter(u => {
+    if (u.role !== "student") return false;
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
+    return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
+  });
+
+  const statStudents = document.getElementById("teacher-stat-students");
+  if (statStudents) statStudents.textContent = `${students.length} Active`;
+
+  if (students.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:3rem 1.5rem; background:#FFFFFF; border:1px dashed #CBD5E1; border-radius:var(--radius-lg);">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">👥</div>
+        <h4 style="font-size:1.15rem; color:var(--brand-primary); margin-bottom:0.4rem;">No Students Enrolled Yet</h4>
+        <p style="font-size:0.875rem; color:var(--text-muted); max-width:480px; margin:0 auto 1.25rem;">
+          Your class roster is currently empty. Click the button below to add your first student to the Autonomous Mobile Robotics course.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="openTeacherAddStudentModal()">+ Enroll New Student</button>
+      </div>
+    `;
+    return;
+  }
 
   let html = `
     <table class="pinout-table" style="margin:0;">
@@ -3559,7 +3722,6 @@ function renderTeacherRoster() {
           <th>Contact &amp; Country</th>
           <th>Course Progress</th>
           <th>Submissions</th>
-          <th>Average Score</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -3567,27 +3729,38 @@ function renderTeacherRoster() {
       <tbody>
   `;
 
-  mockStudents.forEach(s => {
+  students.forEach(s => {
+    const progress = s.progress || 0;
+    const submissions = s.submissions || 0;
+    const profileTag = s.profileCompleted ? 
+      `<span class="role-pill role-admin">Profile Complete</span>` : 
+      `<span class="role-pill role-teacher">Pending First Login</span>`;
+
     html += `
       <tr>
-        <td><strong>${s.name}</strong></td>
+        <td>
+          <strong>${s.displayName}</strong>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${s.schoolName || s.universityName || 'Autonomous Robotics'}</div>
+        </td>
         <td>
           <div>${s.email}</div>
-          <div style="font-size:0.75rem; color:var(--text-dim);">${s.mobile} · ${s.country}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${s.mobileNumber || 'No mobile'} · ${s.country || 'N/A'}</div>
         </td>
         <td>
           <div style="display:flex; align-items:center; gap:0.5rem; min-width:120px;">
             <div style="flex:1; height:7px; background:#E2E8F0; border-radius:4px; overflow:hidden;">
-              <div style="width:${s.progress}%; height:100%; background:var(--progress-success);"></div>
+              <div style="width:${progress}%; height:100%; background:var(--progress-success);"></div>
             </div>
-            <span style="font-size:0.75rem; font-weight:700;">${s.progress}%</span>
+            <span style="font-size:0.75rem; font-weight:700;">${progress}%</span>
           </div>
         </td>
-        <td><span class="role-pill role-student">${s.submissions} Labs</span></td>
-        <td><strong style="color:var(--cta-amber);">${s.score} / 100</strong></td>
-        <td><span class="role-pill ${s.progress === 100 ? "role-admin" : "role-student"}">${s.status}</span></td>
+        <td><span class="role-pill role-student">${submissions} Labs</span></td>
+        <td>${profileTag}</td>
         <td>
-          <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Inspect Work</button>
+          <div style="display:flex; gap:0.35rem;">
+            <button class="btn btn-outline btn-sm" onclick="switchTeacherPortalTab('marking')">Submissions</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${s.uid}')">Remove</button>
+          </div>
         </td>
       </tr>
     `;
@@ -3601,8 +3774,29 @@ function renderTeacherSubmissions() {
   const container = document.getElementById("teacher-submissions-list");
   if (!container) return;
 
+  const submissions = getStoredSubmissions();
+  const pendingCount = submissions.filter(s => s.status === "Pending Review").length;
+
+  const badge = document.getElementById("teacher-marking-badge");
+  if (badge) badge.textContent = pendingCount;
+  const statPending = document.getElementById("teacher-stat-pending");
+  if (statPending) statPending.textContent = `${pendingCount} Pending`;
+
+  if (submissions.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:3rem 1.5rem; background:#FFFFFF; border:1px dashed #CBD5E1; border-radius:var(--radius-lg);">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">📝</div>
+        <h4 style="font-size:1.15rem; color:var(--brand-primary); margin-bottom:0.4rem;">No Student Submissions Pending Review</h4>
+        <p style="font-size:0.875rem; color:var(--text-muted); max-width:480px; margin:0 auto;">
+          When enrolled students submit their lab challenges, reflections, and terminal outputs, they will appear here for grading and feedback.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
   let html = "";
-  teacherSubmissions.forEach(sub => {
+  submissions.forEach(sub => {
     const isGraded = sub.status === "Graded";
     html += `
       <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
@@ -3610,7 +3804,7 @@ function renderTeacherSubmissions() {
           <div>
             <div style="display:flex; align-items:center; gap:0.5rem;">
               <h4 style="font-size:1.05rem; color:var(--brand-primary); margin:0;">${sub.studentName}</h4>
-              <span class="role-pill role-student">${sub.country} ${sub.countryFlag}</span>
+              <span class="role-pill role-student">${sub.country || ''}</span>
               <span class="role-pill ${isGraded ? "role-admin" : "role-teacher"}">${sub.status}</span>
             </div>
             <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.25rem;">
@@ -3630,12 +3824,6 @@ function renderTeacherSubmissions() {
           <p style="font-size:0.875rem; color:var(--text-main); margin:0;">${sub.submissionText}</p>
         </div>
 
-        <div style="margin-bottom:1rem;">
-          <div style="font-size:0.8rem; font-weight:700; color:var(--text-dim); text-transform:uppercase; margin-bottom:0.25rem;">Terminal Logs Output:</div>
-          <pre style="margin:0; padding:0.75rem 1rem; font-size:0.8rem; background:#0F172A; color:#E2E8F0; border-radius:var(--radius-md); overflow-x:auto;">${sub.terminalOutput}</pre>
-        </div>
-
-        <!-- Instructor Grading Input Controls -->
         <div style="background:#F1F5F9; border:1px solid #CBD5E1; border-radius:var(--radius-md); padding:1rem;">
           <div style="display:grid; grid-template-columns:160px 1fr; gap:1rem; margin-bottom:0.75rem;">
             <div class="form-group" style="margin:0;">
@@ -3661,7 +3849,8 @@ function renderTeacherSubmissions() {
 }
 
 function gradeTeacherSubmission(subId) {
-  const sub = teacherSubmissions.find(s => s.id === subId);
+  const submissions = getStoredSubmissions();
+  const sub = submissions.find(s => s.id === subId);
   if (!sub) return;
 
   const scoreInput = document.getElementById(`grade-score-${subId}`);
@@ -3674,16 +3863,7 @@ function gradeTeacherSubmission(subId) {
   sub.feedback = feedback;
   sub.status = "Graded";
 
-  // Dispatch student notification
-  studentNotifications.unshift({
-    id: `notif-${Date.now()}`,
-    title: `Assignment Evaluated: Lesson ${sub.lessonNumber}`,
-    body: `Your submission for Lesson ${sub.lessonNumber} (${sub.lessonTitle}) has been marked! Score: ${score}/100 — "${feedback}"`,
-    time: "Just now",
-    icon: "📝",
-    type: "grade",
-    score: score
-  });
+  saveStoredSubmissions(submissions);
 
   renderTeacherPortal();
   showToast(`Graded submission for ${sub.studentName} (${score}/100). Notification sent!`, "success");
@@ -3768,4 +3948,633 @@ function renderTeacherCatalog() {
       </div>
     </div>
   `;
+}
+
+
+
+// =============================================================================
+// User Profile & Account Settings (Any Logged-in User can Edit Profile & Password)
+// =============================================================================
+function openProfileModal() {
+  if (!currentUser) {
+    openSignInModal();
+    return;
+  }
+  closeAllModals();
+  const modal = document.getElementById("profile-modal");
+  if (!modal) return;
+
+  const emailDisplay = document.getElementById("profile-display-email");
+  if (emailDisplay) emailDisplay.textContent = currentUser.email || "";
+
+  const roleDisplay = currentUser.role === "super_admin" ? "SUPER ADMIN" :
+                      currentUser.role === "admin" ? "ADMIN" :
+                      currentUser.role === "teacher" ? "TEACHER" : "STUDENT";
+  const roleBadge = document.getElementById("profile-role-badge");
+  if (roleBadge) {
+    roleBadge.textContent = roleDisplay;
+    roleBadge.className = `role-pill role-${currentUser.role.replace('_', '-')}`;
+  }
+
+  const nameInput = document.getElementById("profile-name");
+  if (nameInput) nameInput.value = currentUser.displayName || "";
+
+  const mobileInput = document.getElementById("reg-profile-mobile");
+  if (mobileInput) mobileInput.value = currentUser.mobileNumber || "";
+
+  const countryInput = document.getElementById("reg-profile-country");
+  if (countryInput) countryInput.value = currentUser.country || "";
+
+  const orgInput = document.getElementById("profile-org");
+  if (orgInput) orgInput.value = currentUser.organization || currentUser.universityName || currentUser.schoolName || "";
+
+  const subfield = document.getElementById("profile-subfield");
+  const sublabel = document.getElementById("profile-extra-label");
+  if (currentUser.role === "student") {
+    if (sublabel) sublabel.textContent = currentUser.educationLevel === "school" ? "Grade / Year" : "Major / Department";
+    if (subfield) subfield.value = currentUser.major || currentUser.gradeYear || "";
+  } else if (currentUser.role === "teacher") {
+    if (sublabel) sublabel.textContent = "Current Job Title / Position";
+    if (subfield) subfield.value = currentUser.jobTitle || "";
+  } else {
+    if (sublabel) sublabel.textContent = "Title / Responsibilities";
+    if (subfield) subfield.value = currentUser.title || "";
+  }
+
+  const newPass = document.getElementById("profile-new-password");
+  const confirmPass = document.getElementById("profile-confirm-password");
+  if (newPass) newPass.value = "";
+  if (confirmPass) confirmPass.value = "";
+
+  modal.classList.add("active");
+}
+
+function handleSaveProfile(event) {
+  event.preventDefault();
+  if (!currentUser) return;
+
+  const name = document.getElementById("profile-name").value.trim();
+  const mobile = document.getElementById("reg-profile-mobile").value.trim();
+  const country = document.getElementById("reg-profile-country").value.trim();
+  const org = document.getElementById("profile-org").value.trim();
+  const subVal = document.getElementById("profile-subfield").value.trim();
+
+  const newPass = document.getElementById("profile-new-password").value;
+  const confirmPass = document.getElementById("profile-confirm-password").value;
+
+  if (newPass) {
+    if (newPass.length < 6) {
+      showToast("New password must be at least 6 characters long.", "error");
+      return;
+    }
+    if (newPass !== confirmPass) {
+      showToast("Passwords do not match. Please verify.", "error");
+      return;
+    }
+  }
+
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.uid === currentUser.uid || (u.email && u.email.toLowerCase() === currentUser.email.toLowerCase()));
+  if (idx !== -1) {
+    users[idx].displayName = name;
+    users[idx].mobileNumber = mobile;
+    users[idx].country = country;
+    if (currentUser.role === "student") {
+      if (currentUser.educationLevel === "school") {
+        users[idx].schoolName = org;
+        users[idx].gradeYear = subVal;
+      } else {
+        users[idx].universityName = org;
+        users[idx].major = subVal;
+      }
+    } else if (currentUser.role === "teacher") {
+      users[idx].organization = org;
+      users[idx].jobTitle = subVal;
+    } else {
+      users[idx].organization = org;
+      users[idx].title = subVal;
+    }
+    if (newPass) {
+      users[idx].password = newPass;
+    }
+    saveStoredUsers(users);
+
+    currentUser = { ...users[idx] };
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+  }
+
+  updateNavAuthUI();
+  closeAllModals();
+  showToast("Profile & password updated successfully!", "success");
+}
+
+// =============================================================================
+// First-Time Student Login: Complete Profile Workflow
+// =============================================================================
+function openCompleteProfileModal() {
+  if (!currentUser) return;
+  closeAllModals();
+  const modal = document.getElementById("complete-profile-modal");
+  if (!modal) return;
+
+  const nameInput = document.getElementById("complete-student-name");
+  if (nameInput) nameInput.value = currentUser.displayName || "";
+
+  const emailInput = document.getElementById("complete-student-email");
+  if (emailInput) emailInput.value = currentUser.email || "";
+
+  const countryInput = document.getElementById("reg-complete-country");
+  if (countryInput) countryInput.value = currentUser.country || "";
+
+  const mobileInput = document.getElementById("reg-complete-mobile");
+  if (mobileInput) mobileInput.value = currentUser.mobileNumber || "";
+
+  const eduSelect = document.getElementById("complete-edu-level");
+  if (eduSelect) {
+    eduSelect.value = currentUser.educationLevel || "university";
+    toggleCompleteEduSubfields();
+  }
+
+  const welcomeMsg = document.getElementById("complete-profile-welcome-msg");
+  if (welcomeMsg) {
+    const teacherName = currentUser.assignedTeacherName || "Eng. M. Salameh";
+    welcomeMsg.innerHTML = `Welcome to RoboSkillsClub, <strong>${currentUser.displayName}</strong>! You were enrolled by <strong>${teacherName}</strong>. Please complete your profile details and set your personal password before entering the classroom.`;
+  }
+
+  modal.classList.add("active");
+}
+
+function toggleCompleteEduSubfields() {
+  const select = document.getElementById("complete-edu-level");
+  if (!select) return;
+  const level = select.value;
+  const uniDiv = document.getElementById("complete-uni-fields");
+  const schoolDiv = document.getElementById("complete-school-fields");
+  if (uniDiv) uniDiv.style.display = level === "university" ? "block" : "none";
+  if (schoolDiv) schoolDiv.style.display = level === "school" ? "block" : "none";
+}
+
+function handleCompleteProfile(event) {
+  event.preventDefault();
+  if (!currentUser) return;
+
+  const name = document.getElementById("complete-student-name").value.trim();
+  const country = document.getElementById("reg-complete-country").value.trim();
+  const mobile = document.getElementById("reg-complete-mobile").value.trim();
+  const eduLevel = document.getElementById("complete-edu-level").value;
+  const password = document.getElementById("complete-password").value;
+  const confirm = document.getElementById("complete-password-confirm").value;
+
+  if (password.length < 6) {
+    showToast("Password must be at least 6 characters long.", "error");
+    return;
+  }
+  if (password !== confirm) {
+    showToast("Passwords do not match.", "error");
+    return;
+  }
+
+  let schoolName = "";
+  let gradeYear = "";
+  let universityName = "";
+  let degreeLevel = "";
+  let major = "";
+
+  if (eduLevel === "school") {
+    schoolName = document.getElementById("complete-school-name").value.trim();
+    gradeYear = document.getElementById("complete-school-grade").value.trim();
+  } else {
+    universityName = document.getElementById("complete-uni-name").value.trim();
+    degreeLevel = document.getElementById("complete-uni-degree").value;
+    major = document.getElementById("complete-uni-major").value.trim();
+  }
+
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.uid === currentUser.uid || (u.email && u.email.toLowerCase() === currentUser.email.toLowerCase()));
+  if (idx !== -1) {
+    users[idx].displayName = name;
+    users[idx].country = country;
+    users[idx].mobileNumber = mobile;
+    users[idx].educationLevel = eduLevel;
+    users[idx].schoolName = schoolName;
+    users[idx].gradeYear = gradeYear;
+    users[idx].universityName = universityName;
+    users[idx].degreeLevel = degreeLevel;
+    users[idx].major = major;
+    users[idx].password = password;
+    users[idx].profileCompleted = true;
+    users[idx].needsProfileCompletion = false;
+    saveStoredUsers(users);
+
+    currentUser = { ...users[idx] };
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+  }
+
+  updateNavAuthUI();
+  closeAllModals();
+  showToast("Profile completed successfully! Welcome to the classroom.", "success");
+  showStudentPortal();
+}
+
+// =============================================================================
+// Teacher Adding Students Directly
+// =============================================================================
+function openTeacherAddStudentModal() {
+  closeAllModals();
+  const modal = document.getElementById("teacher-add-student-modal");
+  if (!modal) return;
+  document.getElementById("teacher-add-name").value = "";
+  document.getElementById("teacher-add-email").value = "";
+  document.getElementById("teacher-add-password").value = "Student@123";
+  modal.classList.add("active");
+}
+
+function handleTeacherAddStudent(event) {
+  event.preventDefault();
+  const name = document.getElementById("teacher-add-name").value.trim();
+  const email = document.getElementById("teacher-add-email").value.trim().toLowerCase();
+  const password = document.getElementById("teacher-add-password").value.trim() || "Student@123";
+  const courseId = document.getElementById("teacher-add-course").value;
+
+  const users = getStoredUsers();
+  const existingIdx = users.findIndex(u => (u.email || "").toLowerCase() === email);
+
+  if (existingIdx !== -1) {
+    const existing = users[existingIdx];
+    if (!existing.enrolledCourseIds) existing.enrolledCourseIds = [];
+    if (!existing.enrolledCourseIds.includes(courseId)) {
+      existing.enrolledCourseIds.push(courseId);
+    }
+    existing.assignedTeacherId = currentUser ? currentUser.uid : "teacher_salameh";
+    existing.assignedTeacherName = currentUser ? currentUser.displayName : "Eng. M. Salameh";
+    saveStoredUsers(users);
+    showToast(`Existing student ${existing.displayName} enrolled in course!`, "success");
+  } else {
+    const newStudent = {
+      uid: "student_" + Date.now(),
+      displayName: name,
+      email: email,
+      password: password,
+      role: "student",
+      status: "approved",
+      needsProfileCompletion: true,
+      profileCompleted: false,
+      country: "",
+      mobileNumber: "",
+      educationLevel: "school",
+      schoolName: "",
+      gradeYear: "",
+      universityName: "",
+      major: "",
+      degreeLevel: "",
+      enrolledCourseIds: [courseId],
+      assignedTeacherId: currentUser ? currentUser.uid : "teacher_salameh",
+      assignedTeacherName: currentUser ? currentUser.displayName : "Eng. M. Salameh",
+      progress: 0,
+      submissions: 0,
+      score: null,
+      createdAt: new Date().toISOString()
+    };
+    users.push(newStudent);
+    saveStoredUsers(users);
+    showToast(`Student ${name} enrolled! First time they sign in with ${email}, they will be prompted to complete their profile.`, "success");
+  }
+
+  closeAllModals();
+  renderTeacherRoster();
+  renderTeacherDashboard();
+}
+
+function teacherAddStudent() {
+  openTeacherAddStudentModal();
+}
+
+// =============================================================================
+// Admin Oversight & Full User Directory Editing (View & Edit ANY User)
+// =============================================================================
+let adminCurrentFilterRole = "all";
+let adminSearchQuery = "";
+
+function switchAdminTab(tabName) {
+  document.querySelectorAll(".admin-tab-pane").forEach(p => p.style.display = "none");
+  document.querySelectorAll("#admin-modal .teacher-tab-btn").forEach(b => b.classList.remove("active"));
+  
+  const pane = document.getElementById(`admintab-pane-${tabName}`);
+  const btn = document.getElementById(`btn-admintab-${tabName}`);
+  if (pane) pane.style.display = "block";
+  if (btn) btn.classList.add("active");
+
+  if (tabName === "users") renderAdminUserDirectory();
+  if (tabName === "approvals") renderAdminApprovals();
+}
+
+function filterAdminUserRole(role) {
+  adminCurrentFilterRole = role;
+  ["all", "student", "teacher", "admin"].forEach(r => {
+    const btn = document.getElementById(`admin-filter-${r}`);
+    if (btn) btn.classList.toggle("active", r === role);
+  });
+  renderAdminUserDirectory();
+}
+
+function filterAdminUserDirectory() {
+  const input = document.getElementById("admin-user-search");
+  adminSearchQuery = (input ? input.value : "").trim().toLowerCase();
+  renderAdminUserDirectory();
+}
+
+function renderAdminOversight() {
+  const users = getStoredUsers();
+  const students = users.filter(u => u.role === "student");
+  const teachers = users.filter(u => u.role === "teacher");
+  const pending = users.filter(u => u.status === "pending");
+
+  const statTotal = document.getElementById("admin-stat-total");
+  const statStudents = document.getElementById("admin-stat-students");
+  const statTeachers = document.getElementById("admin-stat-teachers");
+  const statPending = document.getElementById("admin-stat-pending");
+  const tabPendingBadge = document.getElementById("admin-tab-pending-count");
+
+  if (statTotal) statTotal.textContent = users.length;
+  if (statStudents) statStudents.textContent = students.length;
+  if (statTeachers) statTeachers.textContent = teachers.length;
+  if (statPending) statPending.textContent = pending.length;
+  if (tabPendingBadge) tabPendingBadge.textContent = pending.length;
+
+  renderAdminUserDirectory();
+  renderAdminApprovals();
+}
+
+function renderAdminUserDirectory() {
+  const container = document.getElementById("admin-users-table-container");
+  if (!container) return;
+
+  const users = getStoredUsers();
+  const filtered = users.filter(u => {
+    if (adminCurrentFilterRole !== "all" && u.role !== adminCurrentFilterRole) return false;
+    if (adminSearchQuery) {
+      const q = adminSearchQuery;
+      const matchName = (u.displayName || "").toLowerCase().includes(q);
+      const matchEmail = (u.email || "").toLowerCase().includes(q);
+      const matchRole = (u.role || "").toLowerCase().includes(q);
+      const matchCountry = (u.country || "").toLowerCase().includes(q);
+      return matchName || matchEmail || matchRole || matchCountry;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="padding:2.5rem; text-align:center; color:var(--text-dim);">No user accounts matching query.</div>`;
+    return;
+  }
+
+  let html = `
+    <table class="pinout-table" style="margin:0;">
+      <thead>
+        <tr>
+          <th>User / Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Country / Mobile</th>
+          <th>Institution / Org</th>
+          <th>Profile Status</th>
+          <th>Admin Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  filtered.forEach(u => {
+    const rolePillClass = `role-${(u.role || 'student').replace('_', '-')}`;
+    const statusPillClass = u.status === 'approved' ? 'role-admin' : u.status === 'pending' ? 'role-teacher' : 'role-student';
+    const profileCompletedTag = u.profileCompleted ? 
+      `<span style="color:var(--progress-success); font-weight:700;">✔ Completed</span>` : 
+      `<span style="color:var(--cta-amber); font-weight:700;">⚠️ Incomplete</span>`;
+
+    html += `
+      <tr>
+        <td>
+          <strong style="color:var(--brand-primary);">${u.displayName || 'No Name'}</strong>
+          <div style="font-size:0.75rem; color:var(--text-dim); font-family:var(--font-code);">${u.email}</div>
+        </td>
+        <td><span class="role-pill ${rolePillClass}">${(u.role || '').toUpperCase()}</span></td>
+        <td><span class="role-pill ${statusPillClass}">${(u.status || '').toUpperCase()}</span></td>
+        <td>
+          <div style="font-size:0.8rem;">${u.country || 'N/A'}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${u.mobileNumber || ''}</div>
+        </td>
+        <td><div style="font-size:0.8rem;">${u.organization || u.universityName || u.schoolName || '—'}</div></td>
+        <td><div style="font-size:0.75rem;">${profileCompletedTag}</div></td>
+        <td>
+          <div style="display:flex; gap:0.35rem;">
+            <button class="btn btn-outline btn-sm" onclick="openAdminEditUserModal('${u.uid}')">Edit User</button>
+            ${u.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="adminApproveUser('${u.uid}')">Approve</button>` : ''}
+            <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${u.uid}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function openAdminEditUserModal(uid) {
+  const users = getStoredUsers();
+  const user = users.find(u => u.uid === uid);
+  if (!user) return;
+
+  closeAllModals();
+  const modal = document.getElementById("admin-edit-user-modal");
+  if (!modal) return;
+
+  document.getElementById("admin-edit-uid").value = user.uid;
+  document.getElementById("admin-edit-name").value = user.displayName || "";
+  document.getElementById("admin-edit-email").value = user.email || "";
+  document.getElementById("admin-edit-role").value = user.role || "student";
+  document.getElementById("admin-edit-status").value = user.status || "approved";
+  document.getElementById("reg-admin-edit-country").value = user.country || "";
+  document.getElementById("reg-admin-edit-mobile").value = user.mobileNumber || "";
+  document.getElementById("admin-edit-org").value = user.organization || user.universityName || user.schoolName || "";
+  document.getElementById("admin-edit-subfield").value = user.jobTitle || user.major || user.gradeYear || user.title || "";
+  document.getElementById("admin-edit-max-students").value = user.maxStudents || 35;
+  document.getElementById("admin-edit-password").value = "";
+  document.getElementById("admin-edit-profile-completed").checked = !!user.profileCompleted;
+
+  modal.classList.add("active");
+}
+
+function handleAdminSaveUser(event) {
+  event.preventDefault();
+  const uid = document.getElementById("admin-edit-uid").value;
+  const users = getStoredUsers();
+  const idx = users.findIndex(u => u.uid === uid);
+  if (idx === -1) return;
+
+  const name = document.getElementById("admin-edit-name").value.trim();
+  const email = document.getElementById("admin-edit-email").value.trim();
+  const role = document.getElementById("admin-edit-role").value;
+  const status = document.getElementById("admin-edit-status").value;
+  const country = document.getElementById("reg-admin-edit-country").value.trim();
+  const mobile = document.getElementById("reg-admin-edit-mobile").value.trim();
+  const org = document.getElementById("admin-edit-org").value.trim();
+  const subfield = document.getElementById("admin-edit-subfield").value.trim();
+  const maxStudents = parseInt(document.getElementById("admin-edit-max-students").value, 10) || 35;
+  const newPass = document.getElementById("admin-edit-password").value.trim();
+  const isProfileCompleted = document.getElementById("admin-edit-profile-completed").checked;
+
+  users[idx].displayName = name;
+  users[idx].email = email;
+  users[idx].role = role;
+  users[idx].status = status;
+  users[idx].country = country;
+  users[idx].mobileNumber = mobile;
+  users[idx].organization = org;
+  users[idx].jobTitle = subfield;
+  users[idx].major = subfield;
+  users[idx].maxStudents = maxStudents;
+  users[idx].profileCompleted = isProfileCompleted;
+  users[idx].needsProfileCompletion = !isProfileCompleted;
+
+  if (newPass) {
+    users[idx].password = newPass;
+  }
+
+  saveStoredUsers(users);
+
+  if (currentUser && currentUser.uid === uid) {
+    currentUser = { ...users[idx] };
+    localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+    updateNavAuthUI();
+  }
+
+  closeAllModals();
+  openAdminConsole();
+  showToast(`Account for ${name} (${email}) updated successfully!`, "success");
+}
+
+function adminDeleteUser(uid) {
+  const users = getStoredUsers();
+  const user = users.find(u => u.uid === uid);
+  if (!user) return;
+
+  if (confirm(`Are you sure you want to delete user account: ${user.displayName} (${user.email})?`)) {
+    const updated = users.filter(u => u.uid !== uid);
+    saveStoredUsers(updated);
+    renderAdminOversight();
+    renderTeacherRoster();
+    showToast(`User ${user.displayName} deleted.`, "info");
+  }
+}
+
+function adminDeleteUserFromModal() {
+  const uid = document.getElementById("admin-edit-uid").value;
+  if (uid) {
+    adminDeleteUser(uid);
+    closeAllModals();
+    openAdminConsole();
+  }
+}
+
+function openAdminAddUserModal() {
+  closeAllModals();
+  const modal = document.getElementById("admin-add-user-modal");
+  if (!modal) return;
+  document.getElementById("admin-new-name").value = "";
+  document.getElementById("admin-new-email").value = "";
+  document.getElementById("admin-new-password").value = "User@123";
+  document.getElementById("reg-admin-add-country").value = "";
+  document.getElementById("reg-admin-add-mobile").value = "";
+  document.getElementById("admin-new-org").value = "";
+  modal.classList.add("active");
+}
+
+function handleAdminAddUser(event) {
+  event.preventDefault();
+  const name = document.getElementById("admin-new-name").value.trim();
+  const email = document.getElementById("admin-new-email").value.trim().toLowerCase();
+  const password = document.getElementById("admin-new-password").value.trim() || "User@123";
+  const role = document.getElementById("admin-new-role").value;
+  const country = document.getElementById("reg-admin-add-country").value.trim();
+  const mobile = document.getElementById("reg-admin-add-mobile").value.trim();
+  const org = document.getElementById("admin-new-org").value.trim();
+
+  const users = getStoredUsers();
+  if (users.some(u => (u.email || "").toLowerCase() === email)) {
+    showToast("A user with this email already exists.", "error");
+    return;
+  }
+
+  const newUser = {
+    uid: `${role}_` + Date.now(),
+    displayName: name,
+    email: email,
+    password: password,
+    role: role,
+    status: "approved",
+    country: country,
+    mobileNumber: mobile,
+    organization: org,
+    profileCompleted: true,
+    needsProfileCompletion: false,
+    createdAt: new Date().toISOString()
+  };
+  users.push(newUser);
+  saveStoredUsers(users);
+
+  closeAllModals();
+  openAdminConsole();
+  showToast(`Account for ${name} (${role.toUpperCase()}) created successfully!`, "success");
+}
+
+function adminApproveUser(uid) {
+  const users = getStoredUsers();
+  const user = users.find(u => u.uid === uid);
+  if (!user) return;
+
+  user.status = "approved";
+  saveStoredUsers(users);
+  renderAdminOversight();
+  showToast(`Approved registration for ${user.displayName} (${user.role.toUpperCase()})!`, "success");
+}
+
+function renderAdminApprovals() {
+  const container = document.getElementById("admin-approvals-list");
+  if (!container) return;
+
+  const users = getStoredUsers();
+  const pending = users.filter(u => u.status === "pending");
+
+  if (pending.length === 0) {
+    container.innerHTML = `
+      <div style="background:var(--bg-primary); border:1px dashed var(--border-color); border-radius:var(--radius-md); padding:1.5rem; text-align:center; color:var(--text-dim);">
+        ✔ No pending registrations. All student and teacher accounts are up to date.
+      </div>
+    `;
+    return;
+  }
+
+  let html = "";
+  pending.forEach(u => {
+    html += `
+      <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <strong>${u.displayName}</strong>
+            <span class="role-pill role-${u.role}">${u.role.toUpperCase()}</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);">${u.country || ''}</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+            ${u.email} · ${u.mobileNumber || ''} · ${u.organization || u.universityName || u.schoolName || ''}
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-primary btn-sm" onclick="adminApproveUser('${u.uid}')">Approve</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--text-danger);" onclick="adminDeleteUser('${u.uid}')">Reject</button>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
 }
