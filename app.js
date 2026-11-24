@@ -1776,8 +1776,122 @@ function getStoredUsers() {
   return users;
 }
 
+// =============================================================================
+// Cloud Database Synchronization (Multi-Laptop / Multi-Device Cross-Sync)
+// =============================================================================
+function sanitizeUserForCloud(u) {
+  if (!u) return null;
+  const allowed = [
+    'uid', 'username', 'email', 'password', 'displayName', 'mobileNumber', 'country', 'role', 'status',
+    'title', 'createdAt', 'updatedAt',
+    'organization', 'jobTitle', 'maxStudents', 'approvedBy', 'assignedCourseIds',
+    'educationLevel', 'schoolName', 'gradeYear', 'universityName', 'degreeLevel',
+    'major', 'enrolledCourseIds', 'assignedTeacherId', 'assignedTeacherName',
+    'institution', 'profileCompleted', 'needsProfileCompletion', 'progress', 'submissions'
+  ];
+  const clean = {
+    email: u.email || "user@roboskills.org",
+    displayName: u.displayName || "User",
+    role: u.role || "student",
+    status: u.status || "approved"
+  };
+  allowed.forEach(k => {
+    if (u[k] !== undefined && u[k] !== null) {
+      clean[k] = u[k];
+    }
+  });
+  if (!clean.createdAt) clean.createdAt = new Date().toISOString();
+  clean.updatedAt = new Date().toISOString();
+  return clean;
+}
+
+async function syncUserToCloud(userObj) {
+  if (!db || !isFirebaseOnline || !userObj || !userObj.uid) return;
+  try {
+    const cleanUser = sanitizeUserForCloud(userObj);
+    if (!cleanUser) return;
+    await db.collection("users").doc(userObj.uid).set(cleanUser, { merge: true });
+  } catch (err) {
+    console.warn("Notice syncing user to Cloud Firestore:", err.message || err);
+  }
+}
+
+function syncUsersDatabaseToCloud(usersArray) {
+  if (!db || !isFirebaseOnline || !Array.isArray(usersArray)) return;
+  usersArray.forEach(u => syncUserToCloud(u));
+}
+
+let isCloudSyncActive = false;
+
+function initCloudDatabaseSync() {
+  if (!db || !isFirebaseOnline) {
+    console.log("Firebase offline; running in local storage mode.");
+    return;
+  }
+  if (isCloudSyncActive) return;
+  isCloudSyncActive = true;
+
+  // Initial push of existing local users to cloud
+  const localExisting = getStoredUsers();
+  syncUsersDatabaseToCloud(localExisting);
+
+  // Real-time listener: any student/teacher added or approved on ANY laptop immediately syncs!
+  db.collection("users").onSnapshot((snapshot) => {
+    let cloudUsers = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data && data.uid) {
+        cloudUsers.push(data);
+      }
+    });
+
+    if (cloudUsers.length > 0) {
+      const localUsers = getStoredUsers();
+      let hasChanges = false;
+
+      cloudUsers.forEach(cu => {
+        const idx = localUsers.findIndex(lu => 
+          (lu.uid === cu.uid) || 
+          (lu.email && cu.email && lu.email.toLowerCase() === cu.email.toLowerCase())
+        );
+
+        if (idx === -1) {
+          localUsers.push(cu);
+          hasChanges = true;
+        } else {
+          localUsers[idx] = { ...localUsers[idx], ...cu };
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        localStorage.setItem("roboskills_users_db", JSON.stringify(localUsers));
+        if (currentUser) {
+          const fresh = localUsers.find(u => u.uid === currentUser.uid);
+          if (fresh) {
+            currentUser = fresh;
+            localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
+          }
+        }
+        if (typeof renderAdminOversight === "function") renderAdminOversight();
+        if (typeof renderTeacherPortal === "function" && currentUser && currentUser.role === "teacher") {
+          renderTeacherPortal();
+        }
+      }
+    }
+  }, (err) => {
+    console.warn("Real-time cloud database sync warning:", err);
+  });
+}
+
 function saveStoredUsers(users) {
-  localStorage.setItem("roboskills_users_db", JSON.stringify(users));
+  try {
+    localStorage.setItem("roboskills_users_db", JSON.stringify(users));
+  } catch (e) {
+    console.error("Local storage error:", e);
+  }
+  // Sync to Cloud Firestore for multi-device cross-laptop access
+  syncUsersDatabaseToCloud(users);
 }
 
 function initAuthSession() {
@@ -1789,6 +1903,9 @@ function initAuthSession() {
 
   // Initialize and seed users DB
   const users = getStoredUsers();
+
+  // Initialize real-time Cloud Database synchronization across laptops
+  initCloudDatabaseSync();
 
   // Restore user session
   const savedUser = localStorage.getItem("roboskills_user");
@@ -1895,7 +2012,7 @@ function updateNavAuthUI() {
   }
 }
 
-function handleUserSignIn(event) {
+async function handleUserSignIn(event) {
   if (event) {
     event.preventDefault();
     event.stopPropagation();
@@ -1949,6 +2066,33 @@ function handleUserSignIn(event) {
 
     return false;
   });
+
+  // If user not yet in this laptop's local cache, fetch from Cloud Firestore!
+  if (!user && db && isFirebaseOnline) {
+    try {
+      const snap = await db.collection("users").get();
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d) {
+          const dEmail = (d.email || "").toLowerCase().trim();
+          const dUser = (d.username || "").toLowerCase().trim();
+          const dName = (d.displayName || "").toLowerCase().trim();
+          const dUid = (d.uid || "").toLowerCase().trim();
+          if (dEmail === rawInput || dUser === rawInput || dName === rawInput || dUid === rawInput) {
+            user = d;
+          }
+          // Seed cloud user into this laptop's local storage
+          const localList = getStoredUsers();
+          if (!localList.some(u => u.uid === d.uid)) {
+            localList.push(d);
+            localStorage.setItem("roboskills_users_db", JSON.stringify(localList));
+          }
+        }
+      });
+    } catch (e) {
+      console.warn("Direct Firestore sign-in lookup notice:", e);
+    }
+  }
 
   // Fallback to in-memory default system accounts if not yet saved in localStorage
   if (!user) {
@@ -5206,6 +5350,11 @@ function adminDeleteUser(uid) {
   if (confirm(`Are you sure you want to delete user account: ${user.displayName} (${user.email})?`)) {
     const updated = users.filter(u => u.uid !== uid);
     saveStoredUsers(updated);
+
+    if (db && isFirebaseOnline) {
+      db.collection("users").doc(uid).delete().catch(e => console.warn(e));
+    }
+
     renderAdminOversight();
     renderTeacherRoster();
     showToast(`User ${user.displayName} deleted.`, "info");
