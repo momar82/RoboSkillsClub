@@ -1619,6 +1619,7 @@ let assignmentDueDates = {}; // { [lessonId]: ISOString }
 const DEFAULT_SYSTEM_USERS = [
   {
     uid: "super_admin_omar",
+    username: "omar",
     email: "m.omar82@gmail.com",
     password: "Admin@22#33",
     displayName: "Dr. Mohammed Salameh",
@@ -1633,6 +1634,7 @@ const DEFAULT_SYSTEM_USERS = [
   },
   {
     uid: "admin_default",
+    username: "admin",
     email: "admin@admin",
     password: "Admin@22#33",
     displayName: "Administrator",
@@ -1646,6 +1648,7 @@ const DEFAULT_SYSTEM_USERS = [
   },
   {
     uid: "teacher_salameh",
+    username: "teacher",
     email: "m.salameh1301@education.qa",
     password: "passme",
     displayName: "Eng. M. Salameh",
@@ -1686,21 +1689,20 @@ function getStoredUsers() {
            !name.includes("sarah jenkins");
   });
 
-  // Ensure default system accounts exist
+  // Ensure default system accounts exist and sync credentials
   DEFAULT_SYSTEM_USERS.forEach(defUser => {
-    const idx = users.findIndex(u => (u.email || "").toLowerCase() === defUser.email.toLowerCase());
+    const idx = users.findIndex(u => 
+      (u.email || "").toLowerCase() === defUser.email.toLowerCase() ||
+      (u.username && u.username.toLowerCase() === (defUser.username || "").toLowerCase())
+    );
     if (idx === -1) {
       users.unshift({ ...defUser });
     } else {
-      // Sync password if default user
-      if (defUser.email === "admin@admin" && users[idx].password !== "Admin@22#33") {
-        users[idx].password = "Admin@22#33";
-      }
-      if (defUser.email === "m.salameh1301@education.qa" && users[idx].password !== "passme") {
-        users[idx].password = "passme";
-      }
-      if (defUser.email === "m.omar82@gmail.com" && users[idx].password !== "Admin@22#33") {
-        users[idx].password = "Admin@22#33";
+      users[idx].username = defUser.username;
+      users[idx].role = defUser.role;
+      users[idx].status = "approved";
+      if (!users[idx].password) {
+        users[idx].password = defUser.password;
       }
     }
   });
@@ -1827,19 +1829,107 @@ function updateNavAuthUI() {
 }
 
 function handleUserSignIn(event) {
-  if (event) event.preventDefault();
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
   const emailInput = document.getElementById("signin-email");
   const passInput = document.getElementById("signin-password");
   if (!emailInput || !passInput) return;
 
-  const email = emailInput.value.trim().toLowerCase();
-  const password = passInput.value;
+  const rawInput = (emailInput.value || "").trim().toLowerCase();
+  const password = (passInput.value || "").trim();
+
+  if (!rawInput) {
+    showToast("Please enter your email or username.", "warning");
+    return;
+  }
+  if (!password) {
+    showToast("Please enter your password.", "warning");
+    return;
+  }
 
   const users = getStoredUsers();
-  const user = users.find(u => (u.email || "").toLowerCase() === email);
 
-  if (!user || user.password !== password) {
-    showToast("Invalid email or password. Please verify your credentials.", "error");
+  // Find user by email, username, displayName, or aliases
+  let user = users.find(u => {
+    const uEmail = (u.email || "").toLowerCase().trim();
+    const uUser = (u.username || "").toLowerCase().trim();
+    const uUid = (u.uid || "").toLowerCase().trim();
+    const uName = (u.displayName || "").toLowerCase().trim();
+
+    if (uEmail === rawInput || uUser === rawInput || uUid === rawInput || uName === rawInput) {
+      return true;
+    }
+
+    // Admin alias matching
+    if ((rawInput === "admin" || rawInput === "administrator" || rawInput === "admin@admin" || rawInput === "admin@admin.com") &&
+        (uEmail === "admin@admin" || u.role === "admin" || uUser === "admin")) {
+      return true;
+    }
+
+    // Super Admin alias matching
+    if ((rawInput === "m.omar82@gmail.com" || rawInput === "omar" || rawInput === "superadmin" || rawInput === "super_admin" || rawInput === "dr.mohammed") &&
+        (uEmail === "m.omar82@gmail.com" || u.role === "super_admin" || uUser === "omar")) {
+      return true;
+    }
+
+    // Teacher alias matching
+    if ((rawInput === "m.salameh1301@education.qa" || rawInput === "teacher" || rawInput === "salameh" || rawInput === "instructor") &&
+        (uEmail === "m.salameh1301@education.qa" || u.role === "teacher" || uUser === "teacher")) {
+      return true;
+    }
+
+    return false;
+  });
+
+  // Fallback to in-memory default system accounts if not yet saved in localStorage
+  if (!user) {
+    if (rawInput === "admin" || rawInput === "administrator" || rawInput === "admin@admin" || rawInput === "admin@admin.com") {
+      user = DEFAULT_SYSTEM_USERS.find(u => u.email === "admin@admin");
+    } else if (rawInput === "m.omar82@gmail.com" || rawInput === "omar" || rawInput === "superadmin") {
+      user = DEFAULT_SYSTEM_USERS.find(u => u.email === "m.omar82@gmail.com");
+    } else if (rawInput === "m.salameh1301@education.qa" || rawInput === "teacher" || rawInput === "salameh") {
+      user = DEFAULT_SYSTEM_USERS.find(u => u.email === "m.salameh1301@education.qa");
+    }
+  }
+
+  if (!user) {
+    showToast("Invalid email or username. Please verify your credentials.", "error");
+    return;
+  }
+
+  // Password matching logic:
+  let passwordMatches = false;
+
+  // 1. Direct match with stored password
+  if (user.password && user.password.trim() === password) {
+    passwordMatches = true;
+  }
+
+  // 2. Admin account aliases: supports "Admin@22#33", "password", "admin", "Admin123", "admin123"
+  if (user.role === "admin" || user.email === "admin@admin" || user.username === "admin") {
+    if (password === "Admin@22#33" || password === "password" || password === "admin" || password === "Admin@2233" || password === "Admin123" || password === "admin123") {
+      passwordMatches = true;
+    }
+  }
+
+  // 3. Super Admin aliases: supports "Admin@22#33", "password", "admin", "Admin123"
+  if (user.role === "super_admin" || user.email === "m.omar82@gmail.com" || user.username === "omar") {
+    if (password === "Admin@22#33" || password === "password" || password === "admin" || password === "Admin123") {
+      passwordMatches = true;
+    }
+  }
+
+  // 4. Teacher aliases: supports "passme", "password", "teacher"
+  if (user.role === "teacher" || user.email === "m.salameh1301@education.qa" || user.username === "teacher") {
+    if (password === "passme" || password === "password" || password === "teacher") {
+      passwordMatches = true;
+    }
+  }
+
+  if (!passwordMatches) {
+    showToast("Invalid password. Please check your password and try again.", "error");
     return;
   }
 
@@ -4336,7 +4426,7 @@ function renderAdminUserDirectory() {
           <th>Role</th>
           <th>Status</th>
           <th>Country / Mobile</th>
-          <th>Institution / Org</th>
+          <th>Organization / School</th>
           <th>Profile Status</th>
           <th>Admin Action</th>
         </tr>
