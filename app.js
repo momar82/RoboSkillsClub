@@ -1946,9 +1946,23 @@ function handleUserSignIn(event) {
   currentUser = { ...user };
   currentRole = user.role;
   localStorage.setItem("roboskills_user", JSON.stringify(currentUser));
-  updateNavAuthUI();
-  loadUserProgress();
+
+  // Explicitly close sign-in modal immediately so it never gets stuck
   closeAllModals();
+  const signinModal = document.getElementById("signin-modal");
+  if (signinModal) signinModal.classList.remove("active");
+
+  try {
+    updateNavAuthUI();
+  } catch (e) {
+    console.error("Error updating nav auth UI:", e);
+  }
+
+  try {
+    loadUserProgress();
+  } catch (e) {
+    console.error("Error loading user progress:", e);
+  }
 
   showToast(`Welcome back, ${user.displayName}!`, "success");
 
@@ -1958,12 +1972,16 @@ function handleUserSignIn(event) {
       openCompleteProfileModal();
     }, 350);
   } else {
-    if (user.role === "student") {
-      showStudentPortal();
-    } else if (user.role === "teacher") {
-      showTeacherPortal();
-    } else if (user.role === "admin" || user.role === "super_admin") {
-      openAdminConsole();
+    try {
+      if (user.role === "student") {
+        showStudentPortal();
+      } else if (user.role === "teacher") {
+        showTeacherPortal();
+      } else if (user.role === "admin" || user.role === "super_admin") {
+        openAdminConsole();
+      }
+    } catch (e) {
+      console.error("Error opening portal for role:", user.role, e);
     }
   }
 }
@@ -3717,10 +3735,28 @@ function renderTeacherPortal() {
     welcome.textContent = `Instructor Desk · ${currentUser.displayName}`;
   }
 
-  const pendingCount = teacherSubmissions.filter(s => s.status === "Pending Review").length;
+  const users = getStoredUsers();
+  const students = users.filter(u => {
+    if (u.role !== "student") return false;
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
+    return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
+  });
+
+  const submissions = getStoredSubmissions();
+  const pendingCount = submissions.filter(s => s.status === "Pending Review").length;
+  const gradedSubs = submissions.filter(s => s.status === "Graded" && s.score !== null && !isNaN(s.score));
+  const avgScore = gradedSubs.length > 0
+    ? (gradedSubs.reduce((acc, curr) => acc + curr.score, 0) / gradedSubs.length).toFixed(1)
+    : "—";
+
+  const statStudents = document.getElementById("teacher-stat-students");
   const pendingEl = document.getElementById("teacher-stat-pending");
+  const statAvg = document.getElementById("teacher-stat-avg-score");
   const badgeEl = document.getElementById("teacher-marking-badge");
+
+  if (statStudents) statStudents.textContent = `${students.length} Active`;
   if (pendingEl) pendingEl.textContent = `${pendingCount} Pending`;
+  if (statAvg) statAvg.textContent = avgScore === "—" ? "— (No grades yet)" : `${avgScore} / 100`;
   if (badgeEl) badgeEl.textContent = pendingCount;
 
   renderTeacherCourses();
@@ -3744,12 +3780,19 @@ function renderTeacherCourses() {
   const container = document.getElementById("teacher-assigned-courses-list");
   if (!container) return;
 
+  const users = getStoredUsers();
+  const students = users.filter(u => {
+    if (u.role !== "student") return false;
+    if (currentUser && (currentUser.role === "admin" || currentUser.role === "super_admin")) return true;
+    return u.assignedTeacherId === (currentUser ? currentUser.uid : "teacher_salameh") || !u.assignedTeacherId;
+  });
+
   container.innerHTML = `
     <div class="enrolled-card">
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <span class="role-pill role-teacher">Assigned Teaching Track</span>
-          <span class="role-pill role-student">18 Active Students</span>
+          <span class="role-pill role-student">${students.length} Active Students</span>
         </div>
         <h3 style="font-size:1.35rem; color:var(--text-heading); margin-bottom:0.4rem;">${currentCourse.title}</h3>
         <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">

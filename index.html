@@ -162,15 +162,15 @@
         </div>
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Enrolled Students</div>
-          <div class="stat-value" style="color:var(--tech-accent);" id="teacher-stat-students">18 Active</div>
+          <div class="stat-value" style="color:var(--tech-accent);" id="teacher-stat-students">0 Active</div>
         </div>
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Submissions to Grade</div>
-          <div class="stat-value" style="color:var(--cta-amber);" id="teacher-stat-pending">3 Pending</div>
+          <div class="stat-value" style="color:var(--cta-amber);" id="teacher-stat-pending">0 Pending</div>
         </div>
         <div class="telemetry-stat" style="background:#FFFFFF; border:1px solid #E2E8F0; padding:1.25rem; border-radius:var(--radius-lg);">
           <div class="stat-label">Average Class Score</div>
-          <div class="stat-value" style="color:var(--progress-success);">91.8 / 100</div>
+          <div class="stat-value" style="color:var(--progress-success);" id="teacher-stat-avg-score">—</div>
         </div>
       </div>
 
@@ -178,7 +178,7 @@
       <div class="lesson-tabs" style="margin-bottom:1.5rem;">
         <button id="btn-teach-tab-courses" class="tab-btn active" onclick="switchTeacherPortalTab('courses')">📚 Courses I Teach</button>
         <button id="btn-teach-tab-roster" class="tab-btn" onclick="switchTeacherPortalTab('roster')">👥 Student Progress &amp; Roster</button>
-        <button id="btn-teach-tab-marking" class="tab-btn" onclick="switchTeacherPortalTab('marking')">📝 Assignment Marking Desk (<span id="teacher-marking-badge">3</span>)</button>
+        <button id="btn-teach-tab-marking" class="tab-btn" onclick="switchTeacherPortalTab('marking')">📝 Assignment Marking Desk (<span id="teacher-marking-badge">0</span>)</button>
         <button id="btn-teach-tab-feedback" class="tab-btn" onclick="switchTeacherPortalTab('feedback')">🔍 Course Material &amp; Lesson Feedback</button>
         <button id="btn-teach-tab-catalog" class="tab-btn" onclick="switchTeacherPortalTab('catalog')">🌐 Platform Course Catalog</button>
       </div>
@@ -1786,9 +1786,12 @@
           </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1.5rem;">
-          <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+          <button type="button" class="btn btn-outline" style="color:var(--text-danger); border-color:var(--text-danger);" onclick="closeAllModals(); signOutUser();">🚪 Sign Out</button>
+          <div style="display:flex; gap:0.75rem;">
+            <button type="button" class="btn btn-outline" onclick="closeAllModals()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+          </div>
         </div>
       </form>
     </div>
