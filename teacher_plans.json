@@ -458,7 +458,7 @@
     "objectives": [
       "Automate the flashing, networking, and provisioning of the Studica VMX-pi Ubuntu 22.04 environment.",
       "Deploy CycloneDDS routing XML configuration bound to static Ethernet IP 172.22.11.2.",
-      "Configure the unified systemd background service (qstss_robot.service) to prevent pigpio memory collisions."
+      "Configure the unified systemd background service (robot.service) to prevent pigpio memory collisions."
     ],
     "materials": [
       "Teacher laptop running Ubuntu 22.04 with ROS 2 Humble",
@@ -480,7 +480,7 @@
       {
         "time": "00:35 - 00:50",
         "title": "Service Validation & Hardware Daemon",
-        "activity": "Check systemctl status qstss_robot.service. Confirm pigpio single-daemon lock."
+        "activity": "Check systemctl status robot.service. Confirm pigpio single-daemon lock."
       },
       {
         "time": "00:50 - 01:00",
@@ -529,7 +529,7 @@
     "materials": [
       "Commissioned Studica AMR robot on wooden bench support blocks",
       "Fully charged 12V 3000mAh NiMH battery",
-      "Student laptop with test scripts in /home/qstss1/Documents/studica_amr_course/scripts"
+      "Student laptop with test scripts in Documents/studica_amr_course/scripts"
     ],
     "timeline": [
       {

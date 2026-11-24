@@ -33,7 +33,7 @@ class DigitalIOScanner(Node):
     def print_table(self):
         print("\033[H\033[J", end="") # Clear console
         print("=" * 55)
-        print("   QSTSS Studica AMR: Digital I/O Status Table")
+        print("   Studica AMR: Digital I/O Status Table")
         print("=" * 55)
         for ch, state in sorted(self.states.items()):
             symbol = "🟢 ON / HIGH" if state else "⚫ OFF / LOW"

@@ -36,7 +36,7 @@ class SensorRateAuditor(Node):
         dt = now - self.last_time
         print("\033[H\033[J", end="")
         print("=" * 50)
-        print("    QSTSS Studica AMR: Sensor Frequency Audit")
+        print("    Studica AMR: Sensor Frequency Audit")
         print("=" * 50)
         for k in self.counts:
             hz = self.counts[k] / dt

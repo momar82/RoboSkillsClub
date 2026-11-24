@@ -20,7 +20,7 @@ class WheelCalibrationNode(Node):
         self.meters_per_tick = self.wheel_circ / self.ticks_per_rev
 
         print("=" * 60)
-        print("  QSTSS Studica AMR: Wheel Kinematics Calibration")
+        print("  Studica AMR: Wheel Kinematics Calibration")
         print("=" * 60)
         print(f"Wheel Diameter:       {self.wheel_diameter_m * 1000:.1f} mm")
         print(f"Wheel Circumference:  {self.wheel_circ * 1000:.2f} mm")

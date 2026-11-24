@@ -12,7 +12,7 @@ ROBOT_IP = "172.22.11.2"
 
 def main():
     print("=" * 60)
-    print("  QSTSS Studica AMR: Lesson 06 Network Diagnostic Tool")
+    print("  Studica AMR: Lesson 06 Network Diagnostic Tool")
     print("=" * 60)
     
     # Check ping

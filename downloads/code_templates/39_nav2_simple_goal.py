@@ -13,7 +13,7 @@ def main():
     navigator = BasicNavigator()
 
     print("=" * 60)
-    print("  QSTSS Studica AMR: Nav2 Autonomous Waypoint Dispatcher")
+    print("  Studica AMR: Nav2 Autonomous Waypoint Dispatcher")
     print("=" * 60)
 
     # Define target goal pose
